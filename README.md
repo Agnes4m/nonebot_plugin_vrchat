@@ -1,0 +1,2 @@
+# nonebot_plugin_vrchat
+nonebot2插件，使用第三方api实现vrchat相关操作
