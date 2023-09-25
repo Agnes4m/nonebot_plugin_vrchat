@@ -1,0 +1,3 @@
+#LWP-Cookies-2.0
+Set-Cookie3: auth="authcookie_3196c661-92d3-47fd-9229-ef2905b7d353"; path="/"; domain="api.vrchat.cloud"; path_spec; expires="2023-10-02 07:53:30Z"; HttpOnly=None; SameSite=Lax; version=0
+Set-Cookie3: twoFactorAuth="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ1c3JfNTUyYzY1OGQtYWU3Yi00YjE1LWEzZjktYzVhMzcxMmZlOWJhIiwibWFjQWRkcmVzcyI6IiIsInRpbWVzdGFtcCI6MTY5NTYyODQxMDY3MiwidmVyc2lvbiI6MSwiaWF0IjoxNjk1NjI4NDEwLCJleHAiOjE2OTgyMjA0MTAsImF1ZCI6IlZSQ2hhdFR3b0ZhY3RvckF1dGgiLCJpc3MiOiJWUkNoYXQifQ.NDvatlWLaRIiDpoj04rV-2StwmI-77JslBHFNbWCHoQ"; path="/"; domain="api.vrchat.cloud"; path_spec; expires="2023-10-25 07:53:30Z"; HttpOnly=None; SameSite=Lax; version=0
