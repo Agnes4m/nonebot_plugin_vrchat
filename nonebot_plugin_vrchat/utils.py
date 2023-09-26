@@ -1,4 +1,5 @@
 import asyncio
+import json
 
 import vrchatapi
 from nonebot.log import logger
@@ -8,6 +9,9 @@ from vrchatapi.api import authentication_api
 from vrchatapi.exceptions import UnauthorizedException
 from vrchatapi.models.two_factor_auth_code import TwoFactorAuthCode
 from vrchatapi.models.two_factor_email_code import TwoFactorEmailCode
+
+from .classes import UsrMsg
+from .config import config
 
 # from .classes import TwoFactorAuthException
 # from .config import config
@@ -62,7 +66,19 @@ def login_vrc(
             current_user = auth_api.get_current_user()
             assert isinstance(current_user, vrchatapi.CurrentUser)
             logger.info(f"Logged in as: {current_user.display_name}")
-            save_cookies(api_client, filename=usr_id)
+            cookie = save_cookies(api_client, filename=usr_id)
+            if cookie is not None:
+                with config.vrc_path.joinpath(f"{usr_id}.json").open(
+                    mode="w", encoding="utf-8"
+                ) as f:
+                    json.dump(
+                        UsrMsg(
+                            username=username, password=password, cookie=cookie
+                        ).to_dict(),
+                        f,
+                        ensure_ascii=False,
+                    )
+                return cookie
         else:
             remove_cookies(filename=usr_id)
             logger.info(f"Exception when calling API: {e}")
@@ -79,15 +95,16 @@ async def login_in(
     username: str,
     password: str,
     code: str = "",
-) -> (int, str):
+):
     global api_client
 
     try:
-        login_vrc(usr_id, username, password, code)
+        cookie = login_vrc(usr_id, username, password, code)
     except TwoFactorAuthException:
         # await matcher.send("Resend `/login` command with verify code (or 2FA code)")
         print("Resend `/login` command with verify code (or 2FA code)")
-        return 401, "verify code (or 2FA code)"
+        msg: str = "verify code (or 2FA code)"
+        return 401, msg
     except Exception as e:
         # await matcher.send(f"Login failed with error: {e}")
         print(f"Login failed with error: {e}")
@@ -97,6 +114,14 @@ async def login_in(
     name: str = current_user.display_name
     # await matcher.send(f"Logged in as {name}")
     print(f"Logged in as {name}")
+    with config.vrc_path.joinpath(f"{usr_id}.json").open(
+        mode="w", encoding="utf-8"
+    ) as f:
+        json.dump(
+            UsrMsg(username=username, password=password, cookie=cookie).to_dict(),
+            f,
+            ensure_ascii=False,
+        )
     return 200, name
 
 

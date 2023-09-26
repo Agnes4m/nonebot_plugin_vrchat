@@ -1,18 +1,34 @@
 import asyncio
+import json
 from typing import Dict, List
 
 import vrchatapi
+from nonebot.log import logger
 
+from ..classes import UsrMsg
+from ..config import config
 from .cookies import load_cookies
 
 # from nonebot_plugin_vrchat.config import config
 
-api_client: vrchatapi.ApiClient = vrchatapi.ApiClient()
+# api_client: vrchatapi.ApiClient = vrchatapi.ApiClient()
 
 
 async def get_all_friends(usr_id: str) -> Dict[str, vrchatapi.LimitedUser]:
-    global api_client
-    load_cookies(api_client, filename=usr_id)
+    # global api_client
+    with config.vrc_path.joinpath(f"{usr_id}.json").open(
+        mode="r",
+        encoding="utf-8",
+    ) as f:
+        usr_msg: UsrMsg = json.load(f)
+    configuration = vrchatapi.Configuration(
+        username=usr_msg.username,
+        password=usr_msg.password,
+    )
+    configuration.api_key["authCookie"] = usr_msg.cookie
+
+    api_client: vrchatapi.ApiClient = vrchatapi.ApiClient(configuration)
+
     api_instance = vrchatapi.FriendsApi(api_client)
     friends: List[vrchatapi.LimitedUser] = []
     offset = 0
@@ -47,8 +63,18 @@ async def get_online_friends(usr_id: str):
     and send it via discord.
     """
 
-    global api_client
-    load_cookies(api_client, filename=usr_id)
+    with config.vrc_path.joinpath(f"{usr_id}.json").open(
+        mode="r",
+        encoding="utf-8",
+    ) as f:
+        usr_msg: UsrMsg = json.load(f)
+    configuration = vrchatapi.Configuration(
+        username=usr_msg.username,
+        password=usr_msg.password,
+    )
+    configuration.api_key["authCookie"] = usr_msg.cookie
+
+    api_client: vrchatapi.ApiClient = vrchatapi.ApiClient(configuration)
     try:
         api_instance = vrchatapi.FriendsApi(api_client)
         offset = 0
@@ -72,9 +98,12 @@ async def get_online_friends(usr_id: str):
             msg += f"{emoji} {f.display_name}\n"
         # await ctx.followup.send(discord.utils.escape_markdown(msg))
         print(msg)
+        if msg:
+            return msg
     except Exception as e:
         # await ctx.followup.send(f"get_online_friends failed with error: {e}")
-        print(e)
+        logger.info(e)
+        return str(e)
 
 
 friends: Dict[str, vrchatapi.LimitedUser]
