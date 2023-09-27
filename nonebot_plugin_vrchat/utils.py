@@ -98,6 +98,7 @@ async def login_in(
 ):
     global api_client
 
+    load_cookies(api_client, "./cookies.txt")
     try:
         cookie = login_vrc(usr_id, username, password, code)
     except TwoFactorAuthException:
@@ -111,6 +112,7 @@ async def login_in(
         return 500, str(e)
     auth_api = authentication_api.AuthenticationApi(api_client)
     current_user = auth_api.get_current_user()
+    save_cookies(api_client, "./cookies.txt")
     name: str = current_user.display_name
     # await matcher.send(f"Logged in as {name}")
     print(f"Logged in as {name}")
@@ -121,6 +123,7 @@ async def login_in(
             UsrMsg(username=username, password=password, cookie=cookie).to_dict(),
             f,
             ensure_ascii=False,
+            indent=4,
         )
     return 200, name
 
