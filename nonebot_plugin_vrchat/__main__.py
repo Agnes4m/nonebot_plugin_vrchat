@@ -8,10 +8,11 @@ from nonebot.typing import T_State
 # from nonebot_plugin_saa import Image, MessageFactory, MessageSegmentFactory, Text
 # from .config import config
 from .utils import login_in
-from .vrchat.friend import get_online_friends
+from .vrchat.friend import get_all_friends, get_online_friends
 
 login = on_command("vrcl", aliases={"vrc登录"}, priority=20)
-friend_request = on_command("vrcfr", aliases={"vrc在线好友"}, priority=20)
+friend_online = on_command("vrcol", aliases={"vrc在线好友"}, priority=20)
+friend_request = on_command("vrcrq", aliases={"vrc全部好友"}, priority=20)
 
 
 @login.handle()
@@ -76,7 +77,17 @@ async def _(
         matcher.receive("验证码错误,重新输入")
 
 
-@friend_request.handle()
+@friend_online.handle()
 async def _(event: Event, matcher: Matcher):
     msg = await get_online_friends(event.get_user_id())
-    await matcher.send(msg)
+    if msg:
+        await matcher.send(msg)
+    await matcher.send("当前没有在线好友捏")
+
+
+@friend_request.handle()
+async def _(event: Event, matcher: Matcher):
+    msg = await get_all_friends(event.get_user_id())
+    if msg:
+        await matcher.send(msg)
+    await matcher.send("当前没有在线好友捏")

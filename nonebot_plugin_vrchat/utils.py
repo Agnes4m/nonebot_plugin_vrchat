@@ -3,13 +3,14 @@ import json
 
 import vrchatapi
 from nonebot.log import logger
+from pathlib import Path
 
 # from vrchatapi import Configuration
 from vrchatapi.api import authentication_api
 from vrchatapi.exceptions import UnauthorizedException
 from vrchatapi.models.two_factor_auth_code import TwoFactorAuthCode
 from vrchatapi.models.two_factor_email_code import TwoFactorEmailCode
-
+from vrchatapi.models.current_user import CurrentUser
 from .classes import UsrMsg
 from .config import config
 
@@ -27,6 +28,7 @@ class TwoFactorAuthException(Exception):  # noqa: N818
 
 
 def login_vrc(
+    api_client: vrchatapi.ApiClient,
     usr_id: str,
     username: str,
     password: str,
@@ -35,13 +37,12 @@ def login_vrc(
     """
     使用账户密码登录vrc,如果有cookies则使用
     """
-    global api_client, friends
-    configuration = vrchatapi.Configuration(
-        username=username,
-        password=password,
-    )
-    api_client = vrchatapi.ApiClient(configuration)
-    api_client.user_agent = "VRC-Notify/0.1.0 woolensheep@qq.com"
+    # configuration = vrchatapi.Configuration(
+    #     username=username,
+    #     password=password,
+    # )
+    # api_client = vrchatapi.ApiClient(configuration)
+    # api_client.user_agent = "VRC-Notify/0.1.0 woolensheep@qq.com"
 
     load_cookies(api_client, filename=usr_id)
     # Instantiate instances of API classes
@@ -63,31 +64,46 @@ def login_vrc(
             elif "2 Factor Authentication" in e.reason:
                 # Calling verify2fa if the account has 2FA enabled
                 auth_api.verify2_fa(two_factor_auth_code=TwoFactorAuthCode(code))
-            current_user = auth_api.get_current_user()
-            assert isinstance(current_user, vrchatapi.CurrentUser)
-            logger.info(f"Logged in as: {current_user.display_name}")
-            cookie = save_cookies(api_client, filename=usr_id)
-            if cookie is not None:
-                with config.vrc_path.joinpath(f"{usr_id}.json").open(
-                    mode="w", encoding="utf-8"
-                ) as f:
-                    json.dump(
-                        UsrMsg(
-                            username=username, password=password, cookie=cookie
-                        ).to_dict(),
-                        f,
-                        ensure_ascii=False,
-                    )
-                return cookie
+            current_user: CurrentUser = auth_api.get_current_user()
+            save_cookies(api_client, "./cookies.txt")
+
+            # assert isinstance(current_user, vrchatapi.CurrentUser)
+            # logger.info(f"Logged in as: {current_user.display_name}")
+            # cookie = save_cookies(api_client, filename=usr_id)
+            # if cookie is not None:
+            #     with config.vrc_path.joinpath(f"{usr_id}.json").open(
+            #         mode="w", encoding="utf-8"
+            #     ) as f:
+            #         json.dump(
+            #             UsrMsg(
+            #                 username=username, password=password, cookie=cookie
+            #             ).to_dict(),
+            #             f,
+            #             ensure_ascii=False,
+            #         )
+            #     return cookie
         else:
             remove_cookies(filename=usr_id)
             logger.info(f"Exception when calling API: {e}")
+            return None
     except vrchatapi.ApiException as e:
         remove_cookies(filename=usr_id)
         logger.info(f"Exception when calling API: {e}")
+        return None
     except Exception as e:
         remove_cookies(filename=usr_id)
         logger.info(f"Exception when login: {e}")
+        return None
+
+    msg = vars(current_user)
+    print(type(msg), msg)
+    if code:
+        with config.vrc_path.joinpath(f"player/{usr_id}.json").open(
+            mode="w",
+            encoding="utf-8",
+        ) as f:
+            json.dump(msg, f, ensure_ascii=False, indent=4)
+    return current_user.display_name
 
 
 async def login_in(
@@ -96,11 +112,16 @@ async def login_in(
     password: str,
     code: str = "",
 ):
-    global api_client
+    configuration = vrchatapi.Configuration(
+        username=username,
+        password=password,
+    )
+    api_client = vrchatapi.ApiClient(configuration)
+    api_client.user_agent = "VRC-Notify/0.1.0 woolensheep@qq.com"
 
     load_cookies(api_client, "./cookies.txt")
     try:
-        cookie = login_vrc(usr_id, username, password, code)
+        cookie = login_vrc(api_client, usr_id, username, password, code)
     except TwoFactorAuthException:
         # await matcher.send("Resend `/login` command with verify code (or 2FA code)")
         print("Resend `/login` command with verify code (or 2FA code)")
@@ -116,15 +137,16 @@ async def login_in(
     name: str = current_user.display_name
     # await matcher.send(f"Logged in as {name}")
     print(f"Logged in as {name}")
-    with config.vrc_path.joinpath(f"{usr_id}.json").open(
-        mode="w", encoding="utf-8"
-    ) as f:
-        json.dump(
-            UsrMsg(username=username, password=password, cookie=cookie).to_dict(),
-            f,
-            ensure_ascii=False,
-            indent=4,
-        )
+    # with config.vrc_path.joinpath(f"{usr_id}.json").open(
+    #     mode="w",
+    #     encoding="utf-8",
+    # ) as f:
+    #     json.dump(
+    #         UsrMsg(username=username, password=password, cookie=cookie).to_dict(),
+    #         f,
+    #         ensure_ascii=False,
+    #         indent=4,
+    #     )
     return 200, name
 
 

@@ -11,4 +11,4 @@ class ConfigModel(BaseModel):
 
 
 config: ConfigModel = ConfigModel.parse_obj(get_driver().config.dict())
-config.vrc_path.mkdir(parents=True, exist_ok=True)
+config.vrc_path.joinpath("player").mkdir(parents=True, exist_ok=True)
