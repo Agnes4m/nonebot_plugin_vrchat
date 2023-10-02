@@ -6,7 +6,6 @@ from http.cookiejar import LWPCookieJar
 
 # from pathlib import Path
 import vrchatapi
-from nonebot.log import logger
 
 from ..config import config
 
