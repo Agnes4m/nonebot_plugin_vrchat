@@ -1,16 +1,17 @@
 import asyncio
 import json
+from pathlib import Path
 
 import vrchatapi
 from nonebot.log import logger
-from pathlib import Path
 
 # from vrchatapi import Configuration
 from vrchatapi.api import authentication_api
 from vrchatapi.exceptions import UnauthorizedException
+from vrchatapi.models.current_user import CurrentUser
 from vrchatapi.models.two_factor_auth_code import TwoFactorAuthCode
 from vrchatapi.models.two_factor_email_code import TwoFactorEmailCode
-from vrchatapi.models.current_user import CurrentUser
+
 from .classes import UsrMsg
 from .config import config
 
@@ -102,7 +103,7 @@ def login_vrc(
             mode="w",
             encoding="utf-8",
         ) as f:
-            json.dump(msg, f, ensure_ascii=False, indent=4)
+            json.dump(str(msg), f, ensure_ascii=False, indent=4)
     return current_user.display_name
 
 

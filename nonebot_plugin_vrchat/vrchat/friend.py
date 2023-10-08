@@ -20,7 +20,8 @@ async def get_all_friends(usr_id: str) -> Dict[str, vrchatapi.LimitedUser]:
         mode="r",
         encoding="utf-8",
     ) as f:
-        usr_msg: UsrMsg = json.load(f)
+        usr_ms: dict = json.load(f)
+    usr_msg: UsrMsg = UsrMsg(username=usr_ms["username"], password=usr_ms["password"])
     configuration = vrchatapi.Configuration(
         username=usr_msg.username,
         password=usr_msg.password,
@@ -35,8 +36,8 @@ async def get_all_friends(usr_id: str) -> Dict[str, vrchatapi.LimitedUser]:
     while True:
         api_response: List[vrchatapi.LimitedUser] = api_instance.get_friends(
             offset=offset,
-            n=100,
-            offline="false",
+            n=60,
+            offline=False,
         )
         if len(api_response) == 0:
             break
