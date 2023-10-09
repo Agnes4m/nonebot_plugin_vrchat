@@ -13,6 +13,7 @@ from vrchatapi.models.current_user import CurrentUser
 from vrchatapi.models.two_factor_auth_code import TwoFactorAuthCode
 from vrchatapi.models.two_factor_email_code import TwoFactorEmailCode
 
+
 from .classes import UsrMsg
 from .config import config
 
@@ -122,7 +123,7 @@ async def login_in(
 
     load_cookies(api_client, "./cookies.txt")
     try:
-        cookie = login_vrc(api_client, usr_id, username, password, code)
+        login_vrc(api_client, usr_id, username, password, code)
     except TwoFactorAuthException:
         # await matcher.send("Resend `/login` command with verify code (or 2FA code)")
         print("Resend `/login` command with verify code (or 2FA code)")
