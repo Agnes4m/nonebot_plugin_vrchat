@@ -11,10 +11,20 @@ from nonebot_plugin_saa import Image, MessageFactory, Text
 from .utils import login_in
 from .vrchat.friend import get_all_friends, get_online_friends, get_status_emoji
 
+help = on_command("vrchelp", aliases={"vrc帮助"}, priority=20)
 login = on_command("vrcl", aliases={"vrc登录"}, priority=20)
 friend_online = on_command("vrcol", aliases={"vrc在线好友"}, priority=20)
 friend_request = on_command("vrcrq", aliases={"vrc全部好友"}, priority=20)
 
+
+@help.handle()
+async def _(matcher: Matcher):
+    help_msg = """--------vrc指令--------
+    1、【vrc登录】 | 登录vrc账户，建议私聊
+    2、【vrc全部好友】 | 获取全部好友信息
+    3、【vrc在线好友】 | 获取在线好友信息
+    """
+    await matcher.finish(help_msg)
 
 @login.handle()
 async def _(matcher: Matcher, tag: Message = CommandArg()):
@@ -61,8 +71,8 @@ async def _(
     tag = str(state["a2f"])
     status, msg = await login_in(
         event.get_user_id(),
-        state.get("username"),
-        state.get("password"),
+        state.get("username"), # type: ignore
+        state.get("password"), # type: ignore
         code=tag,
     )
     logger.info(state.get("username"))
@@ -80,12 +90,32 @@ async def _(
 
 @friend_online.handle()
 async def _(event: Event, matcher: Matcher):
-    msg = await get_online_friends(event.get_user_id())
+    msg = await get_all_friends(event.get_user_id())
+    if msg is None:
+        await matcher.finish("尚未登录,请私聊并发送【vrc登录】")
     if msg:
-        await matcher.send(msg)
-    await matcher.send("当前没有在线好友捏")
-
-
+        send_msg = []
+        for index, one_dict in enumerate(msg):
+            if not one_dict.status or not one_dict.location or not one_dict.current_avatar_thumbnail_image_url:
+                continue
+            if one_dict.status =="offline"  and one_dict.location !="active":
+                continue
+            if index != 0:
+                send_msg.append(Text("\n---------------\n"))
+            emo = await get_status_emoji(one_dict.status, one_dict.location)
+            send_msg.append(Image(one_dict.current_avatar_thumbnail_image_url))
+            send_msg.append(
+                Text(
+                    f"{one_dict.display_name} | {emo}{one_dict.status_description if one_dict.status_description else one_dict.status}",
+                ),
+            )
+            # await matcher.send(
+            #
+            # )
+        if send_msg:
+            await MessageFactory(send_msg).finish()
+    await matcher.finish("当前没有好友捏")
+    
 @friend_request.handle()
 async def _(event: Event, matcher: Matcher):
     msg = await get_all_friends(event.get_user_id())
@@ -95,8 +125,9 @@ async def _(event: Event, matcher: Matcher):
         send_msg = []
         for index, one_dict in enumerate(msg):
             if index != 0:
-                send_msg.append(Text("\n----------\n"))
-
+                send_msg.append(Text("\n---------------\n"))
+            if not one_dict.status or not one_dict.location or not one_dict.current_avatar_thumbnail_image_url:
+                continue
             emo = await get_status_emoji(one_dict.status, one_dict.location)
             send_msg.append(Image(one_dict.current_avatar_thumbnail_image_url))
             send_msg.append(

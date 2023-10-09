@@ -1,6 +1,6 @@
 import asyncio
 import json
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import vrchatapi
 from nonebot.log import logger
@@ -15,7 +15,7 @@ from .utils import get_login_msg
 # api_client: vrchatapi.ApiClient = vrchatapi.ApiClient()
 
 
-async def get_all_friends(usr_id: str) -> List[vrchatapi.LimitedUser]:
+async def get_all_friends(usr_id: str) -> Optional[List[vrchatapi.LimitedUser]]:
     # global api_client
     try:
         usr_ms = await get_login_msg(usr_id)
@@ -38,14 +38,14 @@ async def get_all_friends(usr_id: str) -> List[vrchatapi.LimitedUser]:
             offset=offset,
             n=60,
             offline=False,
-        )
+        ) # type: ignore
         if len(api_response) == 0:
             break
         friends.extend(api_response)
         offset += 100
     offset = 0
     while True:
-        api_response = api_instance.get_friends(offset=offset, n=100, offline="true")
+        api_response = api_instance.get_friends(offset=offset, n=100, offline="true") # type: ignore
         if len(api_response) == 0:
             break
         friends.extend(api_response)
@@ -103,7 +103,7 @@ async def get_online_friends(usr_id: str):
 
         msg: str = ""
         for f in online_friends:
-            emoji = get_status_emoji(f.status, f.location)
+            emoji = await get_status_emoji(f.status, f.location) # type: ignore
             msg += f"{emoji} {f.display_name}\n"
         # await ctx.followup.send(discord.utils.escape_markdown(msg))
         print(msg)
@@ -134,22 +134,22 @@ async def get_status_emoji(status: str, location: str) -> str:
     return "❌"
 
 
-async def update_friends_status():
-    global friends
-    logger.info("Strat to update friend status")
-    try:
-        new_friends: Dict[str, vrchatapi.LimitedUser] = await get_all_friends()
+# async def update_friends_status():
+#     global friends
+#     logger.info("Strat to update friend status")
+#     try:
+#         new_friends: Dict[str, vrchatapi.LimitedUser] = await get_all_friends()
 
-    except Exception:
-        logger.error("get all friends failed")
-        return
-    if not isinstance(new_friends, dict):
-        return
-    # name: str
-    # conf: ListenFriends
-    if len(friends) == 0:
-        friends = new_friends
-        return
+#     except Exception:
+#         logger.error("get all friends failed")
+#         return
+#     if not isinstance(new_friends, dict):
+#         return
+#     # name: str
+#     # conf: ListenFriends
+#     if len(friends) == 0:
+#         friends = new_friends
+#         return
     # for name, conf in config.listen_friends.items():
     #     # find ambiguous dispaly name
     #     if name not in new_friends:
@@ -203,7 +203,7 @@ async def update_friends_status():
     #             await ch.send(
     #                 f"{name} status changed: {old_status_emoji} -> {status_emoji}"
     #             )
-    friends = new_friends
+    # friends = new_friends
 
 
 if __name__ == "__main__":

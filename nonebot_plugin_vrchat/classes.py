@@ -17,7 +17,6 @@ class UsrMsg(BaseModel):
         return {
             "username": self.username,
             "password": self.password,
-            "cookie": self.cookie,
         }
 
 
