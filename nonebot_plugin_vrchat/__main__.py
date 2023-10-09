@@ -11,13 +11,13 @@ from nonebot_plugin_saa import Image, MessageFactory, Text
 from .utils import login_in
 from .vrchat.friend import get_all_friends, get_online_friends, get_status_emoji
 
-help = on_command("vrchelp", aliases={"vrc帮助"}, priority=20)
-login = on_command("vrcl", aliases={"vrc登录"}, priority=20)
+vrc_help = on_command("vrchelp", aliases={"vrc帮助"}, priority=20)
+vrc_login = on_command("vrcl", aliases={"vrc登录"}, priority=20)
 friend_online = on_command("vrcol", aliases={"vrc在线好友"}, priority=20)
 friend_request = on_command("vrcrq", aliases={"vrc全部好友"}, priority=20)
 
 
-@help.handle()
+@vrc_help.handle()
 async def _(matcher: Matcher):
     help_msg = """--------vrc指令--------
     1、【vrc登录】 | 登录vrc账户，建议私聊
@@ -26,7 +26,7 @@ async def _(matcher: Matcher):
     """
     await matcher.finish(help_msg)
 
-@login.handle()
+@vrc_login.handle()
 async def _(matcher: Matcher, tag: Message = CommandArg()):
     # username = config.vrc_username
     # password = config.vrc_password
@@ -35,7 +35,7 @@ async def _(matcher: Matcher, tag: Message = CommandArg()):
         matcher.set_arg("login_msg", tag)
 
 
-@login.got("login_msg", prompt="请输入登录账号密码，用空格间隔\n提示:机器人会保存你的登录状态,请在信任机器人的情况下登录")
+@vrc_login.got("login_msg", prompt="请输入登录账号密码，用空格间隔\n提示:机器人会保存你的登录状态,请在信任机器人的情况下登录")
 async def _(
     matcher: Matcher,
     event: Event,
@@ -62,7 +62,7 @@ async def _(
         await matcher.finish("未知参数")
 
 
-@login.got("a2f")
+@vrc_login.got("a2f")
 async def _(
     matcher: Matcher,
     event: Event,
