@@ -33,7 +33,7 @@ _✨使用第三方api实现vrchat相关操作✨_
 
 本插件适配nonebot2框架，目的是在qq群中获取好友和地图的信息
 
-使用到了saa插件，这代表这个这个插件支持v11,v12,qqguild,kook,tg适配器
+使用到了saa插件，这代表这个这个插件支持v11,v12,kook,tg适配器
 
 ~~元宇宙大失败~~
 
@@ -124,6 +124,14 @@ plugins = [
 
 <details>
 <summary>点击展开</summary>
+
+### 0.0.3
+
+- 通过nonebot2商店检查，删除qqguild
+
+### 0.0.2
+
+- 使用pre-commit格式化项目
 
 ### 0.0.1
 

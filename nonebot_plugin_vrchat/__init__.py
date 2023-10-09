@@ -5,7 +5,7 @@ require("nonebot_plugin_saa")  # type: ignore
 from . import __main__ as __main__  # noqa: E402
 from .config import ConfigModel  # noqa: E402
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 __plugin_meta__ = PluginMetadata(
     name="VRChat查询",
     description="使用第三方api实现vrchat相关操作，例如查询好友状态",
@@ -17,7 +17,6 @@ __plugin_meta__ = PluginMetadata(
         "~onebot.v11",
         "~onebot.v12",
         "~kaiheila",
-        "~qqguild",
         "~telegram",
     },
     extra={
