@@ -1,7 +1,5 @@
-import asyncio
-import json
-from pathlib import Path
-
+# import asyncio
+import ujson as json
 import vrchatapi
 from nonebot.log import logger
 
@@ -13,13 +11,14 @@ from vrchatapi.models.current_user import CurrentUser
 from vrchatapi.models.two_factor_auth_code import TwoFactorAuthCode
 from vrchatapi.models.two_factor_email_code import TwoFactorEmailCode
 
-
 from .classes import UsrMsg
 from .config import config
 
 # from .classes import TwoFactorAuthException
 # from .config import config
 from .vrchat.cookies import load_cookies, remove_cookies, save_cookies
+
+# from pathlib import Path
 
 
 class TwoFactorAuthException(Exception):  # noqa: N818
@@ -49,7 +48,7 @@ def login_vrc(
 
     try:
         # Calling getCurrentUser on Authentication API logs you in if the user isn't already logged in.
-        current_user = auth_api.get_current_user() # type: ignore
+        current_user = auth_api.get_current_user()  # type: ignore
     except UnauthorizedException as e:
         if e.status == 200:
             if code == "":
@@ -63,7 +62,7 @@ def login_vrc(
             elif "2 Factor Authentication" in e.reason:
                 # Calling verify2fa if the account has 2FA enabled
                 auth_api.verify2_fa(two_factor_auth_code=TwoFactorAuthCode(code))
-            current_user: CurrentUser = auth_api.get_current_user() # type: ignore
+            current_user: CurrentUser = auth_api.get_current_user()  # type: ignore
             save_cookies(api_client, "./cookies.txt")
 
             # assert isinstance(current_user, vrchatapi.CurrentUser)
@@ -134,9 +133,9 @@ async def login_in(
         print(f"Login failed with error: {e}")
         return 500, str(e)
     auth_api = authentication_api.AuthenticationApi(api_client)
-    current_user:CurrentUser = auth_api.get_current_user() # type: ignore
+    current_user: CurrentUser = auth_api.get_current_user()  # type: ignore
     save_cookies(api_client, "./cookies.txt")
-    
+
     name: str = current_user.display_name if current_user.display_name else ""
     # await matcher.send(f"Logged in as {name}")
     print(f"Logged in as {name}")

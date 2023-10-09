@@ -1,7 +1,7 @@
 from nonebot import require
 from nonebot.plugin import PluginMetadata
 
-require("nonebot_plugin_saa") # type: ignore
+require("nonebot_plugin_saa")  # type: ignore
 from . import __main__ as __main__  # noqa: E402
 from .config import ConfigModel  # noqa: E402
 

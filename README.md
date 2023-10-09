@@ -29,7 +29,7 @@ _✨使用第三方api实现vrchat相关操作✨_
 
 ## 说明
 
-![logo](/theme.jpg)
+![logo](/nonebot_plugin_vrchat/img/theme.jpg)
 
 本插件适配nonebot2框架，目的是在qq群中获取好友和地图的信息
 

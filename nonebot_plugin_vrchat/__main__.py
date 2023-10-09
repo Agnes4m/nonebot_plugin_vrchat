@@ -9,7 +9,7 @@ from nonebot_plugin_saa import Image, MessageFactory, Text
 # from nonebot_plugin_saa import Image, MessageFactory, MessageSegmentFactory, Text
 # from .config import config
 from .utils import login_in
-from .vrchat.friend import get_all_friends, get_online_friends, get_status_emoji
+from .vrchat.friend import get_all_friends, get_status_emoji
 
 vrc_help = on_command("vrchelp", aliases={"vrc帮助"}, priority=20)
 vrc_login = on_command("vrcl", aliases={"vrc登录"}, priority=20)
@@ -25,6 +25,7 @@ async def _(matcher: Matcher):
     3、【vrc在线好友】 | 获取在线好友信息
     """
     await matcher.finish(help_msg)
+
 
 @vrc_login.handle()
 async def _(matcher: Matcher, tag: Message = CommandArg()):
@@ -71,8 +72,8 @@ async def _(
     tag = str(state["a2f"])
     status, msg = await login_in(
         event.get_user_id(),
-        state.get("username"), # type: ignore
-        state.get("password"), # type: ignore
+        state.get("username"),  # type: ignore
+        state.get("password"),  # type: ignore
         code=tag,
     )
     logger.info(state.get("username"))
@@ -96,9 +97,13 @@ async def _(event: Event, matcher: Matcher):
     if msg:
         send_msg = []
         for index, one_dict in enumerate(msg):
-            if not one_dict.status or not one_dict.location or not one_dict.current_avatar_thumbnail_image_url:
+            if (
+                not one_dict.status
+                or not one_dict.location
+                or not one_dict.current_avatar_thumbnail_image_url
+            ):
                 continue
-            if one_dict.status =="offline"  and one_dict.location !="active":
+            if one_dict.status == "offline" and one_dict.location != "active":
                 continue
             if index != 0:
                 send_msg.append(Text("\n---------------\n"))
@@ -115,7 +120,8 @@ async def _(event: Event, matcher: Matcher):
         if send_msg:
             await MessageFactory(send_msg).finish()
     await matcher.finish("当前没有好友捏")
-    
+
+
 @friend_request.handle()
 async def _(event: Event, matcher: Matcher):
     msg = await get_all_friends(event.get_user_id())
@@ -126,7 +132,11 @@ async def _(event: Event, matcher: Matcher):
         for index, one_dict in enumerate(msg):
             if index != 0:
                 send_msg.append(Text("\n---------------\n"))
-            if not one_dict.status or not one_dict.location or not one_dict.current_avatar_thumbnail_image_url:
+            if (
+                not one_dict.status
+                or not one_dict.location
+                or not one_dict.current_avatar_thumbnail_image_url
+            ):
                 continue
             emo = await get_status_emoji(one_dict.status, one_dict.location)
             send_msg.append(Image(one_dict.current_avatar_thumbnail_image_url))
