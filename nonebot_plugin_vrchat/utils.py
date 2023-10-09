@@ -11,7 +11,7 @@ from vrchatapi.exceptions import UnauthorizedException
 from vrchatapi.models.current_user import CurrentUser
 from vrchatapi.models.two_factor_auth_code import TwoFactorAuthCode
 from vrchatapi.models.two_factor_email_code import TwoFactorEmailCode
-
+from vrchatapi.configuration import Configuration
 from .classes import UsrMsg
 from .config import config
 
@@ -97,13 +97,16 @@ def login_vrc(
         return None
 
     msg = vars(current_user)
-    print(type(msg), msg)
-    if code:
-        with config.vrc_path.joinpath(f"player/{usr_id}.json").open(
-            mode="w",
-            encoding="utf-8",
-        ) as f:
-            json.dump(str(msg), f, ensure_ascii=False, indent=4)
+    configuration: Configuration = current_user.local_vars_configuration
+    msg["local_vars_configuration"] = configuration.__dict__
+    print(str(msg))
+    msg_dict = UsrMsg(username=username, password=password).to_dict()
+    print(msg_dict)
+    with config.vrc_path.joinpath(f"player/{usr_id}.json").open(
+        mode="w",
+        encoding="utf-8",
+    ) as f:
+        json.dump(msg_dict, f, ensure_ascii=False, indent=4)
     return current_user.display_name
 
 

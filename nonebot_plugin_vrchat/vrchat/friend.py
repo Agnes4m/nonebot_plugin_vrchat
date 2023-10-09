@@ -8,19 +8,19 @@ from nonebot.log import logger
 from ..classes import UsrMsg
 from ..config import config
 from .cookies import load_cookies
+from .utils import get_login_msg
 
 # from nonebot_plugin_vrchat.config import config
 
 # api_client: vrchatapi.ApiClient = vrchatapi.ApiClient()
 
 
-async def get_all_friends(usr_id: str) -> Dict[str, vrchatapi.LimitedUser]:
+async def get_all_friends(usr_id: str) -> List[vrchatapi.LimitedUser]:
     # global api_client
-    with config.vrc_path.joinpath(f"{usr_id}.json").open(
-        mode="r",
-        encoding="utf-8",
-    ) as f:
-        usr_ms: dict = json.load(f)
+    try:
+        usr_ms = await get_login_msg(usr_id)
+    except Exception:
+        return None
     usr_msg: UsrMsg = UsrMsg(username=usr_ms["username"], password=usr_ms["password"])
     configuration = vrchatapi.Configuration(
         username=usr_msg.username,
@@ -51,12 +51,13 @@ async def get_all_friends(usr_id: str) -> Dict[str, vrchatapi.LimitedUser]:
         friends.extend(api_response)
         offset += 100
         await asyncio.sleep(0.5)
-    friend: vrchatapi.LimitedUser
-    friends_map: Dict[str, vrchatapi.LimitedUser] = {}
-    for friend in friends:
-        friends_map[friend.display_name] = friend
-    logger.info(friends_map)
-    return friends_map
+    # friend: vrchatapi.LimitedUser
+    # friends_map: Dict[str, vrchatapi.LimitedUser] = {}
+    # for friend in friends:
+    #     friends_map[friend.display_name] = friend
+    # logger.info(friends_map)
+    # return friends_map
+    return friends
 
 
 friends: Dict[str, vrchatapi.LimitedUser]
@@ -69,7 +70,7 @@ async def get_online_friends(usr_id: str):
     """
     global friends
 
-    with config.vrc_path.joinpath(f"{usr_id}.json").open(
+    with config.vrc_path.joinpath(f"player/9{usr_id}.json").open(
         mode="r",
         encoding="utf-8",
     ) as f:
@@ -114,7 +115,7 @@ async def get_online_friends(usr_id: str):
         return str(e)
 
 
-def get_status_emoji(status: str, location: str) -> str:
+async def get_status_emoji(status: str, location: str) -> str:
     """
     Get the emoji to represent the status.
     """

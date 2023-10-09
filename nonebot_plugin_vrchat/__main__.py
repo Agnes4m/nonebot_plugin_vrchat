@@ -4,11 +4,12 @@ from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import ArgPlainText, CommandArg
 from nonebot.typing import T_State
+from nonebot_plugin_saa import Image, MessageFactory, Text
 
 # from nonebot_plugin_saa import Image, MessageFactory, MessageSegmentFactory, Text
 # from .config import config
 from .utils import login_in
-from .vrchat.friend import get_all_friends, get_online_friends
+from .vrchat.friend import get_all_friends, get_online_friends, get_status_emoji
 
 login = on_command("vrcl", aliases={"vrc登录"}, priority=20)
 friend_online = on_command("vrcol", aliases={"vrc在线好友"}, priority=20)
@@ -24,7 +25,7 @@ async def _(matcher: Matcher, tag: Message = CommandArg()):
         matcher.set_arg("login_msg", tag)
 
 
-@login.got("login_msg", prompt="请输入登录账号密码，用空格间隔")
+@login.got("login_msg", prompt="请输入登录账号密码，用空格间隔\n提示:机器人会保存你的登录状态,请在信任机器人的情况下登录")
 async def _(
     matcher: Matcher,
     event: Event,
@@ -88,6 +89,23 @@ async def _(event: Event, matcher: Matcher):
 @friend_request.handle()
 async def _(event: Event, matcher: Matcher):
     msg = await get_all_friends(event.get_user_id())
+    if msg is None:
+        await matcher.finish("尚未登录,请私聊并发送【vrc登录】")
     if msg:
-        await matcher.send(msg)
-    await matcher.send("当前没有在线好友捏")
+        send_msg = []
+        for index, one_dict in enumerate(msg):
+            if index != 0:
+                send_msg.append(Text("\n----------\n"))
+
+            emo = await get_status_emoji(one_dict.status, one_dict.location)
+            send_msg.append(Image(one_dict.current_avatar_thumbnail_image_url))
+            send_msg.append(
+                Text(
+                    f"{one_dict.display_name} | {emo}{one_dict.status_description if one_dict.status_description else one_dict.status}",
+                ),
+            )
+            # await matcher.send(
+            #
+            # )
+        await MessageFactory(send_msg).finish()
+    await matcher.finish("当前没有好友捏")
