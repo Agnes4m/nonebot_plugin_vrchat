@@ -17,5 +17,15 @@ class UsrMsg(BaseModel):
         return {
             "username": self.username,
             "password": self.password,
-            "cookie": self.cookie,
         }
+
+
+# class UserAllMsg(BaseModel):
+#     """用户储存信息"""
+
+#     username: Optional[str]
+#     """用户名"""
+#     password: Optional[str]
+#     """密码"""
+#     cookie: Optional[str]
+#     """饼干"""

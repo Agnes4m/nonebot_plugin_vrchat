@@ -1,25 +1,25 @@
 import asyncio
 import json
+from pathlib import Path
 
 import vrchatapi
 from nonebot.log import logger
 
 # from vrchatapi import Configuration
 from vrchatapi.api import authentication_api
+from vrchatapi.configuration import Configuration
 from vrchatapi.exceptions import UnauthorizedException
 from vrchatapi.models.current_user import CurrentUser
 from vrchatapi.models.two_factor_auth_code import TwoFactorAuthCode
 from vrchatapi.models.two_factor_email_code import TwoFactorEmailCode
 
+
+from .classes import UsrMsg
 from .config import config
 
 # from .classes import TwoFactorAuthException
 # from .config import config
-from .vrchat.cookies import (
-    load_cookies,
-    remove_cookies,
-    save_cookies,
-)
+from .vrchat.cookies import load_cookies, remove_cookies, save_cookies
 
 
 class TwoFactorAuthException(Exception):  # noqa: N818
@@ -49,7 +49,7 @@ def login_vrc(
 
     try:
         # Calling getCurrentUser on Authentication API logs you in if the user isn't already logged in.
-        current_user = auth_api.get_current_user()
+        current_user = auth_api.get_current_user() # type: ignore
     except UnauthorizedException as e:
         if e.status == 200:
             if code == "":
@@ -63,7 +63,7 @@ def login_vrc(
             elif "2 Factor Authentication" in e.reason:
                 # Calling verify2fa if the account has 2FA enabled
                 auth_api.verify2_fa(two_factor_auth_code=TwoFactorAuthCode(code))
-            current_user: CurrentUser = auth_api.get_current_user()
+            current_user: CurrentUser = auth_api.get_current_user() # type: ignore
             save_cookies(api_client, "./cookies.txt")
 
             # assert isinstance(current_user, vrchatapi.CurrentUser)
@@ -95,13 +95,16 @@ def login_vrc(
         return None
 
     msg = vars(current_user)
-    print(type(msg), msg)
-    if code:
-        with config.vrc_path.joinpath(f"player/{usr_id}.json").open(
-            mode="w",
-            encoding="utf-8",
-        ) as f:
-            json.dump(msg, f, ensure_ascii=False, indent=4)
+    configuration: Configuration = current_user.local_vars_configuration
+    msg["local_vars_configuration"] = configuration.__dict__
+    print(str(msg))
+    msg_dict = UsrMsg(username=username, password=password).to_dict()
+    print(msg_dict)
+    with config.vrc_path.joinpath(f"player/{usr_id}.json").open(
+        mode="w",
+        encoding="utf-8",
+    ) as f:
+        json.dump(msg_dict, f, ensure_ascii=False, indent=4)
     return current_user.display_name
 
 
@@ -131,9 +134,10 @@ async def login_in(
         print(f"Login failed with error: {e}")
         return 500, str(e)
     auth_api = authentication_api.AuthenticationApi(api_client)
-    current_user = auth_api.get_current_user()
+    current_user:CurrentUser = auth_api.get_current_user() # type: ignore
     save_cookies(api_client, "./cookies.txt")
-    name: str = current_user.display_name
+    
+    name: str = current_user.display_name if current_user.display_name else ""
     # await matcher.send(f"Logged in as {name}")
     print(f"Logged in as {name}")
     # with config.vrc_path.joinpath(f"{usr_id}.json").open(
@@ -150,8 +154,4 @@ async def login_in(
 
 
 if __name__ == "__main__":
-    asyncio.run(
-        login_in(
-            usr_id="735803792",
-        ),
-    )
+    ...

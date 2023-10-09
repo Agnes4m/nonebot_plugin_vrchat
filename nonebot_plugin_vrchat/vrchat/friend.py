@@ -1,6 +1,6 @@
 import asyncio
 import json
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import vrchatapi
 from nonebot.log import logger
@@ -8,19 +8,20 @@ from nonebot.log import logger
 from ..classes import UsrMsg
 from ..config import config
 from .cookies import load_cookies
+from .utils import get_login_msg
 
 # from nonebot_plugin_vrchat.config import config
 
 # api_client: vrchatapi.ApiClient = vrchatapi.ApiClient()
 
 
-async def get_all_friends(usr_id: str) -> Dict[str, vrchatapi.LimitedUser]:
+async def get_all_friends(usr_id: str) -> Optional[List[vrchatapi.LimitedUser]]:
     # global api_client
-    with config.vrc_path.joinpath(f"{usr_id}.json").open(
-        mode="r",
-        encoding="utf-8",
-    ) as f:
-        usr_msg: UsrMsg = json.load(f)
+    try:
+        usr_ms = await get_login_msg(usr_id)
+    except Exception:
+        return None
+    usr_msg: UsrMsg = UsrMsg(username=usr_ms["username"], password=usr_ms["password"])
     configuration = vrchatapi.Configuration(
         username=usr_msg.username,
         password=usr_msg.password,
@@ -35,27 +36,28 @@ async def get_all_friends(usr_id: str) -> Dict[str, vrchatapi.LimitedUser]:
     while True:
         api_response: List[vrchatapi.LimitedUser] = api_instance.get_friends(
             offset=offset,
-            n=100,
-            offline="false",
-        )
+            n=60,
+            offline=False,
+        ) # type: ignore
         if len(api_response) == 0:
             break
         friends.extend(api_response)
         offset += 100
     offset = 0
     while True:
-        api_response = api_instance.get_friends(offset=offset, n=100, offline="true")
+        api_response = api_instance.get_friends(offset=offset, n=100, offline="true") # type: ignore
         if len(api_response) == 0:
             break
         friends.extend(api_response)
         offset += 100
         await asyncio.sleep(0.5)
-    friend: vrchatapi.LimitedUser
-    friends_map: Dict[str, vrchatapi.LimitedUser] = {}
-    for friend in friends:
-        friends_map[friend.display_name] = friend
-    logger.info(friends_map)
-    return friends_map
+    # friend: vrchatapi.LimitedUser
+    # friends_map: Dict[str, vrchatapi.LimitedUser] = {}
+    # for friend in friends:
+    #     friends_map[friend.display_name] = friend
+    # logger.info(friends_map)
+    # return friends_map
+    return friends
 
 
 friends: Dict[str, vrchatapi.LimitedUser]
@@ -68,7 +70,7 @@ async def get_online_friends(usr_id: str):
     """
     global friends
 
-    with config.vrc_path.joinpath(f"{usr_id}.json").open(
+    with config.vrc_path.joinpath(f"player/9{usr_id}.json").open(
         mode="r",
         encoding="utf-8",
     ) as f:
@@ -101,7 +103,7 @@ async def get_online_friends(usr_id: str):
 
         msg: str = ""
         for f in online_friends:
-            emoji = get_status_emoji(f.status, f.location)
+            emoji = await get_status_emoji(f.status, f.location) # type: ignore
             msg += f"{emoji} {f.display_name}\n"
         # await ctx.followup.send(discord.utils.escape_markdown(msg))
         print(msg)
@@ -113,7 +115,7 @@ async def get_online_friends(usr_id: str):
         return str(e)
 
 
-def get_status_emoji(status: str, location: str) -> str:
+async def get_status_emoji(status: str, location: str) -> str:
     """
     Get the emoji to represent the status.
     """
@@ -132,22 +134,22 @@ def get_status_emoji(status: str, location: str) -> str:
     return "❌"
 
 
-async def update_friends_status():
-    global friends
-    logger.info("Strat to update friend status")
-    try:
-        new_friends: Dict[str, vrchatapi.LimitedUser] = await get_all_friends()
+# async def update_friends_status():
+#     global friends
+#     logger.info("Strat to update friend status")
+#     try:
+#         new_friends: Dict[str, vrchatapi.LimitedUser] = await get_all_friends()
 
-    except Exception:
-        logger.error("get all friends failed")
-        return
-    if not isinstance(new_friends, dict):
-        return
-    # name: str
-    # conf: ListenFriends
-    if len(friends) == 0:
-        friends = new_friends
-        return
+#     except Exception:
+#         logger.error("get all friends failed")
+#         return
+#     if not isinstance(new_friends, dict):
+#         return
+#     # name: str
+#     # conf: ListenFriends
+#     if len(friends) == 0:
+#         friends = new_friends
+#         return
     # for name, conf in config.listen_friends.items():
     #     # find ambiguous dispaly name
     #     if name not in new_friends:
@@ -201,7 +203,7 @@ async def update_friends_status():
     #             await ch.send(
     #                 f"{name} status changed: {old_status_emoji} -> {status_emoji}"
     #             )
-    friends = new_friends
+    # friends = new_friends
 
 
 if __name__ == "__main__":

@@ -12,7 +12,8 @@ dependencies = [
     "nonebot-adapter-onebot>=2.2.3",
     "nonebot-plugin-send-anything-anywhere>=0.2.7",
     "vrchatapi >= 1.14.0",
-    "httpx >= 0.25.0"
+    "httpx >= 0.25.0",
+    "ujson>= 5.8.0"
     ]
 classifiers = [
     "License :: OSI Approved :: MIT License",
