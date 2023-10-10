@@ -312,3 +312,9 @@ async def draw_overview(users: List[UserInfo]) -> BuildImage:
     await asyncio.gather(*tasks)
 
     return image
+
+
+async def draw_and_save(users: List[vrchatapi.LimitedUser]) -> BytesIO:
+    infos = transform_users(users)
+    img = await draw_overview(infos)
+    return img.convert("RGB").save_jpg()
