@@ -9,7 +9,7 @@
 
 # nonebot_plugin_vrchat
 
-_✨使用第三方api实现vrchat相关操作✨_
+_✨ 使用第三方 api 实现 vrchat 相关操作 ✨_
 
 <a href="https://github.com/Agnes4m/nonebot_plugin_vrchat/stargazers">
         <img alt="GitHub stars" src="https://img.shields.io/github/stars/Agnes4m/nonebot_plugin_vrchat" alt="stars">
@@ -31,9 +31,9 @@ _✨使用第三方api实现vrchat相关操作✨_
 
 ![logo](/img/theme.jpg)
 
-本插件适配nonebot2框架，目的是在qq群中获取好友和地图的信息
+本插件适配 nonebot2 框架，目的是在 qq 群中获取好友和地图的信息
 
-使用到了saa插件，这代表这个这个插件支持v11,v12,kook,tg适配器
+使用到了 saa 插件，这代表这个这个插件支持 v11,v12,kook,tg 适配器
 
 ~~元宇宙大失败~~
 
@@ -104,18 +104,18 @@ plugins = [
 
 ## 指令
 
-- vrc帮助： 获取指令帮助
-- vrc登录： 登录（需要输入账号密码，建议私聊）
-- vrc在线好友： 查询当前在线好友
-- vrc全部好友： 查询当前全部好友状态
+- `vrc帮助`： 获取指令帮助
+- `vrc登录`： 登录（需要输入账号密码，建议私聊）
+- `vrc在线好友`： 查询当前在线好友
+- `vrc全部好友`： 查询当前全部好友状态
 
 ## 感谢
 
-- [vrchat第三方api](https://github.com/vrchatapi/vrchatapi-python)
+- [vrchat 第三方 api](https://github.com/vrchatapi/vrchatapi-python)
 
 ## 其他
 
-- 插件报错或建议q群：[q群: VR CHAT交流群](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=SgA58TsEk1S4axSecQaPObNiwiOrlVwH&authKey=6Ob3NjrYayRDY029j6bPDH40oLQeZYYJQ7zlT4Pju0Iqb2uN3b4FBSBZV7d%2BrruK&noverify=0&group_code=579924932)
+- 插件报错或建议 q 群：[q 群: VR CHAT 交流群](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=SgA58TsEk1S4axSecQaPObNiwiOrlVwH&authKey=6Ob3NjrYayRDY029j6bPDH40oLQeZYYJQ7zlT4Pju0Iqb2uN3b4FBSBZV7d%2BrruK&noverify=0&group_code=579924932)
 - [爱发电](https://afdian.net/a/agnes_digital) 感谢大家的赞助！你们的赞助将是我继续创作的动力！
 
 ## 📝 更新日志
@@ -126,16 +126,16 @@ plugins = [
 ### 0.0.4
 
 - 新增查询用户功能
-- 适配nonebot2.1.*
+- 适配 nonebot2.1.\*
 - 部分逻辑改进
 
 ### 0.0.3
 
-- 通过nonebot2商店检查，删除qqguild
+- 通过 nonebot2 商店检查，删除 qqguild
 
 ### 0.0.2
 
-- 使用pre-commit格式化项目
+- 使用 pre-commit 格式化项目
 
 ### 0.0.1
 
