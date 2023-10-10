@@ -29,7 +29,7 @@ _✨使用第三方api实现vrchat相关操作✨_
 
 ## 说明
 
-![logo](/nonebot_plugin_vrchat/img/theme.jpg)
+![logo](/img/theme.jpg)
 
 本插件适配nonebot2框架，目的是在qq群中获取好友和地图的信息
 
@@ -38,7 +38,6 @@ _✨使用第三方api实现vrchat相关操作✨_
 ~~元宇宙大失败~~
 
 ## 安装
-
 
 ## 💿 安装
 
@@ -119,11 +118,16 @@ plugins = [
 - 插件报错或建议q群：[q群: VR CHAT交流群](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=SgA58TsEk1S4axSecQaPObNiwiOrlVwH&authKey=6Ob3NjrYayRDY029j6bPDH40oLQeZYYJQ7zlT4Pju0Iqb2uN3b4FBSBZV7d%2BrruK&noverify=0&group_code=579924932)
 - [爱发电](https://afdian.net/a/agnes_digital) 感谢大家的赞助！你们的赞助将是我继续创作的动力！
 
-
 ## 📝 更新日志
 
 <details>
 <summary>点击展开</summary>
+
+### 0.0.4
+
+- 新增查询用户功能
+- 适配nonebot2.1.*
+- 部分逻辑改进
 
 ### 0.0.3
 

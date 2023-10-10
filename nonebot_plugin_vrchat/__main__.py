@@ -4,17 +4,20 @@ from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import ArgPlainText, CommandArg
 from nonebot.typing import T_State
-from nonebot_plugin_saa import Image, MessageFactory, Text
+from nonebot_plugin_saa import MessageFactory
 
-# from nonebot_plugin_saa import Image, MessageFactory, MessageSegmentFactory, Text
+from .message import friend_status_msg, search_usrs_msg
+
 # from .config import config
 from .utils import login_in
-from .vrchat.friend import get_all_friends, get_status_emoji
+from .vrchat.friend import get_all_friends
+from .vrchat.users import search_users
 
 vrc_help = on_command("vrchelp", aliases={"vrc帮助"}, priority=20)
 vrc_login = on_command("vrcl", aliases={"vrc登录"}, priority=20)
 friend_online = on_command("vrcol", aliases={"vrc在线好友"}, priority=20)
 friend_request = on_command("vrcrq", aliases={"vrc全部好友"}, priority=20)
+search_user = on_command("vrcsu", aliases={"vrc查询用户"}, priority=20)
 
 
 @vrc_help.handle()
@@ -23,6 +26,7 @@ async def _(matcher: Matcher):
     1、【vrc登录】 | 登录vrc账户，建议私聊
     2、【vrc全部好友】 | 获取全部好友信息
     3、【vrc在线好友】 | 获取在线好友信息
+    4、【vrc查询用户】【text】 | 查询玩家
     """
     await matcher.finish(help_msg)
 
@@ -95,29 +99,10 @@ async def _(event: Event, matcher: Matcher):
     if msg is None:
         await matcher.finish("尚未登录,请私聊并发送【vrc登录】")
     if msg:
-        send_msg = []
-        for index, one_dict in enumerate(msg):
-            if (
-                not one_dict.status
-                or not one_dict.location
-                or not one_dict.current_avatar_thumbnail_image_url
-            ):
-                continue
-            if one_dict.status == "offline" and one_dict.location != "active":
-                continue
-            if index != 0:
-                send_msg.append(Text("\n---------------\n"))
-            emo = await get_status_emoji(one_dict.status, one_dict.location)
-            send_msg.append(Image(one_dict.current_avatar_thumbnail_image_url))
-            send_msg.append(
-                Text(
-                    f"{one_dict.display_name} | {emo}{one_dict.status_description if one_dict.status_description else one_dict.status}",
-                ),
-            )
-            # await matcher.send(
-            #
-            # )
+        send_msg = await friend_status_msg(msg)
         if send_msg:
+            num = (len(send_msg) + 1) // 2 if len(send_msg) != 0 else 0
+            send_msg.insert(0, f"当前在线好友数量 {num} / {len(msg)}")
             await MessageFactory(send_msg).finish()
     await matcher.finish("当前没有好友捏")
 
@@ -128,25 +113,19 @@ async def _(event: Event, matcher: Matcher):
     if msg is None:
         await matcher.finish("尚未登录,请私聊并发送【vrc登录】")
     if msg:
-        send_msg = []
-        for index, one_dict in enumerate(msg):
-            if index != 0:
-                send_msg.append(Text("\n---------------\n"))
-            if (
-                not one_dict.status
-                or not one_dict.location
-                or not one_dict.current_avatar_thumbnail_image_url
-            ):
-                continue
-            emo = await get_status_emoji(one_dict.status, one_dict.location)
-            send_msg.append(Image(one_dict.current_avatar_thumbnail_image_url))
-            send_msg.append(
-                Text(
-                    f"{one_dict.display_name} | {emo}{one_dict.status_description if one_dict.status_description else one_dict.status}",
-                ),
-            )
-            # await matcher.send(
-            #
-            # )
-        await MessageFactory(send_msg).finish()
+        send_msg = await friend_status_msg(msg)
+        if send_msg:
+            send_msg.insert(0, f"好友数量 {len(msg)}")
+            await MessageFactory(send_msg).finish()
     await matcher.finish("当前没有好友捏")
+
+
+@search_user.handle()
+async def _(event: Event, matcher: Matcher, arg: Message = CommandArg()):
+    msg = await search_users(event.get_user_id(), arg.extract_plain_text())
+    if msg is not None:
+        send_msg = await search_usrs_msg(msg)
+        if send_msg:
+            send_msg.insert(0, f"查询玩家数量 {len(msg)}")
+            await MessageFactory(send_msg).finish()
+    await matcher.finish("没有这个玩家")
