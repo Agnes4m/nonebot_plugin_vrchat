@@ -123,6 +123,12 @@ plugins = [
 <details>
 <summary>点击展开</summary>
 
+### 0.0.4
+
+- 新增查询用户功能
+- 适配nonebot2.1.*
+- 部分逻辑改进
+
 ### 0.0.3
 
 - 通过 nonebot2 商店检查，删除 qqguild
