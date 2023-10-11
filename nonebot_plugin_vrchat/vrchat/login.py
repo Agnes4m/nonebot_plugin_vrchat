@@ -11,12 +11,12 @@ from vrchatapi.models.current_user import CurrentUser
 from vrchatapi.models.two_factor_auth_code import TwoFactorAuthCode
 from vrchatapi.models.two_factor_email_code import TwoFactorEmailCode
 
-from .classes import UsrMsg
-from .config import config
+from ..classes import UsrMsg
+from ..config import config
 
 # from .classes import TwoFactorAuthException
 # from .config import config
-from .vrchat.cookies import load_cookies, remove_cookies, save_cookies
+from .cookies import load_cookies, remove_cookies, save_cookies
 
 # from pathlib import Path
 
@@ -126,7 +126,7 @@ async def login_in(
     except TwoFactorAuthException:
         # await matcher.send("Resend `/login` command with verify code (or 2FA code)")
         print("Resend `/login` command with verify code (or 2FA code)")
-        msg: str = "verify code (or 2FA code)"
+        msg: str = "请输入邮箱验证码或者auth 2FA验证码"
         return 401, msg
     except Exception as e:
         # await matcher.send(f"Login failed with error: {e}")
@@ -137,18 +137,8 @@ async def login_in(
     save_cookies(api_client, "./cookies.txt")
 
     name: str = current_user.display_name if current_user.display_name else ""
-    # await matcher.send(f"Logged in as {name}")
     print(f"Logged in as {name}")
-    # with config.vrc_path.joinpath(f"{usr_id}.json").open(
-    #     mode="w",
-    #     encoding="utf-8",
-    # ) as f:
-    #     json.dump(
-    #         UsrMsg(username=username, password=password, cookie=cookie).to_dict(),
-    #         f,
-    #         ensure_ascii=False,
-    #         indent=4,
-    #     )
+
     return 200, name
 
 

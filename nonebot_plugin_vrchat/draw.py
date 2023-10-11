@@ -124,17 +124,18 @@ class UserInfo:
     @classmethod
     def from_limited_user(cls, user: vrchatapi.LimitedUser) -> "UserInfo":
         if not (
-            user.current_avatar_image_url
+            user.current_avatar_thumbnail_image_url
             and user.display_name
             and user.status
             and user.location
-            and user.status_description
+            # and user.status_description
         ):
             raise ValueError("Invalid user")
-
+        if not user.status_description:
+            user.status_description = user.location
         status = normalize_status(user.status, user.location)
         return cls(
-            avatar_url=user.current_avatar_image_url,
+            avatar_url=user.current_avatar_thumbnail_image_url,
             name=user.display_name,
             status=status,
             status_desc=user.status_description,
@@ -268,7 +269,7 @@ async def draw_overview(users: List[UserInfo]) -> BuildImage:
         user_dict.setdefault(user.status, []).append(user)
 
     card_w, card_h = CARD_SIZE
-    width_multiplier = max((len(x) for x in user_dict.values()))
+    width_multiplier = max((len(x) for x in user_dict.values()), default=0)
     if width_multiplier > MAX_CARDS_PER_LINE:
         width_multiplier = MAX_CARDS_PER_LINE
 

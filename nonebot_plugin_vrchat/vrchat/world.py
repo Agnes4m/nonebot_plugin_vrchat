@@ -23,7 +23,7 @@ async def worlds_search(
 ) -> Optional[List[vrchatapi.LimitedWorld]]:
     """查询用户信息
     文档参考:https://github.com/vrchatapi/vrchatapi-python/blob/main/docs/WorldsApi.md#search_worlds
-    search: str | 通过displayName查询,如果为空返回空数组
+    search: str | 通过Name查询,如果为空返回空数组
     n: int | 返回信息数量
     offset: int | 偏移值？
     """
@@ -41,6 +41,7 @@ async def worlds_search(
         else:
             api_response: List[vrchatapi.LimitedWorld] = api_instance.search_worlds(
                 search=search,
+                featured=True,
                 n=n,
                 offset=offset,
             )  # type: ignore

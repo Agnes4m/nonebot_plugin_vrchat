@@ -11,11 +11,7 @@ async def friend_status_msg(msg: List[vrchatapi.LimitedUser]):
     for one_dict in msg:
         if send_msg:
             send_msg.append(Text("\n---------------\n"))
-        if (
-            not one_dict.status
-            or not one_dict.location
-            or not one_dict.current_avatar_thumbnail_image_url
-        ):
+        if not one_dict.status or not one_dict.current_avatar_thumbnail_image_url:
             continue
         emo = await get_status_emoji(one_dict.status, one_dict.location)
         send_msg.append(Image(one_dict.current_avatar_thumbnail_image_url))

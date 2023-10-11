@@ -7,10 +7,10 @@ from nonebot.typing import T_State
 from nonebot_plugin_saa import Image, MessageFactory
 
 from .draw import draw_and_save
+from .vrchat.friend import get_all_friends
 
 # from .config import config
-from .utils import login_in
-from .vrchat.friend import get_all_friends
+from .vrchat.login import login_in
 from .vrchat.users import search_users
 from .vrchat.world import worlds_search
 
