@@ -4,7 +4,9 @@ import vrchatapi
 from nonebot.log import logger
 from vrchatapi.rest import ApiException
 
-from .utils import get_login_msg
+from nonebot_plugin_vrchat.config import PLAYER_PATH
+
+from .utils import get_login_msg, random_login_msg
 
 
 async def search_users(
@@ -20,7 +22,11 @@ async def search_users(
     offset: int | 偏移值？
     """
     try:
-        api_client = await get_login_msg(usr_id)
+        api_client = (
+            (await get_login_msg(usr_id))
+            if (PLAYER_PATH / f"{usr_id}.cookies").exists()
+            else (await random_login_msg())
+        )
     except Exception:
         return None
     api_instance = vrchatapi.UsersApi(api_client)

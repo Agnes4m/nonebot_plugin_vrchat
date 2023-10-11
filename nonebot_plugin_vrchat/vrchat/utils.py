@@ -3,7 +3,7 @@ import vrchatapi
 
 from ..classes import UsrMsg
 from ..config import config
-from .cookies import load_cookies
+from .cookies import get_random_cookie, load_cookies
 
 
 async def get_login_msg(usr_id: str):
@@ -22,3 +22,10 @@ async def get_login_msg(usr_id: str):
     api_client: vrchatapi.ApiClient = vrchatapi.ApiClient(configuration)
     load_cookies(api_client, usr_id)
     return api_client
+
+
+async def random_login_msg():
+    cookie_path = get_random_cookie()
+    if not cookie_path:
+        raise FileNotFoundError("Did not found any cookies file")
+    return await get_login_msg(cookie_path.stem)

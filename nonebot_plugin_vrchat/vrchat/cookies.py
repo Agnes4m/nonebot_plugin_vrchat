@@ -1,13 +1,15 @@
 """
-Uitl functions to manage cookies of VRChat API.
+Util functions to manage cookies of VRChat API.
 """
 
+import random
 from http.cookiejar import LWPCookieJar
+from pathlib import Path
+from typing import Optional
 
-# from pathlib import Path
 import vrchatapi
 
-from ..config import PLAYER_PATH, config
+from ..config import PLAYER_PATH
 
 
 def save_cookies(client: vrchatapi.ApiClient, filename: str):
@@ -50,9 +52,17 @@ def load_cookies(client: vrchatapi.ApiClient, filename: str):
         client.rest_client.cookie_jar.set_cookie(cookie)
 
 
-def remove_cookies(filename: str = "cookies"):
+def remove_cookies(filename: str):
     """
     remove cookies file
     """
-    if config.vrc_path.joinpath(filename).exists():
-        config.vrc_path.joinpath(filename).unlink()
+    path = PLAYER_PATH / filename
+    if path.exists():
+        path.unlink()
+
+
+def get_random_cookie() -> Optional[Path]:
+    cookies = list(PLAYER_PATH.glob("*.cookies"))
+    if cookies:
+        return random.choice(cookies)
+    return None
