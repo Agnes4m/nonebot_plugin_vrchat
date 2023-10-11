@@ -7,33 +7,39 @@ from http.cookiejar import LWPCookieJar
 # from pathlib import Path
 import vrchatapi
 
-from ..config import config
+from ..config import PLAYER_PATH, config
 
 
-def save_cookies(client: vrchatapi.ApiClient, filename: str = "./cookies.txt"):
+def save_cookies(client: vrchatapi.ApiClient, filename: str):
     """Save current session cookies
 
     Args:
         filename (str): Path to save cookies to
     """
 
-    cookie_jar = LWPCookieJar(filename=filename)
+    if not filename.endswith(".cookies"):
+        filename += ".cookies"
+    path = PLAYER_PATH / filename
 
+    cookie_jar = LWPCookieJar(filename=path)
     for cookie in client.rest_client.cookie_jar:
         cookie_jar.set_cookie(cookie)
 
     cookie_jar.save()
 
 
-def load_cookies(client: vrchatapi.ApiClient, filename: str = "./cookies.txt"):
+def load_cookies(client: vrchatapi.ApiClient, filename: str):
     """Load cached session cookies from file
 
     Args:
         filename (str): Path to load cookies from
     """
 
-    cookie_jar = LWPCookieJar(filename=filename)
+    if not filename.endswith(".cookies"):
+        filename += ".cookies"
+    path = PLAYER_PATH / filename
 
+    cookie_jar = LWPCookieJar(filename=path)
     try:
         cookie_jar.load()
     except FileNotFoundError:
@@ -48,5 +54,5 @@ def remove_cookies(filename: str = "cookies"):
     """
     remove cookies file
     """
-    if config.vrc_path.joinpath(filename).exists:
+    if config.vrc_path.joinpath(filename).exists():
         config.vrc_path.joinpath(filename).unlink()
