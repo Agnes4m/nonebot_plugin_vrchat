@@ -186,9 +186,9 @@ class UserInfo:
             user.current_avatar_thumbnail_image_url
             and user.display_name
             and user.status
-            # and user.location # 陌生人这个是None
-            and user.tags
-            # and user.developer_type # 有可能是None
+            # and user.location # 陌生人这个是 None
+            and isinstance(user.tags, list)
+            # and user.developer_type # 有可能是 None
         ):
             raise ValueError("Invalid user")
 
