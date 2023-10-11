@@ -24,7 +24,15 @@ from pil_utils import BuildImage, Text2Image
 
 T = TypeVar("T")
 
-StatusType = Literal["online", "joinme", "busy", "askme", "offline"]
+StatusType = Literal[
+    "online",
+    "webonline",
+    "joinme",
+    "busy",
+    "askme",
+    "offline",
+    "unknown",
+]
 
 BG_COLOR = (5, 5, 5)
 CARD_BG_COLOR = (36, 42, 49)
@@ -35,10 +43,12 @@ AVATAR_BORDER_COLOR = "gray"
 OVERVIEW_TITLE_COLOR = (248, 249, 250)
 STATUS_COLORS: Dict[StatusType, str] = {
     "online": "#51e57e",
+    "webonline": "#51e57e",
     "joinme": "#42caff",
     "busy": "#5b0b0b",
     "askme": "#e88134",
     "offline": "gray",
+    "unknown": "gray",
 }
 
 CARD_SIZE = (710, 190)
@@ -70,17 +80,21 @@ NORMALIZE_STATUS_MAP: Dict[str, StatusType] = {
 }
 STATUS_DESC_MAP: Dict[StatusType, str] = {
     "online": "在线",
+    "webonline": "网页在线",
     "joinme": "欢迎加入",
     "busy": "请勿打扰",
     "askme": "请先询问",
     "offline": "离线",
+    "unknown": "未知",
 }
 
 
 def normalize_status(status: str, location: str) -> StatusType:
     if location == "offline":
+        if status == "active":
+            return "webonline"
         return "offline"
-    return NORMALIZE_STATUS_MAP.get(status, "offline")
+    return NORMALIZE_STATUS_MAP.get(status, "unknown")
 
 
 def chunks(lst: Sequence[T], n: int) -> Iterator[Sequence[T]]:
@@ -131,14 +145,12 @@ class UserInfo:
             # and user.status_description
         ):
             raise ValueError("Invalid user")
-        if not user.status_description:
-            user.status_description = user.location
         status = normalize_status(user.status, user.location)
         return cls(
             avatar_url=user.current_avatar_thumbnail_image_url,
             name=user.display_name,
             status=status,
-            status_desc=user.status_description,
+            status_desc=user.status_description or STATUS_DESC_MAP[status],
         )
 
 
@@ -267,6 +279,7 @@ async def draw_overview(users: List[UserInfo]) -> BuildImage:
     user_dict: Dict[StatusType, List[UserInfo]] = {}
     for user in users:
         user_dict.setdefault(user.status, []).append(user)
+    sorted_user_infos = ((k, user_dict[k]) for k in STATUS_DESC_MAP if k in user_dict)
 
     card_w, card_h = CARD_SIZE
     width_multiplier = max((len(x) for x in user_dict.values()), default=0)
@@ -287,7 +300,7 @@ async def draw_overview(users: List[UserInfo]) -> BuildImage:
     semaphore = Semaphore(8)
 
     y_offset = CARD_MARGIN
-    for status, users in user_dict.items():
+    for status, users in sorted_user_infos:
         title_text = Text2Image.from_text(
             f"{STATUS_DESC_MAP[status]} ({len(users)})",
             OVERVIEW_TITLE_FONT_SIZE,
