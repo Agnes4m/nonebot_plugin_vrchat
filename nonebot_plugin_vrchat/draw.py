@@ -195,12 +195,14 @@ async def draw_user_on_image(
     # avatar
     avatar_w, avatar_h = AVATAR_SIZE
     avatar_y = card_h // 2 - avatar_h // 2
-    image.paste(
-        avatar_img.copy()
-        .resize(AVATAR_SIZE, keep_ratio=True)
-        .filter(GaussianBlur(AVATAR_BG_BLUR)),
-        (offset_x + CARD_PADDING, offset_y + avatar_y),
-    )
+    if not abs((avatar_w / avatar_h) - (avatar_img.width / avatar_img.height)) < 0.1:
+        # print(f"draw bg blur for user {user.name}")
+        image.paste(
+            avatar_img.copy()
+            .resize(AVATAR_SIZE, keep_ratio=True)
+            .filter(GaussianBlur(AVATAR_BG_BLUR)),
+            (offset_x + CARD_PADDING, offset_y + avatar_y),
+        )
     image.paste(
         avatar_img.copy().resize(AVATAR_SIZE, keep_ratio=True, inside=True),
         (offset_x + CARD_PADDING, offset_y + avatar_y),
