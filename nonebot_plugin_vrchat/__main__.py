@@ -7,7 +7,7 @@ from nonebot.typing import T_State
 from nonebot_plugin_saa import Image, MessageFactory
 from vrchatapi.exceptions import UnauthorizedException
 
-from .draw import draw_and_save
+from .draw import draw_user_card_overview, i2b, transform_limited_users
 from .vrchat.friend import get_all_friends
 from .vrchat.login import login_in
 from .vrchat.users import search_users
@@ -122,7 +122,8 @@ async def _(event: Event, matcher: Matcher):
     if msg is None:
         await matcher.finish("尚未登录,请私聊并发送【vrc登录】")
     if msg:
-        send_msg = await draw_and_save(msg)
+        usr = transform_limited_users(msg)
+        send_msg = i2b(await draw_user_card_overview(usr))
         await MessageFactory([Image(send_msg)]).finish()
         # send_msg = await friend_status_msg(msg)
         # if send_msg:
@@ -135,7 +136,8 @@ async def _(event: Event, matcher: Matcher):
 async def _(event: Event, matcher: Matcher, arg: Message = CommandArg()):
     msg = await search_users(event.get_user_id(), arg.extract_plain_text())
     if msg is not None:
-        send_msg = await draw_and_save(msg)
+        usr = transform_limited_users(msg)
+        send_msg = i2b(await draw_user_card_overview(usr))
         await MessageFactory([Image(send_msg)]).finish()
         # send_msg = await search_usrs_msg(msg)
         # if send_msg:

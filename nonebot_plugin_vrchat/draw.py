@@ -221,7 +221,7 @@ async def get_url_bytes(url: str) -> bytes:
         return resp.content
 
 
-async def draw_user_on_image(
+async def draw_user_card_on_image(
     user: UserInfo,
     image: BuildImage,
     pos: Tuple[int, int],
@@ -318,7 +318,7 @@ async def draw_user_on_image(
     return image
 
 
-def transform_users(users: List[vrchatapi.LimitedUser]) -> List[UserInfo]:
+def transform_limited_users(users: List[vrchatapi.LimitedUser]) -> List[UserInfo]:
     def trans(it: vrchatapi.LimitedUser) -> Optional[UserInfo]:
         try:
             return UserInfo.from_limited_user(it)
@@ -329,19 +329,24 @@ def transform_users(users: List[vrchatapi.LimitedUser]) -> List[UserInfo]:
     return [x for x in (trans(user) for user in users) if x]
 
 
-async def draw_overview(users: List[UserInfo]) -> BuildImage:
+async def draw_user_card_overview(
+    users: List[UserInfo],
+    group: bool = True,
+) -> BuildImage:
     user_dict: Dict[StatusType, List[UserInfo]] = {}
     for user in users:
         user_dict.setdefault(user.status, []).append(user)
 
     # sort online status
-    sorted_user_infos = tuple(
-        (k, user_dict[k]) for k in STATUS_DESC_MAP if k in user_dict
+    user_dict = dict(
+        ((k, user_dict[k]) for k in STATUS_DESC_MAP if k in user_dict)
+        if group
+        else (("unknown", [x for y in user_dict.values() for x in y]),),
     )
 
     # sort trust level
     trust_keys = list(TRUST_COLORS.keys())
-    for _, li in sorted_user_infos:
+    for li in user_dict.values():
         li.sort(key=lambda x: trust_keys.index(x.trust), reverse=True)
 
     card_w, card_h = CARD_SIZE
@@ -355,7 +360,13 @@ async def draw_overview(users: List[UserInfo]) -> BuildImage:
     for users in user_dict.values():
         height_multiplier = ceil(len(users) / width_multiplier)
         height += (
-            title_h + height_multiplier * card_h + (height_multiplier + 1) * CARD_MARGIN
+            (
+                title_h
+                + height_multiplier * card_h
+                + (height_multiplier + 1) * CARD_MARGIN
+            )
+            if group
+            else (height_multiplier * card_h + height_multiplier * CARD_MARGIN)
         )
 
     image = BuildImage.new("RGBA", (width, height), BG_COLOR)
@@ -363,21 +374,22 @@ async def draw_overview(users: List[UserInfo]) -> BuildImage:
     semaphore = Semaphore(8)
 
     y_offset = CARD_MARGIN
-    for status, users in sorted_user_infos:
-        title_text = Text2Image.from_text(
-            f"{STATUS_DESC_MAP[status]} ({len(users)})",
-            OVERVIEW_TITLE_FONT_SIZE,
-            fill=OVERVIEW_TITLE_COLOR,
-            weight="bold",
-        )
-        title_text.draw_on_image(image.image, (CARD_MARGIN, y_offset))
-        y_offset += title_h + CARD_MARGIN
+    for status, users in user_dict.items():
+        if group:
+            title_text = Text2Image.from_text(
+                f"{STATUS_DESC_MAP[status]} ({len(users)})",
+                OVERVIEW_TITLE_FONT_SIZE,
+                fill=OVERVIEW_TITLE_COLOR,
+                weight="bold",
+            )
+            title_text.draw_on_image(image.image, (CARD_MARGIN, y_offset))
+            y_offset += title_h + CARD_MARGIN
 
         for line in chunks(users, width_multiplier):
             x_offset = CARD_MARGIN
             for user in line:
                 tasks.append(
-                    with_semaphore(semaphore)(draw_user_on_image)(
+                    with_semaphore(semaphore)(draw_user_card_on_image)(
                         user,
                         image,
                         (x_offset, y_offset),
@@ -391,7 +403,13 @@ async def draw_overview(users: List[UserInfo]) -> BuildImage:
     return image
 
 
-async def draw_and_save(users: List[vrchatapi.LimitedUser]) -> BytesIO:
-    infos = transform_users(users)
-    img = await draw_overview(infos)
-    return img.convert("RGB").save_jpg()
+def i2b(img: BuildImage, img_format: str = "JPEG") -> BytesIO:
+    if img_format.lower() == "jpeg":
+        img = img.convert("RGB")
+    return img.save(img_format)
+
+
+async def draw_user_profile(user: vrchatapi.User) -> BuildImage:
+    bg = BuildImage.new("RGBA", (500, 500), BG_COLOR)
+    bg.draw_text((5, 5), f"User: {user.display_name}\nWorking in progress")
+    return bg
