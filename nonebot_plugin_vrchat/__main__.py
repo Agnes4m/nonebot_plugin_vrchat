@@ -15,7 +15,6 @@ from .vrchat.world import worlds_search
 
 vrc_help = on_command("vrchelp", aliases={"vrc帮助"}, priority=20)
 vrc_login = on_command("vrcl", aliases={"vrc登录"}, priority=20)
-# friend_online = on_command("vrcol", aliases={"vrc在线好友"}, priority=20)
 friend_request = on_command("vrcrq", aliases={"vrc全部好友"}, priority=20)
 search_user = on_command("vrcsu", aliases={"vrc查询用户"}, priority=20)
 world_search = on_command("vrcws", aliases={"vrc查询世界"}, priority=20)

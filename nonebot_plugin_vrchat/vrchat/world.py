@@ -41,7 +41,7 @@ async def worlds_search(
         else:
             api_response: List[vrchatapi.LimitedWorld] = api_instance.search_worlds(
                 search=search,
-                featured=True,
+                # featured=True,
                 n=n,
                 offset=offset,
             )  # type: ignore
