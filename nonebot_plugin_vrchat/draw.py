@@ -24,21 +24,51 @@ from pil_utils import BuildImage, Text2Image
 
 T = TypeVar("T")
 
-StatusType = Literal["online", "joinme", "busy", "askme", "offline"]
+StatusType = Literal[
+    "online",
+    "webonline",
+    "joinme",
+    "busy",
+    "askme",
+    "offline",
+    "unknown",
+]
+TrustType = Literal[
+    "visitor",
+    "new",
+    "user",
+    "known",
+    "trusted",
+    "friend",
+    "developer",
+    "moderator",
+]
 
 BG_COLOR = (5, 5, 5)
 CARD_BG_COLOR = (36, 42, 49)
 CARD_TITLE_COLOR = (9, 93, 106)
 CARD_FONT_COLOR = "#f8f9fa"
-CARD_BORDER_COLOR = (8, 108, 132)
 AVATAR_BORDER_COLOR = "gray"
+AVATAR_ONLINE_BORDER_COLOR = "#ebd23b"
 OVERVIEW_TITLE_COLOR = (248, 249, 250)
 STATUS_COLORS: Dict[StatusType, str] = {
     "online": "#51e57e",
+    "webonline": "#51e57e",
     "joinme": "#42caff",
     "busy": "#5b0b0b",
     "askme": "#e88134",
     "offline": "gray",
+    "unknown": "gray",
+}
+TRUST_COLORS: Dict[TrustType, str] = {
+    "visitor": "#cccccc",
+    "new": "#1778ff",
+    "user": "#2bcf5c",
+    "known": "#ff7b42",
+    "trusted": "#8143e6",
+    "friend": "#ffff00",
+    "developer": "#b52626",
+    "moderator": "#b52626",
 }
 
 CARD_SIZE = (710, 190)
@@ -70,17 +100,43 @@ NORMALIZE_STATUS_MAP: Dict[str, StatusType] = {
 }
 STATUS_DESC_MAP: Dict[StatusType, str] = {
     "online": "在线",
+    "webonline": "网页在线",
     "joinme": "欢迎加入",
     "busy": "请勿打扰",
     "askme": "请先询问",
     "offline": "离线",
+    "unknown": "未知",
 }
+NORMALIZE_TRUST_MAP: Dict[str, TrustType] = {
+    "veteran": "trusted",
+    "trusted": "known",
+    "known": "user",
+}
+DEVELOPER_TYPE_MAP: Dict[str, TrustType] = {
+    "internal": "developer",
+    "moderator": "moderator",
+}
+OFFLINE_STATUSES = ["offline", "unknown"]
+TRUST_TAG_PREFIX = "system_trust_"
 
 
 def normalize_status(status: str, location: str) -> StatusType:
     if location == "offline":
+        if status == "active":
+            return "webonline"
         return "offline"
-    return NORMALIZE_STATUS_MAP.get(status, "offline")
+    return NORMALIZE_STATUS_MAP.get(status, "unknown")
+
+
+def extract_trust_level(tags: List[str], developer_type: str) -> TrustType:
+    if developer_type in DEVELOPER_TYPE_MAP:
+        return DEVELOPER_TYPE_MAP[developer_type]
+
+    for suffix in NORMALIZE_TRUST_MAP:
+        if f"{TRUST_TAG_PREFIX}{suffix}" in tags:
+            return NORMALIZE_TRUST_MAP[suffix]
+
+    return "visitor"
 
 
 def chunks(lst: Sequence[T], n: int) -> Iterator[Sequence[T]]:
@@ -120,25 +176,29 @@ class UserInfo:
     avatar_url: str
     status: StatusType
     status_desc: str
+    trust: TrustType
 
     @classmethod
     def from_limited_user(cls, user: vrchatapi.LimitedUser) -> "UserInfo":
+        logger.debug(f"User: {user.to_dict()}")
         if not (
             user.current_avatar_thumbnail_image_url
             and user.display_name
             and user.status
             and user.location
-            # and user.status_description
+            and user.tags
+            and user.developer_type
         ):
             raise ValueError("Invalid user")
-        if not user.status_description:
-            user.status_description = user.location
+
         status = normalize_status(user.status, user.location)
+        trust = extract_trust_level(user.tags, user.developer_type)
         return cls(
             avatar_url=user.current_avatar_thumbnail_image_url,
             name=user.display_name,
             status=status,
-            status_desc=user.status_description,
+            status_desc=user.status_description or STATUS_DESC_MAP[status],
+            trust=trust,
         )
 
 
@@ -176,19 +236,21 @@ async def draw_user_on_image(
         (offset_x, offset_y, offset_x + card_w, offset_y + card_h),
         CARD_BORDER_RADIUS,
         fill=CARD_BG_COLOR,
-        outline=CARD_BORDER_COLOR,
+        outline=TRUST_COLORS[user.trust],
         width=CARD_BORDER_WIDTH,
     )
 
     # avatar
     avatar_w, avatar_h = AVATAR_SIZE
     avatar_y = card_h // 2 - avatar_h // 2
-    image.paste(
-        avatar_img.copy()
-        .resize(AVATAR_SIZE, keep_ratio=True)
-        .filter(GaussianBlur(AVATAR_BG_BLUR)),
-        (offset_x + CARD_PADDING, offset_y + avatar_y),
-    )
+    if not abs((avatar_w / avatar_h) - (avatar_img.width / avatar_img.height)) < 0.1:
+        # print(f"draw bg blur for user {user.name}")
+        image.paste(
+            avatar_img.copy()
+            .resize(AVATAR_SIZE, keep_ratio=True)
+            .filter(GaussianBlur(AVATAR_BG_BLUR)),
+            (offset_x + CARD_PADDING, offset_y + avatar_y),
+        )
     image.paste(
         avatar_img.copy().resize(AVATAR_SIZE, keep_ratio=True, inside=True),
         (offset_x + CARD_PADDING, offset_y + avatar_y),
@@ -202,7 +264,11 @@ async def draw_user_on_image(
             offset_y + CARD_BORDER_WIDTH - 1 + avatar_y + avatar_h,
         ),
         AVATAR_BORDER_RADIUS,
-        outline=AVATAR_BORDER_COLOR,
+        outline=(
+            AVATAR_BORDER_COLOR
+            if user.status in OFFLINE_STATUSES
+            else AVATAR_ONLINE_BORDER_COLOR
+        ),
         width=4,
     )
 
@@ -268,6 +334,16 @@ async def draw_overview(users: List[UserInfo]) -> BuildImage:
     for user in users:
         user_dict.setdefault(user.status, []).append(user)
 
+    # sort online status
+    sorted_user_infos = tuple(
+        (k, user_dict[k]) for k in STATUS_DESC_MAP if k in user_dict
+    )
+
+    # sort trust level
+    trust_keys = list(TRUST_COLORS.keys())
+    for _, li in sorted_user_infos:
+        li.sort(key=lambda x: trust_keys.index(x.trust), reverse=True)
+
     card_w, card_h = CARD_SIZE
     width_multiplier = max((len(x) for x in user_dict.values()), default=0)
     if width_multiplier > MAX_CARDS_PER_LINE:
@@ -287,7 +363,7 @@ async def draw_overview(users: List[UserInfo]) -> BuildImage:
     semaphore = Semaphore(8)
 
     y_offset = CARD_MARGIN
-    for status, users in user_dict.items():
+    for status, users in sorted_user_infos:
         title_text = Text2Image.from_text(
             f"{STATUS_DESC_MAP[status]} ({len(users)})",
             OVERVIEW_TITLE_FONT_SIZE,

@@ -20,5 +20,5 @@ async def get_login_msg(usr_id: str):
     # configuration.api_key["authCookie"] = usr_msg.cookie
 
     api_client: vrchatapi.ApiClient = vrchatapi.ApiClient(configuration)
-    load_cookies(api_client, "./cookies.txt")
+    load_cookies(api_client, usr_id)
     return api_client

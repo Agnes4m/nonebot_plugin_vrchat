@@ -63,7 +63,7 @@ def login_vrc(
                 # Calling verify2fa if the account has 2FA enabled
                 auth_api.verify2_fa(two_factor_auth_code=TwoFactorAuthCode(code))
             current_user: CurrentUser = auth_api.get_current_user()  # type: ignore
-            save_cookies(api_client, "./cookies.txt")
+            save_cookies(api_client, usr_id)
 
             # assert isinstance(current_user, vrchatapi.CurrentUser)
             # logger.info(f"Logged in as: {current_user.display_name}")
@@ -120,7 +120,7 @@ async def login_in(
     api_client = vrchatapi.ApiClient(configuration)
     api_client.user_agent = "VRC-Notify/0.1.0 woolensheep@qq.com"
 
-    load_cookies(api_client, "./cookies.txt")
+    load_cookies(api_client, usr_id)
     try:
         login_vrc(api_client, usr_id, username, password, code)
     except TwoFactorAuthException:
@@ -134,7 +134,7 @@ async def login_in(
         return 500, str(e)
     auth_api = authentication_api.AuthenticationApi(api_client)
     current_user: CurrentUser = auth_api.get_current_user()  # type: ignore
-    save_cookies(api_client, "./cookies.txt")
+    save_cookies(api_client, usr_id)
 
     name: str = current_user.display_name if current_user.display_name else ""
     print(f"Logged in as {name}")
