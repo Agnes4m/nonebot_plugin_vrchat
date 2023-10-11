@@ -3,6 +3,7 @@ from asyncio import Semaphore
 from dataclasses import dataclass
 from io import BytesIO
 from math import ceil
+from pathlib import Path
 from typing import (
     Awaitable,
     Dict,
@@ -120,7 +121,7 @@ OFFLINE_STATUSES = ["offline", "unknown"]
 TRUST_TAG_PREFIX = "system_trust_"
 
 
-def normalize_status(status: str, location: str) -> StatusType:
+def normalize_status(status: str, location: Optional[str]) -> StatusType:
     if location == "offline":
         if status == "active":
             return "webonline"
@@ -128,7 +129,7 @@ def normalize_status(status: str, location: str) -> StatusType:
     return NORMALIZE_STATUS_MAP.get(status, "unknown")
 
 
-def extract_trust_level(tags: List[str], developer_type: str) -> TrustType:
+def extract_trust_level(tags: List[str], developer_type: Optional[str]) -> TrustType:
     if developer_type in DEVELOPER_TYPE_MAP:
         return DEVELOPER_TYPE_MAP[developer_type]
 
@@ -185,9 +186,9 @@ class UserInfo:
             user.current_avatar_thumbnail_image_url
             and user.display_name
             and user.status
-            and user.location
+            # and user.location # 陌生人这个是None
             and user.tags
-            and user.developer_type
+            # and user.developer_type # 有可能是None
         ):
             raise ValueError("Invalid user")
 
@@ -226,8 +227,10 @@ async def draw_user_on_image(
     image: BuildImage,
     pos: Tuple[int, int],
 ) -> BuildImage:
-    avatar_img = BuildImage.open(BytesIO(await get_url_bytes(user.avatar_url)))
-
+    try:
+        avatar_img = BuildImage.open(BytesIO(await get_url_bytes(user.avatar_url)))
+    except Exception:
+        avatar_img = BuildImage.open(Path(__file__).parent.joinpath("img/head.jpg"))
     offset_x, offset_y = pos
     card_w, card_h = CARD_SIZE
 

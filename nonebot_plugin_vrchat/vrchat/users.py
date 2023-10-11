@@ -10,9 +10,9 @@ from .utils import get_login_msg
 async def search_users(
     usr_id: str,
     search: str,
-    n: int = 5,
+    n: int = 10,
     # developer_type: str = "none"
-    offset: int = 1,
+    offset: int = 0,
 ) -> Optional[List[vrchatapi.LimitedUser]]:
     """查询用户信息
     search: str | 通过displayName查询,如果为空返回空数组
@@ -24,9 +24,10 @@ async def search_users(
     except Exception:
         return None
     api_instance = vrchatapi.UsersApi(api_client)
-
+    logger.info(f"关键词:{search}")
     try:
         if search.startswith("usr_") and len(search) >= 20:
+            logger.info("精确查找")
             api_response: List[vrchatapi.LimitedUser] = [
                 api_instance.get_user(
                     search=search,

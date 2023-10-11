@@ -1,13 +1,13 @@
 [project]
 name = "nonebot-plugin-vrchat"
-version = "0.0.5"
+version = "0.0.6"
 description = "使用第三方api实现vrchat相关操作,plugin for nonebot2"
 authors = [{ name = "Agnes_Digital", email = "Z735803792@163.com" }]
 requires-python = ">=3.9,<4.0"
 keywords = ["steam", "game", "vrchat", "nonebot2", "plugin"]
 dependencies = [
     "nonebot2>=2.0.0",
-    "nonebot-plugin-send-anything-anywhere>=0.2.7",
+    "nonebot-plugin-send-anything-anywhere>=0.3.1",
     "vrchatapi>=1.15.0",
     "httpx>=0.25.0",
     "ujson>=5.8.0",
