@@ -5,17 +5,13 @@ from nonebot.matcher import Matcher
 from nonebot.params import ArgPlainText, CommandArg
 from nonebot.typing import T_State
 from nonebot_plugin_saa import Image, MessageFactory
+from vrchatapi.exceptions import UnauthorizedException
 
 from .draw import draw_and_save
 from .vrchat.friend import get_all_friends
-
-# from .config import config
 from .vrchat.login import login_in
 from .vrchat.users import search_users
 from .vrchat.world import worlds_search
-
-# from .message import friend_status_msg, search_usrs_msg
-
 
 vrc_help = on_command("vrchelp", aliases={"vrc帮助"}, priority=20)
 vrc_login = on_command("vrcl", aliases={"vrc登录"}, priority=20)
@@ -63,7 +59,7 @@ async def _(
     print(username, password)
     status, msg = await login_in(event.get_user_id(), username, password)
     if status == 200:
-        await matcher.finish(f"登录成功，姓名为{msg}")
+        await matcher.finish(f"登录成功，欢迎，{msg}")
     if status == 500:
         await matcher.reject("参数或服务器错误")
     if status == 401:
@@ -114,7 +110,15 @@ async def _(
 
 @friend_request.handle()
 async def _(event: Event, matcher: Matcher):
-    msg = await get_all_friends(event.get_user_id())
+    try:
+        msg = await get_all_friends(event.get_user_id())
+    except UnauthorizedException as e:
+        logger.warning(f"UnauthorizedException: {e}")
+        await matcher.finish("登录已过期，请重新登录")
+    except Exception:
+        logger.exception("Exception when getting friends")
+        await matcher.finish("请求失败，请检查后台输出")
+
     if msg is None:
         await matcher.finish("尚未登录,请私聊并发送【vrc登录】")
     if msg:

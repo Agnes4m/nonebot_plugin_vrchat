@@ -33,13 +33,23 @@ StatusType = Literal[
     "offline",
     "unknown",
 ]
+TrustType = Literal[
+    "visitor",
+    "new",
+    "user",
+    "known",
+    "trusted",
+    "friend",
+    "developer",
+    "moderator",
+]
 
 BG_COLOR = (5, 5, 5)
 CARD_BG_COLOR = (36, 42, 49)
 CARD_TITLE_COLOR = (9, 93, 106)
 CARD_FONT_COLOR = "#f8f9fa"
-CARD_BORDER_COLOR = (8, 108, 132)
 AVATAR_BORDER_COLOR = "gray"
+AVATAR_ONLINE_BORDER_COLOR = "#ebd23b"
 OVERVIEW_TITLE_COLOR = (248, 249, 250)
 STATUS_COLORS: Dict[StatusType, str] = {
     "online": "#51e57e",
@@ -49,6 +59,16 @@ STATUS_COLORS: Dict[StatusType, str] = {
     "askme": "#e88134",
     "offline": "gray",
     "unknown": "gray",
+}
+TRUST_COLORS: Dict[TrustType, str] = {
+    "visitor": "#cccccc",
+    "new": "#1778ff",
+    "user": "#2bcf5c",
+    "known": "#ff7b42",
+    "trusted": "#8143e6",
+    "friend": "#ffff00",
+    "developer": "#b52626",
+    "moderator": "#b52626",
 }
 
 CARD_SIZE = (710, 190)
@@ -87,6 +107,17 @@ STATUS_DESC_MAP: Dict[StatusType, str] = {
     "offline": "离线",
     "unknown": "未知",
 }
+NORMALIZE_TRUST_MAP: Dict[str, TrustType] = {
+    "veteran": "trusted",
+    "trusted": "known",
+    "known": "user",
+}
+DEVELOPER_TYPE_MAP: Dict[str, TrustType] = {
+    "internal": "developer",
+    "moderator": "moderator",
+}
+OFFLINE_STATUSES = ["offline", "unknown"]
+TRUST_TAG_PREFIX = "system_trust_"
 
 
 def normalize_status(status: str, location: str) -> StatusType:
@@ -95,6 +126,17 @@ def normalize_status(status: str, location: str) -> StatusType:
             return "webonline"
         return "offline"
     return NORMALIZE_STATUS_MAP.get(status, "unknown")
+
+
+def extract_trust_level(tags: List[str], developer_type: str) -> TrustType:
+    if developer_type in DEVELOPER_TYPE_MAP:
+        return DEVELOPER_TYPE_MAP[developer_type]
+
+    for suffix in NORMALIZE_TRUST_MAP:
+        if f"{TRUST_TAG_PREFIX}{suffix}" in tags:
+            return NORMALIZE_TRUST_MAP[suffix]
+
+    return "visitor"
 
 
 def chunks(lst: Sequence[T], n: int) -> Iterator[Sequence[T]]:
@@ -134,23 +176,29 @@ class UserInfo:
     avatar_url: str
     status: StatusType
     status_desc: str
+    trust: TrustType
 
     @classmethod
     def from_limited_user(cls, user: vrchatapi.LimitedUser) -> "UserInfo":
+        logger.debug(f"User: {user.to_dict()}")
         if not (
             user.current_avatar_thumbnail_image_url
             and user.display_name
             and user.status
             and user.location
-            # and user.status_description
+            and user.tags
+            and user.developer_type
         ):
             raise ValueError("Invalid user")
+
         status = normalize_status(user.status, user.location)
+        trust = extract_trust_level(user.tags, user.developer_type)
         return cls(
             avatar_url=user.current_avatar_thumbnail_image_url,
             name=user.display_name,
             status=status,
             status_desc=user.status_description or STATUS_DESC_MAP[status],
+            trust=trust,
         )
 
 
@@ -188,7 +236,7 @@ async def draw_user_on_image(
         (offset_x, offset_y, offset_x + card_w, offset_y + card_h),
         CARD_BORDER_RADIUS,
         fill=CARD_BG_COLOR,
-        outline=CARD_BORDER_COLOR,
+        outline=TRUST_COLORS[user.trust],
         width=CARD_BORDER_WIDTH,
     )
 
@@ -216,7 +264,11 @@ async def draw_user_on_image(
             offset_y + CARD_BORDER_WIDTH - 1 + avatar_y + avatar_h,
         ),
         AVATAR_BORDER_RADIUS,
-        outline=AVATAR_BORDER_COLOR,
+        outline=(
+            AVATAR_BORDER_COLOR
+            if user.status in OFFLINE_STATUSES
+            else AVATAR_ONLINE_BORDER_COLOR
+        ),
         width=4,
     )
 
@@ -281,7 +333,16 @@ async def draw_overview(users: List[UserInfo]) -> BuildImage:
     user_dict: Dict[StatusType, List[UserInfo]] = {}
     for user in users:
         user_dict.setdefault(user.status, []).append(user)
-    sorted_user_infos = ((k, user_dict[k]) for k in STATUS_DESC_MAP if k in user_dict)
+
+    # sort online status
+    sorted_user_infos = tuple(
+        (k, user_dict[k]) for k in STATUS_DESC_MAP if k in user_dict
+    )
+
+    # sort trust level
+    trust_keys = list(TRUST_COLORS.keys())
+    for _, li in sorted_user_infos:
+        li.sort(key=lambda x: trust_keys.index(x.trust), reverse=True)
 
     card_w, card_h = CARD_SIZE
     width_multiplier = max((len(x) for x in user_dict.values()), default=0)
