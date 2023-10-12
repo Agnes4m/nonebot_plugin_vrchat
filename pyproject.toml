@@ -10,9 +10,9 @@ dependencies = [
     "nonebot-plugin-send-anything-anywhere>=0.3.1",
     "vrchatapi>=1.15.0",
     "httpx>=0.25.0",
-    "ujson>=5.8.0",
     "pil-utils>=0.1.8",
     "async-lru>=2.0.4",
+    "nonebot-plugin-session>=0.1.0",
 ]
 classifiers = [
     "License :: OSI Approved :: MIT License",

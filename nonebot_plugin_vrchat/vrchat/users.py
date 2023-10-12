@@ -1,56 +1,52 @@
-from typing import List, Optional
+from typing import AsyncIterator, Awaitable, List, Optional, cast
 
-import vrchatapi
-from nonebot.log import logger
-from vrchatapi.rest import ApiException
+from nonebot.utils import run_sync
+from vrchatapi import ApiClient, LimitedUser, User, UsersApi
 
-from nonebot_plugin_vrchat.config import PLAYER_PATH
-
-from .utils import get_login_msg, random_login_msg
+from .types import LimitedUserModel, UserModel
+from .utils import auto_parse_iterator_return, auto_parse_return, iter_pagination_func
 
 
-async def search_users(
-    usr_id: str,
-    search: str,
-    n: int = 10,
-    # developer_type: str = "none"
+def search_users(
+    client: ApiClient,
+    keyword: str,
+    page_size: int = 10,
     offset: int = 0,
-) -> Optional[List[vrchatapi.LimitedUser]]:
-    """查询用户信息
-    search: str | 通过displayName查询,如果为空返回空数组
-    n: int | 返回信息数量
-    offset: int | 偏移值？
-    """
-    try:
-        api_client = (
-            (await get_login_msg(usr_id))
-            if (PLAYER_PATH / f"{usr_id}.cookies").exists()
-            else (await random_login_msg())
+) -> AsyncIterator[LimitedUserModel]:
+    api = UsersApi(client)
+
+    @auto_parse_iterator_return(LimitedUserModel)
+    @iter_pagination_func(page_size=page_size, offset=offset)
+    async def iterator(page_size: int, offset: int) -> List[LimitedUser]:
+        return await cast(
+            Awaitable[List[LimitedUser]],
+            run_sync(api.search_users)(search=keyword, n=page_size, offset=offset),
         )
-    except Exception:
-        return None
-    api_instance = vrchatapi.UsersApi(api_client)
-    logger.info(f"关键词:{search}")
-    try:
-        if search.startswith("usr_") and len(search) >= 20:
-            logger.info("精确查找")
-            api_response: List[vrchatapi.LimitedUser] = [
-                api_instance.get_user(
-                    search=search,
-                    n=n,
-                    offset=offset,
-                ),  # type: ignore
-            ]
-            # Search All Users
-        else:
-            api_response: List[vrchatapi.LimitedUser] = api_instance.search_users(
-                search=search,
-                n=n,
-                offset=offset,
-            )  # type: ignore
-        logger.info(api_response)
-        if api_response:
-            return api_response
-    except ApiException as e:
-        logger.warning("Exception when calling UsersApi->search_users: %s\n" % e)
-    return None
+
+    return iterator()
+
+
+@auto_parse_return(UserModel)
+async def get_user(client: ApiClient, user_id: str) -> User:
+    api = UsersApi(client)
+    return await cast(
+        Awaitable[User],
+        run_sync(api.get_user)(user_id=user_id),
+    )
+
+
+# region monkey patch User
+def patched_instance_id_getter(self: User) -> Optional[str]:
+    return self._instance_id
+
+
+def patched_instance_id_setter(self: User, value: str) -> None:
+    self._instance_id = value
+
+
+setattr(  # noqa: B010
+    User,
+    "instance_id",
+    property(patched_instance_id_getter, patched_instance_id_setter),
+)
+# endregion
