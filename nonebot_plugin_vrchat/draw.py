@@ -1,52 +1,40 @@
 import asyncio
 from asyncio import Semaphore
-from dataclasses import dataclass
 from io import BytesIO
 from math import ceil
 from pathlib import Path
 from typing import (
+    TYPE_CHECKING,
     Awaitable,
     Dict,
     Iterator,
     List,
-    Literal,
     Optional,
     Sequence,
     Tuple,
     TypeVar,
 )
 
-import vrchatapi
 from async_lru import alru_cache
 from httpx import AsyncClient
 from nonebot import logger
 from PIL.ImageFilter import GaussianBlur
 from pil_utils import BuildImage, Text2Image
 
+if TYPE_CHECKING:
+    from .vrchat.types import (
+        GroupModel,
+        LimitedUserModel,
+        NormalizedStatusType,
+        TrustType,
+        UserModel,
+    )
+
 # region common const & type
 T = TypeVar("T")
 
-StatusType = Literal[
-    "online",
-    "webonline",
-    "joinme",
-    "busy",
-    "askme",
-    "offline",
-    "unknown",
-]
-TrustType = Literal[
-    "visitor",
-    "new",
-    "user",
-    "known",
-    "trusted",
-    "friend",
-    "developer",
-    "moderator",
-]
 
-STATUS_COLORS: Dict[StatusType, str] = {
+STATUS_COLORS: Dict["NormalizedStatusType", str] = {
     "online": "#51e57e",
     "webonline": "#51e57e",
     "joinme": "#42caff",
@@ -55,7 +43,7 @@ STATUS_COLORS: Dict[StatusType, str] = {
     "offline": "gray",
     "unknown": "gray",
 }
-TRUST_COLORS: Dict[TrustType, str] = {
+TRUST_COLORS: Dict["TrustType", str] = {
     "visitor": "#cccccc",
     "new": "#1778ff",
     "user": "#2bcf5c",
@@ -65,14 +53,7 @@ TRUST_COLORS: Dict[TrustType, str] = {
     "developer": "#b52626",
     "moderator": "#b52626",
 }
-
-NORMALIZE_STATUS_MAP: Dict[str, StatusType] = {
-    "active": "online",
-    "join me": "joinme",
-    "do not disturb": "busy",
-    "ask me": "askme",
-}
-STATUS_DESC_MAP: Dict[StatusType, str] = {
+STATUS_DESC_MAP: Dict["NormalizedStatusType", str] = {
     "online": "在线",
     "webonline": "网页在线",
     "joinme": "欢迎加入",
@@ -81,17 +62,7 @@ STATUS_DESC_MAP: Dict[StatusType, str] = {
     "offline": "离线",
     "unknown": "未知",
 }
-NORMALIZE_TRUST_MAP: Dict[str, TrustType] = {
-    "veteran": "trusted",
-    "trusted": "known",
-    "known": "user",
-}
-DEVELOPER_TYPE_MAP: Dict[str, TrustType] = {
-    "internal": "developer",
-    "moderator": "moderator",
-}
 OFFLINE_STATUSES = ["offline", "unknown"]
-TRUST_TAG_PREFIX = "system_trust_"
 
 RES_IMG_PATH = Path(__file__).parent / "img"
 DEFAULT_IMG_PATH = RES_IMG_PATH / "default_img.png"
@@ -164,23 +135,7 @@ GROUP_CONTENT_TEXT_SIZE = 26
 # endregion
 
 
-def normalize_status(status: str, location: Optional[str]) -> StatusType:
-    if location == "offline":
-        if status == "active":
-            return "webonline"
-        return "offline"
-    return NORMALIZE_STATUS_MAP.get(status, "unknown")
-
-
-def extract_trust_level(tags: List[str], developer_type: Optional[str]) -> TrustType:
-    if developer_type in DEVELOPER_TYPE_MAP:
-        return DEVELOPER_TYPE_MAP[developer_type]
-
-    for suffix in NORMALIZE_TRUST_MAP:
-        if f"{TRUST_TAG_PREFIX}{suffix}" in tags:
-            return NORMALIZE_TRUST_MAP[suffix]
-
-    return "visitor"
+# region util funcs & classes
 
 
 def chunks(lst: Sequence[T], n: int) -> Iterator[Sequence[T]]:
@@ -220,38 +175,6 @@ def i2b(img: BuildImage, img_format: str = "JPEG") -> BytesIO:
     return img.save(img_format)
 
 
-@dataclass
-class UserInfo:
-    name: str
-    avatar_url: str
-    status: StatusType
-    status_desc: str
-    trust: TrustType
-
-    @classmethod
-    def from_limited_user(cls, user: vrchatapi.LimitedUser) -> "UserInfo":
-        logger.debug(f"User: {user.to_dict()}")
-        if not (
-            user.current_avatar_thumbnail_image_url
-            and user.display_name
-            and user.status
-            # and user.location # 陌生人这个是 None
-            and isinstance(user.tags, list)
-            # and user.developer_type # 有可能是 None
-        ):
-            raise ValueError("Invalid user")
-
-        status = normalize_status(user.status, user.location)
-        trust = extract_trust_level(user.tags, user.developer_type)
-        return cls(
-            avatar_url=user.current_avatar_thumbnail_image_url,
-            name=user.display_name,
-            status=status,
-            status_desc=user.status_description or STATUS_DESC_MAP[status],
-            trust=trust,
-        )
-
-
 @alru_cache()
 async def get_url_bytes(url: str) -> bytes:
     async with AsyncClient(
@@ -272,23 +195,37 @@ async def get_url_bytes(url: str) -> bytes:
 
 
 async def get_image_or_default(
-    url: str,
+    url: Optional[str],
     default_size: Optional[Tuple[int, int]] = None,
+    default_img_path: Optional[Path] = None,
 ) -> BuildImage:
-    try:
-        return BuildImage.open(BytesIO(await get_url_bytes(url)))
-    except Exception as e:
-        logger.warning(
-            f"Failed to get image, url `{url}`: {type(e).__name__}: {e}",
-        )
-        img = BuildImage.open(BytesIO(DEFAULT_IMG_PATH.read_bytes()))
+    img = None
+
+    if url:
+        try:
+            img = BuildImage.open(BytesIO(await get_url_bytes(url)))
+        except Exception as e:
+            logger.warning(
+                f"Failed to get image, url `{url}`: {type(e).__name__}: {e}",
+            )
+
+    if not img:
+        img_path = default_img_path or DEFAULT_IMG_PATH
+        img = BuildImage.open(BytesIO(img_path.read_bytes()))
         if default_size:
             img = img.resize(default_size, keep_ratio=True, inside=True)
-        return img
+
+    return img
+
+
+# endregion
+
+
+# region draw funcs
 
 
 async def draw_user_card_on_image(
-    user: UserInfo,
+    user: "LimitedUserModel",
     image: BuildImage,
     pos: Tuple[int, int],
 ) -> BuildImage:
@@ -305,7 +242,10 @@ async def draw_user_card_on_image(
     )
 
     # avatar
-    avatar_img = await get_image_or_default(user.avatar_url, USER_AVATAR_SIZE)
+    avatar_img = await get_image_or_default(
+        user.current_avatar_image_url,
+        USER_AVATAR_SIZE,
+    )
     avatar_w, avatar_h = USER_AVATAR_SIZE
     avatar_y = card_h // 2 - avatar_h // 2
     if not abs((avatar_w / avatar_h) - (avatar_img.width / avatar_img.height)) < 0.1:
@@ -347,14 +287,14 @@ async def draw_user_card_on_image(
     title_width = card_w - title_x - USER_CARD_PADDING
     content_width = card_w - content_x - USER_CARD_PADDING
     title_text = get_fittable_text(
-        user.name,
+        user.display_name,
         USER_TITLE_FONT_SIZE,
         title_width,
         fill=USER_CARD_TITLE_COLOR,
         weight="bold",
     )
     content_text = get_fittable_text(
-        user.status_desc,
+        user.status_description,
         USER_TEXT_FONT_SIZE,
         content_width,
         fill=USER_CARD_FONT_COLOR,
@@ -387,22 +327,11 @@ async def draw_user_card_on_image(
     return image
 
 
-def transform_limited_users(users: List[vrchatapi.LimitedUser]) -> List[UserInfo]:
-    def trans(it: vrchatapi.LimitedUser) -> Optional[UserInfo]:
-        try:
-            return UserInfo.from_limited_user(it)
-        except ValueError:
-            logger.warning(f"Invalid user: {it.to_dict()}")
-            return None
-
-    return [x for x in (trans(user) for user in users) if x]
-
-
 async def draw_user_card_overview(
-    users: List[UserInfo],
+    users: List["LimitedUserModel"],
     group: bool = True,
 ) -> BuildImage:
-    user_dict: Dict[StatusType, List[UserInfo]] = {}
+    user_dict: Dict["NormalizedStatusType", List["LimitedUserModel"]] = {}
     for user in users:
         user_dict.setdefault(user.status, []).append(user)
 
@@ -473,21 +402,10 @@ async def draw_user_card_overview(
 
 
 async def draw_group_on_image(
-    group: vrchatapi.Group,
+    group: "GroupModel",
     image: BuildImage,
     pos: Tuple[int, int],
 ) -> BuildImage:
-    if not (
-        isinstance(group.name, str)
-        and isinstance(group.banner_url, str)
-        and isinstance(group.icon_url, str)
-        and isinstance(group.description, str)
-        and isinstance(group.member_count, int)
-        and isinstance(group.short_code, str)
-        and isinstance(group.discriminator, str)
-    ):
-        raise ValueError("Invalid group")  # noqa: TRY004
-
     offset_x, offset_y = pos
     card_w, card_h = GROUP_CARD_SIZE
 
@@ -654,7 +572,10 @@ async def draw_group_on_image(
     return image
 
 
-async def draw_user_profile(user: vrchatapi.User) -> BuildImage:
+async def draw_user_profile(user: "UserModel") -> BuildImage:
     bg = BuildImage.new("RGBA", (500, 500), BG_COLOR)
     bg.draw_text((5, 5), f"User: {user.display_name}\nWorking in progress")
     return bg
+
+
+# endregion

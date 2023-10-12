@@ -1,31 +1,77 @@
-import ujson as json
-import vrchatapi
+import asyncio
+from typing import (
+    AsyncIterable,
+    AsyncIterator,
+    Awaitable,
+    Callable,
+    Generic,
+    List,
+    Optional,
+    Protocol,
+    Type,
+    TypeVar,
+)
+from typing_extensions import ParamSpec
 
-from ..classes import UsrMsg
-from ..config import config
-from .cookies import get_random_cookie, load_cookies
+from pydantic import BaseModel
 
-
-async def get_login_msg(usr_id: str):
-    with config.vrc_path.joinpath(f"player/{usr_id}.json").open(
-        mode="r",
-        encoding="utf-8",
-    ) as f:
-        usr_ms: dict = json.load(f)
-    usr_msg: UsrMsg = UsrMsg(username=usr_ms["username"], password=usr_ms["password"])
-    configuration = vrchatapi.Configuration(
-        username=usr_msg.username,
-        password=usr_msg.password,
-    )
-    # configuration.api_key["authCookie"] = usr_msg.cookie
-
-    api_client: vrchatapi.ApiClient = vrchatapi.ApiClient(configuration)
-    load_cookies(api_client, usr_id)
-    return api_client
+T = TypeVar("T")
+TM = TypeVar("TM", bound=BaseModel)
+P = ParamSpec("P")
 
 
-async def random_login_msg():
-    cookie_path = get_random_cookie()
-    if not cookie_path:
-        raise FileNotFoundError("Did not found any cookies file")
-    return await get_login_msg(cookie_path.stem)
+class HasToDictProtocol(Protocol):
+    def to_dict(self) -> dict:
+        ...
+
+
+class PaginationCallable(Protocol, Generic[T]):
+    async def __call__(self, page_size: int, offset: int) -> Optional[List[T]]:
+        ...
+
+
+def iter_pagination_func(page_size: int = 100, offset: int = 0, delay: float = 0):
+    def decorator(func: PaginationCallable[T]) -> Callable[[], AsyncIterator[T]]:
+        async def wrapper():
+            nonlocal offset
+            while True:
+                resp = await func(page_size, offset)
+                if not resp:
+                    break
+
+                for x in resp:
+                    yield x
+
+                offset += page_size
+                if delay:
+                    await asyncio.sleep(delay)
+
+        return wrapper
+
+    return decorator
+
+
+def auto_parse_iterable_return(model: Type[TM]):
+    def decorator(
+        func: Callable[P, AsyncIterable[HasToDictProtocol]],
+    ) -> Callable[P, AsyncIterator[TM]]:
+        async def wrapper(*args: P.args, **kwargs: P.kwargs):
+            async for x in func(*args, **kwargs):
+                yield model(**x.to_dict())
+
+        return wrapper
+
+    return decorator
+
+
+def auto_parse_return(model: Type[TM]):
+    def decorator(
+        func: Callable[P, Awaitable[HasToDictProtocol]],
+    ) -> Callable[P, Awaitable[TM]]:
+        async def wrapper(*args: P.args, **kwargs: P.kwargs):
+            resp = await func(*args, **kwargs)
+            return model(**resp.to_dict())
+
+        return wrapper
+
+    return decorator
