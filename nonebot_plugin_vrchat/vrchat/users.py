@@ -1,4 +1,4 @@
-from typing import AsyncIterator, Awaitable, List, cast
+from typing import AsyncIterator, Awaitable, List, Optional, cast
 
 from nonebot.utils import run_sync
 from vrchatapi import ApiClient, LimitedUser, User, UsersApi
@@ -33,3 +33,20 @@ async def get_user(client: ApiClient, user_id: str) -> User:
         Awaitable[User],
         run_sync(api.get_user)(user_id=user_id),
     )
+
+
+# region monkey patch User
+def patched_instance_id_getter(self: User) -> Optional[str]:
+    return self._instance_id
+
+
+def patched_instance_id_setter(self: User, value: str) -> None:
+    self._instance_id = value
+
+
+setattr(  # noqa: B010
+    User,
+    "instance_id",
+    property(patched_instance_id_getter, patched_instance_id_setter),
+)
+# endregion

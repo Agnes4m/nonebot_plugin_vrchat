@@ -658,7 +658,11 @@ async def draw_group_on_image(
 
 async def draw_user_profile(user: "UserModel") -> BuildImage:
     bg = BuildImage.new("RGBA", (500, 500), BG_COLOR)
-    bg.draw_text((5, 5), f"User: {user.display_name}\nWorking in progress")
+    bg.draw_text(
+        (5, 5),
+        f"User: {user.display_name}\nWorking in progress",
+        fill=OVERVIEW_TITLE_COLOR,
+    )
     return bg
 
 

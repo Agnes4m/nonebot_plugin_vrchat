@@ -250,8 +250,8 @@ async def _(
 
     state[KEY_CLIENT] = client
     state[KEY_SEARCH_RESP] = resp
-    if len(resp) == 1:
-        return  # skip
+    # if len(resp) == 1:
+    #     return  # skip
 
     try:
         resp = [x async for x in search_users(client, arg)]
@@ -261,12 +261,14 @@ async def _(
 
     await MessageFactory(
         [
-            Text(f"搜索到以下 {len(resp)} 个玩家，发送序号查看玩家详情，发送 0 取消选择"),
+            Text(f"搜索到以下 {len(resp)} 个玩家"),
+            # Text(f"搜索到以下 {len(resp)} 个玩家，发送序号查看玩家详情，发送 0 取消选择"),
             Image(pic),
         ],
-    ).pause()
+    ).finish()  # .pause()
 
 
+# TODO 没做完
 @search_user.handle()
 async def _(matcher: Matcher, state: T_State, event: Event):
     client: ApiClient = state[KEY_CLIENT]
