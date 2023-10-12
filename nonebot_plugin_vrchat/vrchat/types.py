@@ -92,6 +92,7 @@ class LimitedUserModel(BaseModel):
     fallback_avatar: Optional[str] = None
     location: Optional[str] = None
     friend_key: Optional[str] = None
+    last_login: Optional[datetime] = None
 
     @property
     def status(self) -> NormalizedStatusType:

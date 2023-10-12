@@ -1,5 +1,6 @@
 import asyncio
 from asyncio import Semaphore
+from datetime import datetime, timedelta, timezone
 from io import BytesIO
 from math import ceil, isclose
 from pathlib import Path
@@ -277,7 +278,29 @@ async def format_location(location: str) -> str:
             f"Failed to get info of world `{world_id}`: {type(e).__name__}: {e}",
         )
 
-    return f"{prefix}|{region}|{world_name}"
+    ret = f"{prefix}|"
+    if region:
+        ret = f"{ret}{region}|"
+    return f"{ret}{world_name}"
+
+
+def td_format(td_object: timedelta):
+    seconds = int(td_object.total_seconds())
+    periods = [
+        ("年", 60 * 60 * 24 * 365),
+        ("月", 60 * 60 * 24 * 30),
+        ("日", 60 * 60 * 24),
+        ("小时", 60 * 60),
+        ("分钟", 60),
+        ("秒", 1),
+    ]
+
+    for period_name, period_seconds in periods:
+        if seconds > period_seconds:
+            period_value, seconds = divmod(seconds, period_seconds)
+            return f"{period_value}{period_name}前上线"
+
+    return "很久没上线"
 
 
 # endregion
@@ -291,7 +314,7 @@ async def draw_user_card_on_image(
     image: BuildImage,
     pos: Tuple[int, int],
 ) -> BuildImage:
-    # logger.debug(user.dict())
+    time_now = datetime.now(timezone.utc)
 
     offset_x, offset_y = pos
     card_w, card_h = USER_CARD_SIZE
@@ -371,11 +394,11 @@ async def draw_user_card_on_image(
     )
 
     content = user.status_description or STATUS_DESC_MAP[user.status]
-    if (
-        (user.status not in OFFLINE_STATUSES)
-        and user.status != "webonline"
-        and user.location
-    ):
+    if user.status in OFFLINE_STATUSES:
+        if user.last_login:
+            delta = time_now - user.last_login
+            content = f"{content}\n{td_format(delta)}"
+    elif user.status != "webonline" and user.location:
         content = f"{content}\n{await format_location(user.location)}"
     content_text = get_fittable_text(
         content,
