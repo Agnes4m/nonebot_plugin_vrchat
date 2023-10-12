@@ -21,6 +21,8 @@ from nonebot import logger
 from PIL.ImageFilter import GaussianBlur
 from pil_utils import BuildImage, Text2Image
 
+from .vrchat import get_world, random_client
+
 if TYPE_CHECKING:
     from .vrchat.types import (
         GroupModel,
@@ -63,6 +65,17 @@ STATUS_DESC_MAP: Dict["NormalizedStatusType", str] = {
     "unknown": "未知",
 }
 OFFLINE_STATUSES = ["offline", "unknown"]
+UNKNOWN_WORLD_TIP = "未知世界"
+LOCATION_TRAVELING_TIP = "加载世界中"
+LOCATION_PRIVATE_TIP = "私人世界"
+LOCATION_INVITE_PREFIX = "邀"
+LOCATION_INVITE_PLUS_PREFIX = "邀+"
+LOCATION_FRIENDS_PREFIX = "友"
+LOCATION_FRIENDS_PLUS_PREFIX = "友+"
+LOCATION_PUB_PREFIX = "公"
+LOCATION_GROUP_PREFIX = "群"
+LOCATION_GROUP_PLUS_PREFIX = "群+"
+LOCATION_GROUP_PUB_PREFIX = "群公"
 
 RES_IMG_PATH = Path(__file__).parent / "img"
 DEFAULT_IMG_PATH = RES_IMG_PATH / "default_img.png"
@@ -219,18 +232,67 @@ async def get_image_or_default(
     return img
 
 
+async def format_location(location: str) -> str:
+    if location == "traveling":
+        return LOCATION_TRAVELING_TIP
+    if location == "private":
+        return LOCATION_PRIVATE_TIP
+
+    world_id = location[: location.find(":")]
+    region = (
+        location[location.find("region(") + 7 : location.find(")")].upper()
+        if "region(" in location
+        else None
+    )
+
+    if "group" in location:
+        if "groupAccessType(members)" in location:
+            prefix = LOCATION_GROUP_PREFIX
+        elif "groupAccessType(plus)" in location:
+            prefix = LOCATION_GROUP_PLUS_PREFIX
+        else:  # elif "groupAccessType(public)" in location:
+            prefix = LOCATION_GROUP_PUB_PREFIX
+
+    elif "private" in location:
+        if "canRequestInvite" in location:
+            prefix = LOCATION_INVITE_PLUS_PREFIX
+        else:
+            prefix = LOCATION_INVITE_PREFIX
+
+    elif "friends" in location:
+        prefix = LOCATION_FRIENDS_PREFIX
+
+    elif "hidden" in location:
+        prefix = LOCATION_FRIENDS_PLUS_PREFIX
+
+    else:
+        prefix = LOCATION_PUB_PREFIX
+
+    try:
+        world = await get_world(random_client(), world_id)
+        world_name = world.name
+    except Exception as e:
+        world_name = UNKNOWN_WORLD_TIP
+        logger.exception(
+            f"Failed to get info of world `{world_id}`: {type(e).__name__}: {e}",
+        )
+
+    return f"{prefix}|{region}|{world_name}"
+
+
 # endregion
 
 
 # region draw funcs
 
 
-# TODO 画用户在的 world instance
 async def draw_user_card_on_image(
     user: "LimitedUserModel",
     image: BuildImage,
     pos: Tuple[int, int],
 ) -> BuildImage:
+    # logger.debug(user.dict())
+
     offset_x, offset_y = pos
     card_w, card_h = USER_CARD_SIZE
 
@@ -246,7 +308,7 @@ async def draw_user_card_on_image(
     # avatar
     avatar_img = (
         await get_image_or_default(
-            user.current_avatar_image_url,
+            user.current_avatar_thumbnail_image_url,
             USER_AVATAR_SIZE,
         )
     ).convert("RGBA")
@@ -297,9 +359,9 @@ async def draw_user_card_on_image(
         + avatar_w
         + USER_AVATAR_MARGIN_RIGHT
     )
+    content_width = card_w - content_x - USER_CARD_PADDING
     title_x = content_x + USER_STATUS_SIZE + USER_STATUS_PADDING
     title_width = card_w - title_x - USER_CARD_PADDING
-    content_width = card_w - content_x - USER_CARD_PADDING
     title_text = get_fittable_text(
         user.display_name,
         USER_TITLE_FONT_SIZE,
@@ -307,8 +369,16 @@ async def draw_user_card_on_image(
         fill=USER_CARD_TITLE_COLOR,
         weight="bold",
     )
+
+    content = user.status_description or STATUS_DESC_MAP[user.status]
+    if (
+        (user.status not in OFFLINE_STATUSES)
+        and user.status != "webonline"
+        and user.location
+    ):
+        content = f"{content}\n{await format_location(user.location)}"
     content_text = get_fittable_text(
-        user.status_description or STATUS_DESC_MAP[user.status],
+        content,
         USER_TEXT_FONT_SIZE,
         content_width,
         fill=USER_CARD_FONT_COLOR,

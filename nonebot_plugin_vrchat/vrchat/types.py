@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Dict, List, Literal, Optional, TypeVar
+from typing import Dict, List, Literal, Optional, Tuple, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -32,6 +32,7 @@ TrustType = Literal[
     "developer",
     "moderator",
 ]
+LOCATION_PRIVACY = Literal["private", "public", "group_public"]
 
 NORMALIZE_STATUS_MAP: Dict[StatusType, NormalizedStatusType] = {
     "active": "online",
@@ -87,10 +88,9 @@ class LimitedUserModel(BaseModel):
     tags: List[str]
     user_icon: str
 
-    location: str = "offline"
-
     bio: Optional[str] = None
     fallback_avatar: Optional[str] = None
+    location: Optional[str] = None
     friend_key: Optional[str] = None
 
     @property
@@ -125,10 +125,10 @@ class UserModel(BaseModel):
 
     allow_avatar_copying: bool = True
     instance_id: str = "offline"
-    location: str = "offline"
 
     friend_request_status: Optional[str] = None
     note: Optional[str] = None
+    location: Optional[str] = None
     traveling_to_instance: Optional[str] = None
     traveling_to_location: Optional[str] = None
     traveling_to_world: Optional[str] = None
@@ -293,5 +293,5 @@ class WorldModel(BaseModel):
     version: int = 0
     visits: int = 0
 
-    instances: Optional[List[List[dict]]] = None
+    instances: Optional[List[Tuple[str, int]]] = None
     preview_youtube_id: Optional[str] = None

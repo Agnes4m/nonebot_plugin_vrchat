@@ -254,7 +254,8 @@ async def _(
         return  # skip
 
     try:
-        pic = i2b(await draw_user_card_overview(resp))
+        resp = [x async for x in search_users(client, arg)]
+        pic = i2b(await draw_user_card_overview(resp, group=False))
     except Exception as e:
         await handle_error(matcher, e)
 
