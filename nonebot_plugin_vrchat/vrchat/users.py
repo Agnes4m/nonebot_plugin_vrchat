@@ -35,6 +35,22 @@ async def get_user(client: ApiClient, user_id: str) -> User:
     )
 
 
+# region monkey patch LimitedUser
+LimitedUser.openapi_types["last_login"] = "datetime"
+LimitedUser.attribute_map["last_login"] = "last_login"
+
+_original_limited_user_init = LimitedUser.__init__
+
+
+def patched_limited_user_init(self: LimitedUser, *args, **kwargs) -> None:
+    self.last_login = kwargs.pop("last_login")  # type: ignore
+    _original_limited_user_init(self, *args, **kwargs)
+
+
+LimitedUser.__init__ = patched_limited_user_init  # type: ignore
+# endregion
+
+
 # region monkey patch User
 def patched_instance_id_getter(self: User) -> Optional[str]:
     return self._instance_id
