@@ -33,10 +33,10 @@ TrustType = Literal[
     "moderator",
 ]
 
-NORMALIZE_STATUS_MAP: Dict[str, NormalizedStatusType] = {
+NORMALIZE_STATUS_MAP: Dict[StatusType, NormalizedStatusType] = {
     "active": "online",
     "join me": "joinme",
-    "do not disturb": "busy",
+    "busy": "busy",
     "ask me": "askme",
 }
 NORMALIZE_TRUST_TAG_MAP: Dict[str, TrustType] = {
@@ -82,6 +82,7 @@ class LimitedUserModel(BaseModel):
     is_friend: bool
     last_platform: str
     profile_pic_override: str
+    original_status: StatusType = Field(alias="status")
     status_description: str
     tags: List[str]
     user_icon: str
@@ -92,11 +93,9 @@ class LimitedUserModel(BaseModel):
     fallback_avatar: Optional[str] = None
     friend_key: Optional[str] = None
 
-    _status: StatusType = Field(alias="status")
-
     @property
     def status(self) -> NormalizedStatusType:
-        return normalize_status(self._status, self.location)
+        return normalize_status(self.original_status, self.location)
 
     @property
     def trust(self) -> TrustType:
@@ -119,6 +118,7 @@ class UserModel(BaseModel):
     last_platform: str
     profile_pic_override: str
     state: StateType
+    original_status: StatusType = Field(alias="status")
     status_description: str
     tags: List[str]
     user_icon: str
@@ -134,11 +134,9 @@ class UserModel(BaseModel):
     traveling_to_world: Optional[str] = None
     world_id: Optional[str] = None
 
-    _status: StatusType = Field(alias="status")
-
     @property
     def status(self) -> NormalizedStatusType:
-        return normalize_status(self._status, self.location)
+        return normalize_status(self.original_status, self.location)
 
     @property
     def trust(self) -> TrustType:

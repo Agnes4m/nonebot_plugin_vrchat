@@ -33,16 +33,16 @@ class PaginationCallable(Protocol, Generic[T]):
 def iter_pagination_func(page_size: int = 100, offset: int = 0, delay: float = 0):
     def decorator(func: PaginationCallable[T]) -> Callable[[], AsyncIterator[T]]:
         async def wrapper():
-            nonlocal offset
+            now_offset = offset
             while True:
-                resp = await func(page_size, offset)
+                resp = await func(page_size, now_offset)
                 if not resp:
                     break
 
                 for x in resp:
                     yield x
 
-                offset += page_size
+                now_offset += page_size
                 if delay:
                     await asyncio.sleep(delay)
 
@@ -51,7 +51,7 @@ def iter_pagination_func(page_size: int = 100, offset: int = 0, delay: float = 0
     return decorator
 
 
-def auto_parse_iterable_return(model: Type[TM]):
+def auto_parse_iterator_return(model: Type[TM]):
     def decorator(
         func: Callable[P, AsyncIterable[HasToDictProtocol]],
     ) -> Callable[P, AsyncIterator[TM]]:

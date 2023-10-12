@@ -1,7 +1,7 @@
 import asyncio
 from asyncio import Semaphore
 from io import BytesIO
-from math import ceil
+from math import ceil, isclose
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -55,10 +55,10 @@ TRUST_COLORS: Dict["TrustType", str] = {
 }
 STATUS_DESC_MAP: Dict["NormalizedStatusType", str] = {
     "online": "在线",
-    "webonline": "网页在线",
     "joinme": "欢迎加入",
     "busy": "请勿打扰",
     "askme": "请先询问",
+    "webonline": "网页在线",
     "offline": "离线",
     "unknown": "未知",
 }
@@ -77,7 +77,8 @@ USER_CARD_BG_COLOR = (36, 42, 49)
 USER_CARD_TITLE_COLOR = (9, 93, 106)
 USER_CARD_FONT_COLOR = "#f8f9fa"
 USER_AVATAR_BORDER_COLOR = "gray"
-USER_AVATAR_ONLINE_BORDER_COLOR = "#ebd23b"
+USER_AVATAR_WEB_ONLINE_BORDER_COLOR = "#ebd23b"
+USER_AVATAR_ONLINE_BORDER_COLOR = "#67d781"
 OVERVIEW_TITLE_COLOR = (248, 249, 250)
 
 USER_CARD_SIZE = (710, 190)
@@ -224,6 +225,7 @@ async def get_image_or_default(
 # region draw funcs
 
 
+# TODO 画用户在的 world instance
 async def draw_user_card_on_image(
     user: "LimitedUserModel",
     image: BuildImage,
@@ -242,17 +244,25 @@ async def draw_user_card_on_image(
     )
 
     # avatar
-    avatar_img = await get_image_or_default(
-        user.current_avatar_image_url,
-        USER_AVATAR_SIZE,
-    )
+    avatar_img = (
+        await get_image_or_default(
+            user.current_avatar_image_url,
+            USER_AVATAR_SIZE,
+        )
+    ).convert("RGBA")
     avatar_w, avatar_h = USER_AVATAR_SIZE
     avatar_y = card_h // 2 - avatar_h // 2
-    if not abs((avatar_w / avatar_h) - (avatar_img.width / avatar_img.height)) < 0.1:
+    ratio_resized = avatar_w / avatar_h
+    ratio_original = avatar_img.width / avatar_img.height
+    # logger.debug(f"Ratio resized: {ratio_resized}, Ratio original: {ratio_original}")
+    if not isclose(ratio_resized, ratio_original):
+        # logger.debug(f"Draw blur background for user {user.display_name}")
         image.paste(
-            avatar_img.copy()
-            .resize(USER_AVATAR_SIZE, keep_ratio=True)
-            .filter(GaussianBlur(USER_AVATAR_BG_BLUR)),
+            (
+                avatar_img.copy()
+                .resize(USER_AVATAR_SIZE, keep_ratio=True)
+                .filter(GaussianBlur(USER_AVATAR_BG_BLUR))
+            ),
             (offset_x + USER_CARD_PADDING, offset_y + avatar_y),
         )
     image.paste(
@@ -271,7 +281,11 @@ async def draw_user_card_on_image(
         outline=(
             USER_AVATAR_BORDER_COLOR
             if user.status in OFFLINE_STATUSES
-            else USER_AVATAR_ONLINE_BORDER_COLOR
+            else (
+                USER_AVATAR_WEB_ONLINE_BORDER_COLOR
+                if user.status == "webonline"
+                else USER_AVATAR_ONLINE_BORDER_COLOR
+            )
         ),
         width=4,
     )
@@ -294,7 +308,7 @@ async def draw_user_card_on_image(
         weight="bold",
     )
     content_text = get_fittable_text(
-        user.status_description,
+        user.status_description or STATUS_DESC_MAP[user.status],
         USER_TEXT_FONT_SIZE,
         content_width,
         fill=USER_CARD_FONT_COLOR,
