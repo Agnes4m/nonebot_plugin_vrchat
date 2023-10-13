@@ -21,7 +21,7 @@ async def login_via_password(
     username: str,
     password: str,
 ) -> CurrentUser:
-    client = get_client(
+    client = await get_client(
         session_id=session_id,
         login_info=LoginInfo(username=username, password=password),
     )

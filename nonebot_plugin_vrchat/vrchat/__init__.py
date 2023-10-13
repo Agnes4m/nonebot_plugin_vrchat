@@ -1,5 +1,6 @@
 # ruff: noqa: F403
 
+from vrchatapi import ApiClient as ApiClient
 from vrchatapi.exceptions import ApiAttributeError as ApiAttributeError
 from vrchatapi.exceptions import ApiException as ApiException
 from vrchatapi.exceptions import ApiKeyError as ApiKeyError

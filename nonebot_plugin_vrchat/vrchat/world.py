@@ -1,22 +1,27 @@
 from typing import AsyncIterator, Awaitable, List, cast
+from typing_extensions import Unpack
 
 from nonebot.utils import run_sync
 from vrchatapi import ApiClient, LimitedWorld, World, WorldsApi
 
 from .types import LimitedWorldModel, WorldModel
-from .utils import auto_parse_iterator_return, auto_parse_return, iter_pagination_func
+from .utils import (
+    IterPFKwargs,
+    auto_parse_iterator_return,
+    auto_parse_return,
+    iter_pagination_func,
+)
 
 
 def search_worlds(
     client: ApiClient,
     keyword: str,
-    page_size: int = 10,
-    offset: int = 0,
+    **pf_kwargs: Unpack[IterPFKwargs],
 ) -> AsyncIterator[LimitedWorldModel]:
     api = WorldsApi(client)
 
     @auto_parse_iterator_return(LimitedWorldModel)
-    @iter_pagination_func(page_size=page_size, offset=offset)
+    @iter_pagination_func(**pf_kwargs)
     async def iterator(page_size: int, offset: int) -> List[LimitedWorld]:
         return await cast(
             Awaitable[List[LimitedWorld]],
