@@ -8,6 +8,12 @@ from vrchatapi import ApiClient, Configuration
 
 from ..config import config
 
+# disable client side validation
+_c = Configuration()
+_c.client_side_validation = False
+Configuration.set_default(_c)
+
+
 PLAYER_PATH = config.vrc_path / "player"
 PLAYER_PATH.mkdir(parents=True, exist_ok=True)
 
@@ -77,7 +83,7 @@ def get_client(session_id: str, login_info: Optional[LoginInfo] = None) -> ApiCl
         username=login_info.username,
         password=login_info.password,
     )
-    configuration.client_side_validation = False  # validate 交给 pydantic
+    configuration.client_side_validation = False
     client = ApiClient(configuration)
     load_cookies_to_client(client, session_id)
     return client
