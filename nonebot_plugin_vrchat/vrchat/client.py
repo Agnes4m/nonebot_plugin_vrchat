@@ -77,6 +77,7 @@ def get_client(session_id: str, login_info: Optional[LoginInfo] = None) -> ApiCl
         username=login_info.username,
         password=login_info.password,
     )
+    configuration.client_side_validation = False  # validate 交给 pydantic
     client = ApiClient(configuration)
     load_cookies_to_client(client, session_id)
     return client

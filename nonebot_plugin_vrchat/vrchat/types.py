@@ -2,6 +2,9 @@ from datetime import date, datetime
 from typing import Dict, List, Literal, Optional, Tuple, TypeVar
 
 from pydantic import BaseModel, Field
+from vrchatapi import LimitedUser
+
+from .utils import patch_api_model_append_attr
 
 TM = TypeVar("TM", bound=BaseModel)
 
@@ -72,6 +75,11 @@ def extract_trust_level(tags: List[str], developer_type: Optional[str]) -> Trust
             return NORMALIZE_TRUST_TAG_MAP[suffix]
 
     return "visitor"
+
+
+# region patches
+patch_api_model_append_attr(LimitedUser, "last_login", "last_login", "datetime")
+# endregion patches
 
 
 class LimitedUserModel(BaseModel):

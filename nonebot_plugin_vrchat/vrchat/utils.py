@@ -1,9 +1,11 @@
 import asyncio
 from typing import (
+    Any,
     AsyncIterable,
     AsyncIterator,
     Awaitable,
     Callable,
+    Dict,
     Generic,
     List,
     Optional,
@@ -28,6 +30,15 @@ class HasToDictProtocol(Protocol):
 class PaginationCallable(Protocol, Generic[T]):
     async def __call__(self, page_size: int, offset: int) -> Optional[List[T]]:
         ...
+
+
+class ApiModelClass(Protocol):
+    openapi_types: Dict[str, str]
+    attribute_map: Dict[str, str]
+    __init__: Callable[..., None]
+
+
+TModelClass = TypeVar("TModelClass", bound=ApiModelClass)
 
 
 def iter_pagination_func(page_size: int = 100, offset: int = 0, delay: float = 0):
@@ -75,3 +86,22 @@ def auto_parse_return(model: Type[TM]):
         return wrapper
 
     return decorator
+
+
+def patch_api_model_append_attr(
+    cls: Type[TModelClass],
+    attr: str,
+    real_attr: str,
+    attr_type: str,
+    default: Optional[Any] = None,
+):
+    cls.openapi_types[attr] = attr_type
+    cls.attribute_map[attr] = real_attr
+
+    original_init = cls.__init__
+
+    def patched_init(self: TModelClass, *args, **kwargs) -> None:
+        setattr(self, attr, kwargs.pop(attr, default))
+        original_init(self, *args, **kwargs)
+
+    cls.__init__ = patched_init
