@@ -5,7 +5,6 @@ from io import BytesIO
 from math import ceil, isclose
 from pathlib import Path
 from typing import (
-    TYPE_CHECKING,
     Awaitable,
     Dict,
     Iterator,
@@ -21,24 +20,23 @@ from httpx import AsyncClient
 from nonebot import logger
 from PIL.ImageFilter import GaussianBlur
 from pil_utils import BuildImage, Text2Image
-from vrchatapi import ApiClient
 
-from .vrchat import get_world, random_client
-
-if TYPE_CHECKING:
-    from .vrchat.types import (
-        GroupModel,
-        LimitedUserModel,
-        NormalizedStatusType,
-        TrustType,
-        UserModel,
-    )
+from .vrchat import (
+    ApiClient,
+    GroupModel,
+    LimitedUserModel,
+    NormalizedStatusType,
+    TrustType,
+    UserModel,
+    get_world,
+    random_client,
+)
 
 # region common const & type
 T = TypeVar("T")
 
 
-STATUS_COLORS: Dict["NormalizedStatusType", str] = {
+STATUS_COLORS: Dict[NormalizedStatusType, str] = {
     "online": "#51e57e",
     "webonline": "#51e57e",
     "joinme": "#42caff",
@@ -47,7 +45,7 @@ STATUS_COLORS: Dict["NormalizedStatusType", str] = {
     "offline": "gray",
     "unknown": "gray",
 }
-TRUST_COLORS: Dict["TrustType", str] = {
+TRUST_COLORS: Dict[TrustType, str] = {
     "visitor": "#cccccc",
     "new": "#1778ff",
     "user": "#2bcf5c",
@@ -57,7 +55,7 @@ TRUST_COLORS: Dict["TrustType", str] = {
     "developer": "#b52626",
     "moderator": "#b52626",
 }
-STATUS_DESC_MAP: Dict["NormalizedStatusType", str] = {
+STATUS_DESC_MAP: Dict[NormalizedStatusType, str] = {
     "online": "在线",
     "joinme": "欢迎加入",
     "busy": "请勿打扰",
@@ -312,7 +310,7 @@ def td_format(td_object: timedelta):
 
 async def draw_user_card_on_image(
     client: ApiClient,
-    user: "LimitedUserModel",
+    user: LimitedUserModel,
     image: BuildImage,
     pos: Tuple[int, int],
 ) -> BuildImage:
@@ -438,14 +436,14 @@ async def draw_user_card_on_image(
 
 
 async def draw_user_card_overview(
-    users: List["LimitedUserModel"],
+    users: List[LimitedUserModel],
     group: bool = True,
     client: Optional[ApiClient] = None,
 ) -> BuildImage:
     if not client:
         client = await random_client()
 
-    user_dict: Dict["NormalizedStatusType", List["LimitedUserModel"]] = {}
+    user_dict: Dict[NormalizedStatusType, List[LimitedUserModel]] = {}
     for user in users:
         user_dict.setdefault(user.status, []).append(user)
 
@@ -517,7 +515,7 @@ async def draw_user_card_overview(
 
 
 async def draw_group_on_image(
-    group: "GroupModel",
+    group: GroupModel,
     image: BuildImage,
     pos: Tuple[int, int],
 ) -> BuildImage:
@@ -687,7 +685,7 @@ async def draw_group_on_image(
     return image
 
 
-async def draw_user_profile(user: "UserModel") -> BuildImage:
+async def draw_user_profile(user: UserModel) -> BuildImage:
     bg = BuildImage.new("RGBA", (500, 500), BG_COLOR)
     bg.draw_text(
         (5, 5),

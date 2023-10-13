@@ -8,12 +8,13 @@ from nonebot.params import ArgPlainText, CommandArg
 from nonebot.typing import T_State
 from nonebot_plugin_saa import Image, MessageFactory, Text
 from nonebot_plugin_session import SessionId, SessionIdType
-from vrchatapi import ApiClient, CurrentUser
 
 from .config import config
 from .draw import draw_user_card_overview, draw_user_profile, i2b
 from .vrchat import (
+    ApiClient,
     ApiException,
+    CurrentUser,
     LimitedUserModel,
     NotLoggedInError,
     TwoFactorAuthError,
