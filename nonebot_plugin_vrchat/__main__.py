@@ -206,7 +206,7 @@ async def _(
     session_id: str = SessionId(SessionIdType.USER),
 ):
     try:
-        client = get_client(session_id)
+        client = await get_client(session_id)
         resp = [x async for x in get_all_friends(client)]
     except Exception as e:
         await handle_error(matcher, e)
@@ -215,7 +215,7 @@ async def _(
         await matcher.finish("当前没有好友捏")
 
     try:
-        pic = i2b(await draw_user_card_overview(resp))
+        pic = i2b(await draw_user_card_overview(resp, client=client))
     except Exception as e:
         await handle_error(matcher, e)
 
@@ -240,7 +240,7 @@ async def _(
         await matcher.reject("搜索关键词不能为空，请重新发送")
 
     try:
-        client = get_or_random_client(session_id)
+        client = await get_or_random_client(session_id)
         resp = [x async for x in search_users(client, arg)]
     except Exception as e:
         await handle_error(matcher, e)
@@ -256,7 +256,7 @@ async def _(
     try:
         resp = [x async for x in search_users(client, arg)]
         resp = resp[::20]
-        pic = i2b(await draw_user_card_overview(resp, group=False))
+        pic = i2b(await draw_user_card_overview(resp, group=False, client=client))
     except Exception as e:
         await handle_error(matcher, e)
 
@@ -316,7 +316,7 @@ async def _(
         await matcher.reject("搜索关键词不能为空，请重新发送")
 
     try:
-        client = get_or_random_client(session_id)
+        client = await get_or_random_client(session_id)
         worlds = [x async for x in search_worlds(client, arg)]
     except Exception as e:
         await handle_error(matcher, e)

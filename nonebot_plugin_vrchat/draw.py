@@ -21,6 +21,7 @@ from httpx import AsyncClient
 from nonebot import logger
 from PIL.ImageFilter import GaussianBlur
 from pil_utils import BuildImage, Text2Image
+from vrchatapi import ApiClient
 
 from .vrchat import get_world, random_client
 
@@ -233,7 +234,7 @@ async def get_image_or_default(
     return img
 
 
-async def format_location(location: str) -> str:
+async def format_location(client: ApiClient, location: str) -> str:
     if location == "traveling":
         return LOCATION_TRAVELING_TIP
     if location == "private":
@@ -270,7 +271,7 @@ async def format_location(location: str) -> str:
         prefix = LOCATION_PUB_PREFIX
 
     try:
-        world = await get_world(random_client(), world_id)
+        world = await get_world(client, world_id)
         world_name = world.name
     except Exception as e:
         world_name = UNKNOWN_WORLD_TIP
@@ -310,6 +311,7 @@ def td_format(td_object: timedelta):
 
 
 async def draw_user_card_on_image(
+    client: ApiClient,
     user: "LimitedUserModel",
     image: BuildImage,
     pos: Tuple[int, int],
@@ -399,7 +401,8 @@ async def draw_user_card_on_image(
             delta = time_now - user.last_login
             content = f"{content}\n{td_format(delta)}"
     elif user.status != "webonline" and user.location:
-        content = f"{content}\n{await format_location(user.location)}"
+        loc = await format_location(client, user.location)
+        content = f"{content}\n{loc}"
     content_text = get_fittable_text(
         content,
         USER_TEXT_FONT_SIZE,
@@ -437,7 +440,11 @@ async def draw_user_card_on_image(
 async def draw_user_card_overview(
     users: List["LimitedUserModel"],
     group: bool = True,
+    client: Optional[ApiClient] = None,
 ) -> BuildImage:
+    if not client:
+        client = await random_client()
+
     user_dict: Dict["NormalizedStatusType", List["LimitedUserModel"]] = {}
     for user in users:
         user_dict.setdefault(user.status, []).append(user)
@@ -495,6 +502,7 @@ async def draw_user_card_overview(
             for user in line:
                 tasks.append(
                     with_semaphore(semaphore)(draw_user_card_on_image)(
+                        client,
                         user,
                         image,
                         (x_offset, y_offset),
