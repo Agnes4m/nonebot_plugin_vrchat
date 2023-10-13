@@ -1,22 +1,27 @@
 from typing import AsyncIterator, Awaitable, List, cast
+from typing_extensions import Unpack
 
 from nonebot.utils import run_sync
 from vrchatapi import ApiClient, LimitedUser, User, UsersApi
 
 from .types import LimitedUserModel, UserModel
-from .utils import auto_parse_iterator_return, auto_parse_return, iter_pagination_func
+from .utils import (
+    IterPFKwargs,
+    auto_parse_iterator_return,
+    auto_parse_return,
+    iter_pagination_func,
+)
 
 
 def search_users(
     client: ApiClient,
     keyword: str,
-    page_size: int = 10,
-    offset: int = 0,
+    **pf_kwargs: Unpack[IterPFKwargs],
 ) -> AsyncIterator[LimitedUserModel]:
     api = UsersApi(client)
 
     @auto_parse_iterator_return(LimitedUserModel)
-    @iter_pagination_func(page_size=page_size, offset=offset)
+    @iter_pagination_func(**pf_kwargs)
     async def iterator(page_size: int, offset: int) -> List[LimitedUser]:
         return await cast(
             Awaitable[List[LimitedUser]],

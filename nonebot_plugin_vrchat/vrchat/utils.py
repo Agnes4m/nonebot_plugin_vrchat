@@ -11,9 +11,10 @@ from typing import (
     Optional,
     Protocol,
     Type,
+    TypedDict,
     TypeVar,
 )
-from typing_extensions import ParamSpec
+from typing_extensions import NotRequired, ParamSpec, Unpack
 
 from pydantic import BaseModel
 
@@ -38,15 +39,34 @@ class ApiModelClass(Protocol):
     __init__: Callable[..., None]
 
 
+class IterPFKwargs(TypedDict):
+    page_size: NotRequired[int]
+    offset: NotRequired[int]
+    delay: NotRequired[float]
+    max_size: NotRequired[int]
+
+
 TModelClass = TypeVar("TModelClass", bound=ApiModelClass)
 
 
-def iter_pagination_func(page_size: int = 100, offset: int = 0, delay: float = 0):
+def iter_pagination_func(**kwargs: Unpack[IterPFKwargs]):
+    page_size = kwargs.get("page_size", 100)
+    offset = kwargs.get("offset", 0)
+    delay = kwargs.get("delay", 0.0)
+    max_size = kwargs.get("max_size", 0)
+
+    has_max_size = max_size > 0
+    if has_max_size:
+        page_size = min(page_size, max_size)
+
     def decorator(func: PaginationCallable[T]) -> Callable[[], AsyncIterator[T]]:
         async def wrapper():
             now_offset = offset
             while True:
-                resp = await func(page_size, now_offset)
+                now_page_size = (
+                    min(page_size, max_size - now_offset) if has_max_size else page_size
+                )
+                resp = await func(now_page_size, now_offset)
                 if not resp:
                     break
 
@@ -54,6 +74,9 @@ def iter_pagination_func(page_size: int = 100, offset: int = 0, delay: float = 0
                     yield x
 
                 now_offset += page_size
+                if max_size > 0 and now_offset >= max_size:
+                    break
+
                 if delay:
                     await asyncio.sleep(delay)
 

@@ -254,8 +254,7 @@ async def _(
     #     return  # skip
 
     try:
-        resp = [x async for x in search_users(client, arg)]
-        resp = resp[::20]
+        resp = [x async for x in search_users(client, arg, max_size=10)]
         pic = i2b(await draw_user_card_overview(resp, group=False, client=client))
     except Exception as e:
         await handle_error(matcher, e)
@@ -317,18 +316,21 @@ async def _(
 
     try:
         client = await get_or_random_client(session_id)
-        worlds = [x async for x in search_worlds(client, arg)]
+        worlds = [x async for x in search_worlds(client, arg, max_size=10)]
     except Exception as e:
         await handle_error(matcher, e)
 
     if not worlds:
         await matcher.finish("没搜到任何地图捏")
 
-    msg_factory = MessageFactory("搜索到以下地图")
-    for wld in worlds:
-        if isinstance(wld.thumbnail_image_url, str):
-            msg_factory += Image(wld.thumbnail_image_url)
-            msg_factory += (
-                f"名称：{wld.name}\n作者：{wld.author_name}\n创建日期：{wld.created_at}\n-\n",
-            )
+    len_worlds = len(worlds)
+    msg_factory = MessageFactory(f"搜索到以下 {len_worlds} 个地图")
+    for i, wld in enumerate(worlds, 1):
+        msg_factory += Image(wld.thumbnail_image_url)
+        msg_factory += (
+            f"{i}. {wld.name}\n作者：{wld.author_name}\n创建日期：{wld.created_at}",
+        )
+        if i != len_worlds:
+            msg_factory += "\n-\n"
+
     await msg_factory.finish()
