@@ -1,23 +1,35 @@
-# 引入 random 模块，用于生成随机数等需要随机操作的地方
-import random
-
-# 引入 http.cookiejar 模块的 LWPCookieJar 类，用于处理和存储 cookie 信息
 from http.cookiejar import LWPCookieJar
-
-# 引入 pathlib 模块的 Path 类，用于处理文件路径
-from pathlib import Path
-
-# 引入 typing 模块的 Optional 类，用于定义可能为空的类型注解
 from typing import Optional
 
-# 引入 pydantic 模块的 BaseModel 类，用于定义数据模型
+from async_lru import alru_cache
+from nonebot import logger
+from nonebot.adapters.qqguild.exception import UnauthorizedException
+from nonebot.utils import run_sync
 from pydantic import BaseModel
 
 # 引入 vrchatapi 模块的 ApiClient 和 Configuration 类，用于与 vrchatapi 的交互和配置
-from vrchatapi import ApiClient, Configuration
+from vrchatapi import ApiClient, Configuration, NotificationsApi
 
 # 从当前包的 config 模块中引入 config，这个应该是配置文件，包含一些设置和参数
 from ..config import config
+
+# disable client side validation
+_c = Configuration()
+_c.client_side_validation = False
+Configuration.set_default(_c)
+
+
+_last_usable_client: Optional[ApiClient] = None
+
+
+# disable client side validation
+_c = Configuration()
+_c.client_side_validation = False
+Configuration.set_default(_c)
+
+
+_last_usable_client: Optional[ApiClient] = None
+
 
 # 利用前面引入的 Path 类，根据 config 中的 vrc_path 和 "player" 路径创建 PLAYER_PATH 变量，如果路径不存在则创建
 PLAYER_PATH = config.vrc_path / "player"
@@ -87,18 +99,10 @@ def get_login_info(session_id: str) -> LoginInfo:
     return LoginInfo.parse_raw(info_path.read_text(encoding="utf-8"))
 
 
-def get_random_cookie() -> Optional[Path]:
-    # 寻找 PLAYER_PATH 目录下所有 .cookies 文件
-    cookies = list(PLAYER_PATH.glob("*.cookies"))
-    # 如果有 .cookies 文件，那么随机选择一个并返回
-    if cookies:
-        return random.choice(cookies)
-    # 如果没有 .cookies 文件，返回 None
-    return None
-
-
-def get_client(session_id: str, login_info: Optional[LoginInfo] = None) -> ApiClient:
-    # 如果 login_info 参数为 None，那么通过 session_id 获取登录信息
+async def get_client(
+    session_id: str,
+    login_info: Optional[LoginInfo] = None,
+) -> ApiClient:
     login_info = login_info or get_login_info(session_id)
     # 根据登录信息创建 Configuration 实例
     configuration = Configuration(
@@ -106,6 +110,7 @@ def get_client(session_id: str, login_info: Optional[LoginInfo] = None) -> ApiCl
         password=login_info.password,
     )
     # 根据 Configuration 实例创建 ApiClient 实例
+    configuration.client_side_validation = False
     client = ApiClient(configuration)
     # 加载已经保存的 cookie 信息到 ApiClient
     load_cookies_to_client(client, session_id)
@@ -113,20 +118,40 @@ def get_client(session_id: str, login_info: Optional[LoginInfo] = None) -> ApiCl
     return client
 
 
-def random_client() -> ApiClient:
-    # 随机获取一个 .cookies 文件路径
-    cookie_path = get_random_cookie()
-    # 如果不存在 .cookies 文件，那么抛出 NotLoggedInError 异常
-    if not cookie_path:
-        raise NotLoggedInError
-    # 根据 .cookies 文件路径的 stem（即去除 .cookies 后缀的文件名）获取登录信息，并返回对应的 ApiClient 实例
-    return get_client(cookie_path.stem)
-
-
-def get_or_random_client(session_id: str) -> ApiClient:
+@alru_cache(ttl=10)
+async def check_client_usable(client: ApiClient) -> bool:
+    api = NotificationsApi(client)
     try:
-        # 尝试获取已有的 ApiClient 实例
-        return get_client(session_id)
-    # 如果出现 NotLoggedInError 异常，那么随机获取一个 ApiClient 实例
+        await run_sync(api.get_notifications)(n=1)
+    except UnauthorizedException:
+        return False
+    return True
+
+
+async def random_client() -> ApiClient:
+    global _last_usable_client
+
+    if _last_usable_client and (await check_client_usable(_last_usable_client)):
+        return _last_usable_client
+
+    for path in PLAYER_PATH.glob("*.cookies"):
+        session_id = path.stem
+
+        try:
+            client = await get_client(session_id)
+            if await check_client_usable(client):
+                _last_usable_client = client
+                return client
+        except NotLoggedInError:
+            logger.warning(f"Found cookies but has no login info: {session_id}")
+        except Exception:
+            logger.exception(f"Error when checking client usability: {session_id}")
+
+    raise NotLoggedInError
+
+
+async def get_or_random_client(session_id: str) -> ApiClient:
+    try:
+        return await get_client(session_id)
     except NotLoggedInError:
-        return random_client()
+        return await random_client()

@@ -29,8 +29,7 @@ async def login_via_password(
     # 密码
     password: str,
 ) -> CurrentUser:
-    # 根据给定的会话ID和登录信息获取一个API客户端
-    client = get_client(
+    client = await get_client(
         session_id=session_id,
         login_info=LoginInfo(username=username, password=password),
     )

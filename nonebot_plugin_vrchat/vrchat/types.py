@@ -2,6 +2,9 @@ from datetime import date, datetime
 from typing import Dict, List, Literal, Optional, Tuple, TypeVar
 
 from pydantic import BaseModel, Field
+from vrchatapi import LimitedUser
+
+from .utils import patch_api_model_append_attr
 
 # 定义一个类型变量TM，这个类型变量只能接受BaseModel或者其子类作为输入
 TM = TypeVar("TM", bound=BaseModel)
@@ -111,6 +114,11 @@ def extract_trust_level(tags: List[str], developer_type: Optional[str]) -> Trust
 
     # 如果以上条件都不满足，则返回默认的信任等级为"visitor"
     return "visitor"
+
+
+# region patches
+patch_api_model_append_attr(LimitedUser, "last_login", "last_login", "datetime")
+# endregion patches
 
 
 # 定义一个LimitedUserModel类，继承自BaseModel
