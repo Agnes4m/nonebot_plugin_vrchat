@@ -43,7 +43,10 @@ _original_limited_user_init = LimitedUser.__init__
 
 
 def patched_limited_user_init(self: LimitedUser, *args, **kwargs) -> None:
-    self.last_login = kwargs.pop("last_login")  # type: ignore
+    try:
+        self.last_login = kwargs.pop("last_login")  # type: ignore
+    except KeyError:
+        LimitedUser.last_login = None  # type: ignore
     _original_limited_user_init(self, *args, **kwargs)
 
 
