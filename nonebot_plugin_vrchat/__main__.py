@@ -327,9 +327,7 @@ async def _(
     msg_factory = MessageFactory(f"搜索到以下 {len_worlds} 个地图")
     for i, wld in enumerate(worlds, 1):
         msg_factory += Image(wld.thumbnail_image_url)
-        msg_factory += (
-            f"{i}. {wld.name}\n作者：{wld.author_name}\n创建日期：{wld.created_at}",
-        )
+        msg_factory += f"{i}. {wld.name}\n作者：{wld.author_name}\n创建日期：{wld.created_at}"
         if i != len_worlds:
             msg_factory += "\n-\n"
 
