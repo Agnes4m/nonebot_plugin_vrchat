@@ -10,9 +10,9 @@ from vrchatapi.models.two_factor_email_code import TwoFactorEmailCode
 from .client import PLAYER_PATH, LoginInfo, get_client, save_client_cookies
 
 
-# 定义一个自定义异常类TwoFactorAuthError，继承自Exception
 class TwoFactorAuthError(Exception):
-    # 定义异常类的初始化方法
+    """定义一个自定义异常类TwoFactorAuthError，继承自Exception"""
+
     def __init__(self, verify_func: Callable[[str], Awaitable[CurrentUser]]) -> None:
         # 调用父类的初始化方法
         super().__init__()
@@ -36,8 +36,8 @@ async def login_via_password(
     # 创建一个AuthenticationApi对象，使用上面的client
     api = AuthenticationApi(client)
 
-    # 定义一个函数，用于保存用户信息到文件和保存客户端的cookies
     def save_user_info():
+        """保存用户信息到文件和保存客户端的cookies"""
         # 根据session_id创建一个保存用户信息的文件路径
         info_path = PLAYER_PATH / f"{session_id}.json"
         # 将用户信息（用户名和密码）以json格式写入到文件中，编码方式为utf-8
@@ -81,8 +81,8 @@ async def login_via_password(
         else:
             raise TypeError(f"Unknown Reason: {e.reason}") from e
 
-        # 定义一个异步函数verify_two_fa，该函数接受一个认证码作为参数，并返回当前用户的信息
         async def verify_two_fa(auth_code: str) -> CurrentUser:
+            """接受一个认证码作为参数，并返回当前用户的信息"""
             # 如果two_fa_email为True，则调用api的verify2_fa_email_code方法进行邮箱验证操作
             if two_fa_email:
                 # email verify2fa method call if the account has 2FA disabled. The EmailCode object is created from the given auth code. 上面这行代码似乎有些问题，应该是“if the account has 2FA disabled”才对。本地的auth code应该是传入的。不然如果用户已经开启了2步验证。这个会出错。await run_sync(api.verify2fa email code)(two factor email code=)

@@ -1,7 +1,7 @@
 from typing import AsyncIterator, Awaitable, List, cast
+from typing_extensions import Unpack
 
 from nonebot.utils import run_sync
-from typing_extensions import Unpack
 from vrchatapi import ApiClient, FriendsApi, LimitedUser
 
 from .types import LimitedUserModel

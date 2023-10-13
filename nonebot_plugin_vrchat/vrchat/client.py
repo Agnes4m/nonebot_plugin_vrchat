@@ -125,39 +125,47 @@ async def get_client(
 @alru_cache(ttl=10)
 async def check_client_usable(client: ApiClient) -> bool:
     api = NotificationsApi(client)
-    if UnauthorizedException in locals():
+    if UnauthorizedException in locals():  # 如果 UnauthorizedException 在局部命名空间中
         try:
-            await run_sync(api.get_notifications)(n=1)
+            await run_sync(api.get_notifications)(
+                n=1,
+            )  # 异步调用 `api.get_notifications` 方法，获取1条通知
 
-        except UnauthorizedException:
-            return False
-    return True
+        except UnauthorizedException:  # 如果捕获到 UnauthorizedException 异常
+            return False  # 返回 False 表示客户端不可用
+    return True  # 客户端可用
 
 
 async def random_client() -> ApiClient:
-    global _last_usable_client
+    global _last_usable_client  # 声明使用全局变量 `_last_usable_client`
 
-    if _last_usable_client and (await check_client_usable(_last_usable_client)):
-        return _last_usable_client
+    if _last_usable_client and (
+        await check_client_usable(_last_usable_client)
+    ):  # 如果 `_last_usable_client` 存在且可用
+        return _last_usable_client  # 直接返回可用的客户端
 
-    for path in PLAYER_PATH.glob("*.cookies"):
-        session_id = path.stem
+    for path in PLAYER_PATH.glob("*.cookies"):  # 遍历 PLAYER_PATH 目录下的所有以 `.cookies` 结尾的文件
+        session_id = path.stem  # 获取文件名（去除扩展名）
 
         try:
-            client = await get_client(session_id)
-            if await check_client_usable(client):
-                _last_usable_client = client
-                return client
-        except NotLoggedInError:
-            logger.warning(f"Found cookies but has no login info: {session_id}")
-        except Exception:
-            logger.exception(f"Error when checking client usability: {session_id}")
+            client = await get_client(session_id)  # 获取指定 session_id 的客户端
+            if await check_client_usable(client):  # 检查客户端是否可用
+                _last_usable_client = client  # 将可用的客户端设置为 `_last_usable_client`
+                return client  # 返回可用的客户端
+        except NotLoggedInError:  # 如果捕获到 NotLoggedInError 异常
+            logger.warning(
+                f"Found cookies but has no login info: {session_id}",
+            )  # 记录警告日志，表示找到了 cookies 但没有登录信息
+        except Exception:  # 如果捕获到其他异常
+            logger.exception(
+                f"Error when checking client usability: {session_id}",
+            )  # 记录异常日志，表示检查客户端可用性时出错
 
-    raise NotLoggedInError
+    raise NotLoggedInError  # 如果没有找到可用的客户端，则抛出 NotLoggedInError 异常
 
 
 async def get_or_random_client(session_id: str) -> ApiClient:
     try:
-        return await get_client(session_id)
-    except NotLoggedInError:
-        return await random_client()
+        return await get_client(session_id)  # 尝试获取指定 session_id 的客户端
+    except NotLoggedInError:  # 如果捕获到 NotLoggedInError 异常
+        return await random_client()  # 返回随机的可用客户端

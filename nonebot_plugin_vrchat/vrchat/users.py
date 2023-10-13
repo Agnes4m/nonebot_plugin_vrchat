@@ -13,12 +13,12 @@ from .utils import (
 )
 
 
-# 定义一个搜索用户的函数，该函数使用给定的ApiClient实例，搜索关键字，分页大小和偏移量来搜索用户
 def search_users(
     client: ApiClient,
     keyword: str,
     **pf_kwargs: Unpack[IterPFKwargs],
 ) -> AsyncIterator[LimitedUserModel]:
+    """定义一个搜索用户的函数，该函数使用给定的ApiClient实例，搜索关键字，分页大小和偏移量来搜索用户"""
     api = UsersApi(client)
 
     # 使用装饰器auto_parse_iterator_return和iter_pagination_func定义iterator函数，该函数用于获取搜索结果的分页数据
@@ -36,9 +36,9 @@ def search_users(
     return iterator()
 
 
-# 使用装饰器auto_parse_return定义get_user函数，该函数用于获取UserModel实例
 @auto_parse_return(UserModel)
 async def get_user(client: ApiClient, user_id: str) -> User:
+    """使用装饰器auto_parse_return定义get_user函数，该函数用于获取UserModel实例"""
     # 创建一个UsersApi实例，使用传入的ApiClient实例
     api = UsersApi(client)
     # 调用api.get_user方法，传入用户ID，获取用户信息，并转换为User实例
