@@ -106,3 +106,9 @@ async def login_via_password(
 
     save_user_info()
     return current_user
+
+
+def remove_login_info(session_id: str):
+    """这个函数没有定义，补全以防报错"""
+    if session_id:
+        ...

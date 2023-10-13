@@ -1,9 +1,13 @@
+import contextlib
 from http.cookiejar import LWPCookieJar
 from typing import Optional
 
 from async_lru import alru_cache
 from nonebot import logger
-from nonebot.adapters.qqguild.exception import UnauthorizedException
+
+with contextlib.suppress(ImportError):
+    from nonebot.adapters.qqguild.exception import UnauthorizedException
+
 from nonebot.utils import run_sync
 from pydantic import BaseModel
 
@@ -121,10 +125,12 @@ async def get_client(
 @alru_cache(ttl=10)
 async def check_client_usable(client: ApiClient) -> bool:
     api = NotificationsApi(client)
-    try:
-        await run_sync(api.get_notifications)(n=1)
-    except UnauthorizedException:
-        return False
+    if UnauthorizedException in locals():
+        try:
+            await run_sync(api.get_notifications)(n=1)
+
+        except UnauthorizedException:
+            return False
     return True
 
 

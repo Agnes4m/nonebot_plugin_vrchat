@@ -4,16 +4,7 @@ from datetime import datetime, timedelta, timezone
 from io import BytesIO
 from math import ceil, isclose
 from pathlib import Path
-from typing import (
-    Awaitable,
-    Dict,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    TypeVar,
-)
+from typing import Awaitable, Dict, Iterator, List, Optional, Sequence, Tuple, TypeVar
 
 from async_lru import alru_cache
 from httpx import AsyncClient
@@ -150,65 +141,44 @@ GROUP_CONTENT_TEXT_SIZE = 26
 
 
 # region util funcs & classes
-# 定义一个名为chunks的函数，接受一个序列(lst)和一个整数(n)作为参数  
-# 这个函数用于生成从lst中提取的长度为n的连续子序列  
-def chunks(lst: Sequence[T], n: int) -> Iterator[Sequence[T]]:  
-    """  
-    Yield successive n-sized chunks from lst.  
-      
-    This function generates consecutive sub-sequences of length n from the given sequence lst.  
-    """  
-    # 通过range函数生成一个从0开始，步长为n的整数序列  
-    # 然后使用切片操作lst[i:i+n]从lst中提取相应位置的元素，生成子序列  
-    for i in range(0, len(lst), n):  
-        yield lst[i : i + n]  
-  
-# 定义一个名为with_semaphore的函数，接受一个Semaphore类型的对象(semaphore)作为参数  
-def with_semaphore(semaphore: Semaphore):  
-    # 定义一个内部函数decorator，这个函数返回一个闭包wrapper  
-    def decorator(func):  
-        # 定义一个异步函数wrapper，使用async with语句来获取semaphore的上下文管理器  
-        async def wrapper(*args, **kwargs):  
-            async with semaphore:  
-                # 调用传入的函数func，并等待其完成，返回结果  
-                return await func(*args, **kwargs)  
-  
-        # 返回wrapper函数  
-        return wrapper  
-  
-    # 返回decorator函数  
-    return decorator  
-  
-# 定义一个名为get_fittable_text的函数，接受text(字符串)，size(整数)，max_width(整数)作为参数  
-# 这个函数用于获取适合max_width宽度限制的文本图像  
-def get_fittable_text(text: str, size: int, max_width: int, **kwargs) -> Text2Image:  
-    # 从给定的文本创建Text2Image对象text_obj，并设置其大小为size，其他参数为kwargs中指定的值  
-    text_obj = Text2Image.from_text(text, size, **kwargs)  
-    # 如果text_obj的宽度小于等于max_width，直接返回text_obj  
-    if text_obj.width <= max_width:  
-        return text_obj  
-  
-    # 当text_obj的宽度大于max_width时，执行以下循环操作  
-    while True:  
-        # 如果text为空，抛出ValueError异常，提示max_width太小  
-        if not text:  
-            raise ValueError("max_width too small")  
-        # 截取text的前一个字符，并添加'...'到末尾，形成新的文本  
-        text = text[:-1] + "..."  
-        # 使用新的文本创建Text2Image对象text_obj，并设置其大小为size，其他参数为kwargs中指定的值  
-        text_obj = Text2Image.from_text(text, size, **kwargs)  
-        # 如果text_obj的宽度小于等于max_width，直接返回text_obj  
-        if text_obj.width <= max_width:  
-            return text_obj  
-  
-# 定义一个名为i2b的函数，接受一个BuildImage类型的对象(img)和一个字符串(img_format)，默认img_format为"JPEG"  
-# 这个函数用于将img对象保存为img_format格式的二进制数据流并返回一个BytesIO对象  
-def i2b(img: BuildImage, img_format: str = "JPEG") -> BytesIO:  
-    # 如果img_format的小写形式为"jpeg"，将img转换为RGB模式  
-    if img_format.lower() == "jpeg":  
-        img = img.convert("RGB")  
-    # 使用img的save方法将其保存为指定格式的图片，并返回保存后的二进制数据流  
+
+
+def chunks(lst: Sequence[T], n: int) -> Iterator[Sequence[T]]:
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i : i + n]
+
+
+def with_semaphore(semaphore: Semaphore):
+    def decorator(func):
+        async def wrapper(*args, **kwargs):
+            async with semaphore:
+                return await func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+def get_fittable_text(text: str, size: int, max_width: int, **kwargs) -> Text2Image:
+    text_obj = Text2Image.from_text(text, size, **kwargs)
+    if text_obj.width <= max_width:
+        return text_obj
+
+    while True:
+        if not text:
+            raise ValueError("max_width too small")
+        text = text[:-1]
+        text_obj = Text2Image.from_text(text + "...", size, **kwargs)
+        if text_obj.width <= max_width:
+            return text_obj
+
+
+def i2b(img: BuildImage, img_format: str = "JPEG") -> BytesIO:
+    if img_format.lower() == "jpeg":
+        img = img.convert("RGB")
     return img.save(img_format)
+
 
 @alru_cache()
 async def get_url_bytes(url: str) -> bytes:
