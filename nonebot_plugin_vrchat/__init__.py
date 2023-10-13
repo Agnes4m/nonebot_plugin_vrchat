@@ -6,7 +6,7 @@ require("nonebot_plugin_saa")
 from . import __main__ as __main__  # noqa: E402
 from .config import ConfigModel  # noqa: E402
 
-__version__ = "0.0.6"
+__version__ = "0.1.0"
 __plugin_meta__ = PluginMetadata(
     name="VRChat查询",
     description="使用第三方api实现vrchat相关操作,例如查询好友状态",
