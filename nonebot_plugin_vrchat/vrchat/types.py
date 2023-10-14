@@ -59,6 +59,17 @@ def normalize_status(
     status: StatusType,
     location: Optional[str],
 ) -> NormalizedStatusType:
+    """
+    将 `StatusType` 转为 `NormalizedStatusType`
+
+    Args:
+        status: user.status
+        location: user.location
+
+    Returns:
+        转换后的 `NormalizedStatusType`
+    """
+
     if location == "offline":
         if status == "active":
             return "webonline"
@@ -67,6 +78,17 @@ def normalize_status(
 
 
 def extract_trust_level(tags: List[str], developer_type: Optional[str]) -> TrustType:
+    """
+    从用户的 Tag 中提取用户的信任等级
+
+    Args:
+        tags: user.tags
+        developer_type: user.developer_type
+
+    Returns:
+        用户的信任等级
+    """
+
     if developer_type in DEVELOPER_TRUST_TYPE_MAP:
         return DEVELOPER_TRUST_TYPE_MAP[developer_type]
 

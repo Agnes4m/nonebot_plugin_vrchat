@@ -1,10 +1,22 @@
 import asyncio
 from asyncio import Semaphore
 from datetime import datetime, timedelta, timezone
+from functools import wraps
 from io import BytesIO
 from math import ceil, isclose
 from pathlib import Path
-from typing import Awaitable, Dict, Iterator, List, Optional, Sequence, Tuple, TypeVar
+from typing import (
+    Awaitable,
+    Callable,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    TypeVar,
+)
+from typing_extensions import ParamSpec
 
 from async_lru import alru_cache
 from httpx import AsyncClient
@@ -25,6 +37,7 @@ from .vrchat import (
 
 # region common const & type
 T = TypeVar("T")
+P = ParamSpec("P")
 
 
 STATUS_COLORS: Dict[NormalizedStatusType, str] = {
@@ -150,8 +163,9 @@ def chunks(lst: Sequence[T], n: int) -> Iterator[Sequence[T]]:
 
 
 def with_semaphore(semaphore: Semaphore):
-    def decorator(func):
-        async def wrapper(*args, **kwargs):
+    def decorator(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
+        @wraps(func)
+        async def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
             async with semaphore:
                 return await func(*args, **kwargs)
 

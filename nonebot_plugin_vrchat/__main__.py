@@ -56,7 +56,7 @@ world_search = on_command("vrcws", aliases={"vrc查询世界"}, priority=20)
 
 async def handle_error(matcher: Matcher, e: Exception) -> NoReturn:
     if isinstance(e, NotLoggedInError):
-        await matcher.finish("尚未登录，请私聊并发送【vrc登录】")
+        await matcher.finish("尚未登录，或登录信息失效，请私聊并发送【vrc登录】来重新登录")
 
     if isinstance(e, UnauthorizedException):
         logger.warning(f"UnauthorizedException: {e}")
