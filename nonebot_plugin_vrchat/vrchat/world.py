@@ -1,4 +1,4 @@
-from typing import AsyncIterator, Awaitable, List, cast
+from typing import AsyncIterable, Awaitable, List, cast
 from typing_extensions import Unpack
 
 from nonebot.utils import run_sync
@@ -17,7 +17,18 @@ def search_worlds(
     client: ApiClient,
     keyword: str,
     **pf_kwargs: Unpack[IterPFKwargs],
-) -> AsyncIterator[LimitedWorldModel]:
+) -> AsyncIterable[LimitedWorldModel]:
+    """
+    搜索世界
+
+    Args:
+        client: ApiClient 实例
+        keyword: 搜索关键词
+
+    Returns:
+        获取搜索到世界的异步迭代器
+    """
+
     api = WorldsApi(client)
 
     @auto_parse_iterator_return(LimitedWorldModel)
@@ -33,6 +44,17 @@ def search_worlds(
 
 @auto_parse_return(WorldModel)
 async def get_world(client: ApiClient, world_id: str) -> World:
+    """
+    通过世界 ID 获取世界信息
+
+    Args:
+        client: ApiClient 实例
+        world_id: 世界 ID
+
+    Returns:
+        世界信息
+    """
+
     api = WorldsApi(client)
     return await cast(
         Awaitable[World],
