@@ -9,6 +9,7 @@ from .utils import patch_api_model_append_attr
 TM = TypeVar("TM", bound=BaseModel)
 
 DeveloperType = Literal["none", "trusted", "internal", "moderator"]
+"""用户开发等级"""
 StatusType = Literal["active", "join me", "ask me", "busy", "offline"]
 StateType = Literal["offline", "active", "online"]
 GroupPrivacyType = Literal["default", "private"]
@@ -105,11 +106,18 @@ patch_api_model_append_attr(LimitedUser, "last_login", "last_login", "datetime")
 
 
 class LimitedUserModel(BaseModel):
+    """陌生人信息"""
+
     user_id: str = Field(alias="id")
+    """用户id"""
     current_avatar_image_url: str
+    """头像url"""
     current_avatar_thumbnail_image_url: str
+    """缩略图头像url"""
     developer_type: DeveloperType
+    """开发者模式"""
     display_name: str
+    """姓名"""
     is_friend: bool
     last_platform: str
     profile_pic_override: str
@@ -134,6 +142,8 @@ class LimitedUserModel(BaseModel):
 
 
 class UserModel(BaseModel):
+    """信任用户信息"""
+
     user_id: str = Field(alias="id")
     bio: str
     bio_links: List[str]
@@ -175,6 +185,8 @@ class UserModel(BaseModel):
 
 
 class GroupGalleryModel(BaseModel):
+    """群组信息"""
+
     gallery_id: str = Field(alias="id")
     name: str
     description: str
@@ -189,6 +201,8 @@ class GroupGalleryModel(BaseModel):
 
 
 class GroupMyMemberModel(BaseModel):
+    """信任群组信息"""
+
     my_member_id: str = Field(alias="id")
     group_id: str
     user_id: str
@@ -207,6 +221,8 @@ class GroupMyMemberModel(BaseModel):
 
 
 class GroupRoleModel(BaseModel):
+    """群组规则信息"""
+
     role_id: str = Field(alias="id")
     group_id: str
     name: str
@@ -223,6 +239,8 @@ class GroupRoleModel(BaseModel):
 
 
 class GroupModel(BaseModel):
+    """群组信息"""
+
     group_id: str = Field(alias="id")
     name: str
     short_code: str
@@ -253,11 +271,15 @@ class GroupModel(BaseModel):
 
 
 class LimitedUnityPackage(BaseModel):
+    """一般unity相关信息"""
+
     platform: str
     unity_version: str
 
 
 class LimitedWorldModel(BaseModel):
+    """一般世界信息"""
+
     world_id: str = Field(alias="id")
     author_id: str
     author_name: str
@@ -281,6 +303,8 @@ class LimitedWorldModel(BaseModel):
 
 
 class UnityPackage(BaseModel):
+    """信任unity相关信息"""
+
     package_id: str = Field(alias="id")
     asset_version: int
     platform: str
@@ -295,6 +319,8 @@ class UnityPackage(BaseModel):
 
 
 class WorldModel(BaseModel):
+    """信任世界信息"""
+
     world_id: str = Field(alias="id")
     author_id: str
     author_name: str

@@ -99,6 +99,5 @@ async def login_via_password(
 
         raise TwoFactorAuthError(verify_two_fa) from e
 
-    # 未抛出错误
     save_user_info()
     return current_user

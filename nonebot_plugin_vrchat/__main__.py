@@ -1,4 +1,4 @@
-from typing import Awaitable, Callable, List, NoReturn
+from typing import Awaitable, Callable, List
 
 from nonebot import on_command
 from nonebot.adapters import Event, Message
@@ -11,6 +11,8 @@ from nonebot_plugin_session import SessionId, SessionIdType
 
 from .config import config
 from .draw import draw_user_card_overview, draw_user_profile, i2b
+from .error import handle_error
+from .message import ErrorMsg, InfoMsg, SendMsg, WarningMsg
 from .vrchat import (
     ApiClient,
     ApiException,
@@ -18,7 +20,6 @@ from .vrchat import (
     LimitedUserModel,
     NotLoggedInError,
     TwoFactorAuthError,
-    UnauthorizedException,
     get_all_friends,
     get_client,
     get_login_info,
@@ -54,22 +55,6 @@ search_user = on_command("vrcsu", aliases={"vrc查询用户"}, priority=20)
 world_search = on_command("vrcws", aliases={"vrc查询世界"}, priority=20)
 
 
-async def handle_error(matcher: Matcher, e: Exception) -> NoReturn:
-    if isinstance(e, NotLoggedInError):
-        await matcher.finish("尚未登录，或登录信息失效，请私聊并发送【vrc登录】来重新登录")
-
-    if isinstance(e, UnauthorizedException):
-        logger.warning(f"UnauthorizedException: {e}")
-        await matcher.finish("登录已过期，请重新登录")
-
-    if isinstance(e, ApiException):
-        logger.error(f"Error when requesting api: [{e.status}] {e.reason}")
-        await matcher.finish(f"服务器返回异常：[{e.status}] {e.reason}")
-
-    logger.exception("Exception when requesting api")
-    await matcher.finish("遇到未知错误，请检查后台输出")
-
-
 @vrc_help.handle()
 async def _(matcher: Matcher):
     await matcher.finish(HELP)
@@ -97,10 +82,10 @@ async def _(
     if login_info:
         state[KEY_USERNAME] = login_info.username
         state[KEY_PASSWORD] = login_info.password
-        await matcher.send("检测到缓存的登录信息，尝试重新登录")
+        await matcher.send(InfoMsg.Relogin)
         return  # skip
 
-    await matcher.pause("请发送登录账号密码，用空格分隔，发送 0 取消登录\n提示：机器人会保存你的登录状态,请在信任机器人的情况下登录")
+    await matcher.pause(SendMsg.Sendlgoin)
 
 
 @vrc_login.handle()
@@ -123,15 +108,15 @@ async def _(
 
         arg = arg.strip()
         if arg == "0":
-            await matcher.finish("已取消登录")
+            await matcher.finish(InfoMsg.Dislogin)
 
         parsed = arg.split(" ")
         if len(parsed) != 2:
-            await matcher.reject("消息格式不符合规范，请重新发送账号密码，用空格分隔")
+            await matcher.reject(WarningMsg.Resendlgoin)
         username, password = parsed
 
     if KEY_OVERRIDE_LOGIN_INFO in state:
-        await matcher.send("检测到已缓存的登录信息，本次登录成功后旧登录信息将被覆盖")
+        await matcher.send(WarningMsg.Overwrite)
 
     try:
         current_user = await login_via_password(session_id, username, password)
@@ -147,7 +132,7 @@ async def _(
                 del state[KEY_USERNAME]
             if KEY_PASSWORD in state:
                 del state[KEY_PASSWORD]
-            await matcher.reject("用户名或密码错误，请重新发送")
+            await matcher.reject(ErrorMsg.login)
 
         logger.error(f"Api error when logging in: [{e.status}] {e.reason}")
         remove_login_info(session_id)
@@ -156,7 +141,7 @@ async def _(
     except Exception:
         logger.exception("Exception when logging in")
         remove_login_info(session_id)
-        await matcher.finish("遇到未知错误，请检查后台输出")
+        await matcher.finish(ErrorMsg.Unkown)
 
     state[KEY_CURRENT_USER] = current_user
 
@@ -173,7 +158,7 @@ async def _(
 
     verify_code = event.get_plaintext().strip()
     if not verify_code.isdigit():
-        await matcher.reject("验证码格式不正确")
+        await matcher.reject(ErrorMsg.Format2FA)
 
     verify_func: Callable[[str], Awaitable[CurrentUser]] = state[KEY_VERIFY_FUNC]
     try:
@@ -181,7 +166,7 @@ async def _(
 
     except ApiException as e:
         if e.status == 401:
-            await matcher.reject("验证码错误，请重新发送")
+            await matcher.reject(ErrorMsg.Error2FA)
 
         logger.error(f"Api error when verifying 2FA code: [{e.status}] {e.reason}")
         remove_login_info(session_id)
@@ -190,7 +175,7 @@ async def _(
     except Exception:
         logger.exception("Exception when verifying 2FA code")
         remove_login_info(session_id)
-        await matcher.finish("遇到未知错误，请检查后台输出")
+        await matcher.finish(ErrorMsg.Unkown)
 
     state[KEY_CURRENT_USER] = current_user
 
@@ -213,7 +198,7 @@ async def _(
         await handle_error(matcher, e)
 
     if not resp:
-        await matcher.finish("当前没有好友捏")
+        await matcher.finish(InfoMsg.NoFriend)
 
     try:
         pic = i2b(await draw_user_card_overview(resp, client=client))
@@ -229,7 +214,7 @@ async def _(matcher: Matcher, arg: Message = CommandArg()):
         matcher.set_arg(KEY_ARG, arg)
 
 
-@search_user.got(KEY_ARG, prompt="请发送要查询的玩家名称")
+@search_user.got(KEY_ARG, prompt=SendMsg.User)
 async def _(
     matcher: Matcher,
     state: T_State,
@@ -238,7 +223,7 @@ async def _(
 ):
     arg = arg.strip()
     if not arg:
-        await matcher.reject("搜索关键词不能为空，请重新发送")
+        await matcher.reject(SendMsg.SearchNone)
 
     try:
         client = await get_or_random_client(session_id)
@@ -280,14 +265,14 @@ async def _(matcher: Matcher, state: T_State, event: Event):
     else:
         arg = event.get_plaintext().strip()
         if arg == "0":
-            await matcher.finish("已取消选择")
+            await matcher.finish(InfoMsg.Deselect)
 
         if not arg.isdigit():
-            await matcher.reject("序号格式不正确，请重新发送")
+            await matcher.reject(SendMsg.OrdinalFormat)
 
         index = int(arg) - 1
         if not (0 <= index < len(resp)):
-            await matcher.reject("序号不在范围内，请重新发送")
+            await matcher.reject(SendMsg.OrdinalRange)
 
     user_id = resp[index].user_id
     try:
@@ -305,7 +290,7 @@ async def _(matcher: Matcher, arg: Message = CommandArg()):
         matcher.set_arg(KEY_ARG, arg)
 
 
-@world_search.got(KEY_ARG, prompt="请发送要查询的地图名称")
+@world_search.got(KEY_ARG, prompt=SendMsg.Map)
 async def _(
     matcher: Matcher,
     arg: str = ArgPlainText(KEY_ARG),
@@ -313,7 +298,7 @@ async def _(
 ):
     arg = arg.strip()
     if not arg:
-        await matcher.reject("搜索关键词不能为空，请重新发送")
+        await matcher.reject(SendMsg.SearchNone)
 
     try:
         client = await get_or_random_client(session_id)
@@ -322,7 +307,7 @@ async def _(
         await handle_error(matcher, e)
 
     if not worlds:
-        await matcher.finish("没搜到任何地图捏")
+        await matcher.finish(SendMsg.NoMap)
 
     len_worlds = len(worlds)
     msg_factory = MessageFactory(f"搜索到以下 {len_worlds} 个地图")

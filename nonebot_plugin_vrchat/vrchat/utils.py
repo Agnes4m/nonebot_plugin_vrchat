@@ -24,8 +24,6 @@ P = ParamSpec("P")
 
 
 class HasToDictProtocol(Protocol):
-    """代表含有 `.to_dict()` 方法的类，一般指 `vrchatapi` 中调用 API 返回的数据结构"""
-
     def to_dict(self) -> dict:
         ...
 
