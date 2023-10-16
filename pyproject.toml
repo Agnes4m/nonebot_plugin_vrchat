@@ -16,6 +16,7 @@ dependencies = [
     "pil-utils>=0.1.8",
     "async-lru>=2.0.4",
     "nonebot-plugin-session>=0.1.0",
+    "ruamel.yaml>=0.17.21",
 ]
 classifiers = [
     "License :: OSI Approved :: MIT License",
