@@ -60,26 +60,22 @@ async def login_via_password(
         save_client_cookies(client, session_id)
 
     try:
-        # 调用 getCurrentUser 时，如果用户未登录，则会向服务器请求登录
         current_user = await cast(
             Awaitable[CurrentUser],
             run_sync(api.get_current_user)(),
         )
 
     except UnauthorizedException as e:
-        # 服务器返回了非 200 状态码，则 API 调用出错，新建一个 ApiException 抛出
         if e.status != 200:
             exc = ApiException(e.status, e.reason)
             exc.body = e.body
             exc.headers = e.headers
             raise exc from e
 
-        # 状态码为 200 时，则说明需要进行 2FA 验证
         if not (isinstance(e.reason, str) and "2 Factor Authentication" in e.reason):
-            raise TypeError(f"Unknown Reason: {e.reason}") from e  # 服务器返回值有误
+            raise TypeError(f"Unknown Reason: {e.reason}") from e
         two_fa_email = "Email 2 Factor Authentication" in e.reason
 
-        # 定义一个用于提交 2FA 验证码并继续登录流程的闭包函数
         async def verify_two_fa(auth_code: str) -> CurrentUser:
             if two_fa_email:
                 await run_sync(api.verify2_fa_email_code)(
