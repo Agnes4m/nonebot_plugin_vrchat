@@ -123,7 +123,7 @@ async def _(
 
     except TwoFactorAuthError as e:
         state[KEY_VERIFY_FUNC] = e.verify_func
-        secs = config.session_expire_timeout.seconds
+        secs = config.session_expire_timeout
         await matcher.pause(f"请在 {secs} 秒内发送 收到的邮箱验证码 或者 2FA验证码")
 
     except ApiException as e:

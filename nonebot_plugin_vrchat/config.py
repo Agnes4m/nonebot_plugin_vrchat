@@ -1,4 +1,3 @@
-from datetime import timedelta
 from pathlib import Path
 from typing import Dict, List
 
@@ -11,7 +10,7 @@ CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 
 class VrcGroupConfig(BaseModel):
-    enable: bool = Field(True, alias="是否启用vrc功能")
+    enable: bool = Field(default=True, alias="是否启用vrc功能")
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -20,8 +19,8 @@ class VrcGroupConfig(BaseModel):
 
 
 class VrcConfig(BaseModel):
-    session_expire_timeout: timedelta = Field(timedelta(seconds=120), alias="默认验证码时间")
-    group_config: Dict[int, VrcGroupConfig] = Field({}, alias="分群配置")
+    session_expire_timeout: int = Field(default=120, alias="默认验证码时间(秒)")
+    group_config: Dict[int, VrcGroupConfig] = Field(default_factory=dict, alias="分群配置")
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -32,15 +31,18 @@ class VrcConfig(BaseModel):
 class VrChatConfigManager:
     def __init__(self):
         self.file_path = CONFIG_PATH
-        if self.file_path.exists():
-            self.config = VrcConfig.parse_obj(
-                yaml.load(
-                    self.file_path.read_text(encoding="utf-8"),
-                    Loader=yaml.Loader,
-                ),
-            )
+        if self.file_path.is_file():
+            try:
+                self.config = VrcConfig.parse_obj(
+                    yaml.load(
+                        self.file_path.read_text(encoding="utf-8"),
+                        Loader=yaml.Loader,
+                    ),
+                )
+            except Exception:
+                self.config = VrcConfig()
         else:
-            self.config = VrcConfig()  # type: ignore
+            self.config = VrcConfig()
         self.save()
 
     def get_group_config(self, group_id: int) -> VrcGroupConfig:
