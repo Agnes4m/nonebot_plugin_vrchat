@@ -11,7 +11,8 @@ class I18NGeneral(BaseModel):
     unknown_error: str
     server_error: str
     discard_select: str
-    empty_keyword: str
+    empty_search_keyword: str
+    empty_message: str
     invalid_ordinal_format: str
     invalid_ordinal_range: str
 
@@ -48,6 +49,12 @@ class I18NWorld(BaseModel):
     searched_world_info: str
 
 
+class I18NLocale(BaseModel):
+    available_locales_tip: str
+    select_locale_tip: str
+    locale_changed: str
+
+
 class I18N(BaseModel):
     metadata: I18NMetadata
     general: I18NGeneral
@@ -55,3 +62,4 @@ class I18N(BaseModel):
     friend: I18NFriend
     user: I18NUser
     world: I18NWorld
+    locale: I18NLocale

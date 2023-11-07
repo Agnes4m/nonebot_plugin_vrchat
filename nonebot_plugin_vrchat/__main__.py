@@ -8,10 +8,10 @@ from nonebot.params import ArgPlainText, CommandArg, EventMessage
 from nonebot.typing import T_State
 from nonebot_plugin_saa import Image, MessageFactory, Text
 
-from .config import env_config
+from .config import env_config, session_config
 from .draw import draw_user_card_overview, draw_user_profile, i2b
-from .i18n import I18N, UserLocale
-from .utils import UserSessionId
+from .i18n import I18N, UserLocale, loaded_locales
+from .utils import GroupSessionId, UserSessionId
 from .vrchat import (
     ApiClient,
     ApiException,
@@ -85,13 +85,22 @@ async def handle_error(matcher: Matcher, i18n: I18N, e: Exception) -> NoReturn:
     await matcher.finish(i18n.general.unknown_error)
 
 
+async def rule_enable(group_id: GroupSessionId, user_id: UserSessionId) -> bool:
+    return session_config.get(group_id, user_id)[0].enable
+
+
 # endregion
 
 
 # region help
 
 
-vrc_help = on_command("vrchelp", aliases={"vrc帮助"}, priority=20)
+vrc_help = on_command(
+    "vrchelp",
+    aliases={"vrc帮助"},
+    rule=rule_enable,
+    priority=20,
+)
 
 
 @vrc_help.handle()
@@ -105,7 +114,12 @@ async def _(matcher: Matcher, i18n: UserLocale):
 # region login
 
 
-vrc_login = on_command("vrcl", aliases={"vrc登录"}, priority=20)
+vrc_login = on_command(
+    "vrcl",
+    aliases={"vrc登录"},
+    rule=rule_enable,
+    priority=20,
+)
 
 
 @vrc_login.handle()
@@ -244,7 +258,12 @@ async def _(matcher: Matcher, state: T_State, i18n: UserLocale):
 # region friend
 
 
-friend_list = on_command("vrcfl", aliases={"vrcrq", "vrc全部好友", "vrc好友列表"}, priority=20)
+friend_list = on_command(
+    "vrcfl",
+    aliases={"vrcrq", "vrc全部好友", "vrc好友列表"},
+    rule=rule_enable,
+    priority=20,
+)
 
 
 @friend_list.handle()
@@ -276,7 +295,12 @@ async def _(
 # region user
 
 
-search_user = on_command("vrcsu", aliases={"vrcus", "vrc查询用户"}, priority=20)
+search_user = on_command(
+    "vrcsu",
+    aliases={"vrcus", "vrc查询用户"},
+    rule=rule_enable,
+    priority=20,
+)
 
 
 register_arg_got_handlers(search_user, lambda i18n: i18n.user.send_user_name)
@@ -363,7 +387,12 @@ async def _(
 # region world
 
 
-search_world = on_command("vrcsw", aliases={"vrcws", "vrc查询世界"}, priority=20)
+search_world = on_command(
+    "vrcsw",
+    aliases={"vrcws", "vrc查询世界"},
+    rule=rule_enable,
+    priority=20,
+)
 
 
 register_arg_got_handlers(search_world, lambda i18n: i18n.world.send_world_name)
@@ -378,7 +407,7 @@ async def _(
 ):
     arg = arg.strip()
     if not arg:
-        await matcher.reject(i18n.general.empty_keyword)
+        await matcher.reject(i18n.general.empty_search_keyword)
 
     try:
         client = await get_or_random_client(session_id)
@@ -406,3 +435,61 @@ async def _(
 
 
 # endregion
+
+
+# region locale
+
+
+change_locale = on_command(
+    "vrccl",
+    aliases={"vrc切换语言"},
+    rule=rule_enable,
+    priority=20,
+)
+
+
+@change_locale.handle()
+async def _(matcher: Matcher, i18n: UserLocale):
+    locales = "\n".join(
+        f"{i}. {v.metadata.name} ({k})"
+        for i, (k, v) in enumerate(loaded_locales.items(), 1)
+    )
+    await matcher.pause(
+        f"{i18n.locale.available_locales_tip}\n"
+        f"{locales}\n"
+        f"{i18n.locale.select_locale_tip}",
+    )
+
+
+@change_locale.handle()
+async def _(
+    matcher: Matcher,
+    session_id: UserSessionId,
+    i18n: UserLocale,
+    message: Message = EventMessage(),
+):
+    arg = message.extract_plain_text().strip()
+    if not arg:
+        await matcher.reject(i18n.general.empty_message)
+
+    if arg == "0":
+        await matcher.finish(i18n.general.discard_select)
+
+    if not arg.isdigit():
+        await matcher.reject(i18n.general.invalid_ordinal_format)
+
+    index = int(arg) - 1
+    if not (0 <= index < len(loaded_locales)):
+        await matcher.reject(i18n.general.invalid_ordinal_range)
+
+    name, i18n = list(loaded_locales.items())[index]
+    config = session_config.get(session_id)[0].copy(update={"locale": name})
+    session_config[session_id] = config
+
+    await matcher.finish(
+        i18n.locale.locale_changed.format(
+            i18n.metadata.name,
+            name,
+            i18n.metadata.author,
+        ),
+    )

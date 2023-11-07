@@ -9,10 +9,12 @@ general:
     2、【vrc全部好友】 | 获取全部好友信息
     3、【vrc查询用户】【text】 | 查询玩家
     4、【vrc查询世界】【text】 | 查询世界
+    5、【vrc切换语言】 | 切换插件语言
   unknown_error: 遇到未知错误，请检查后台输出
   server_error: 服务器返回异常：[{0}] {1}
   discard_select: 已取消选择
-  empty_keyword: 搜索关键词不能为空，请重新发送
+  empty_search_keyword: 搜索关键词不能为空，请重新发送
+  empty_message: 消息不能为空，请重新发送
   invalid_ordinal_format: 序号格式不正确，请重新发送
   invalid_ordinal_range: 序号不在范围内，请重新发送
 
@@ -48,3 +50,8 @@ world:
     {0}. {1}
     作者：{2}
     创建日期：{3}
+
+locale:
+  available_locales_tip: 可用语言列表：
+  select_locale_tip: Tip：发送序号选择语言，或发送 0 取消选择
+  locale_changed: 当前语言已更改为 {0} ({1})，译者：{2}

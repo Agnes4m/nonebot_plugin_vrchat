@@ -64,11 +64,13 @@ async def get_trans_by_key(key: str, session_id: str) -> str:
     locale = await get_locale(session_id, session_id)
 
     value = locale
-    for node in tree:
-        value = getattr(value, node)
+    try:
+        for node in tree:
+            value = getattr(value, node)
+        assert isinstance(value, str)
+    except Exception as e:
+        raise AttributeError(f"Invalid i18n key: {key}") from e  # noqa: TRY004
 
-    if not isinstance(value, str):
-        raise TypeError
     return value
 
 
