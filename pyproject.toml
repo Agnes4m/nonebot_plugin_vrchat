@@ -17,6 +17,7 @@ dependencies = [
     "async-lru>=2.0.4",
     "nonebot-plugin-session>=0.1.0",
     "ruamel.yaml=0.17.21",
+    "nonebot_plugin_datastore<=2.0.0",
 ]
 classifiers = [
     "License :: OSI Approved :: MIT License",

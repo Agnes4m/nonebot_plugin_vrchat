@@ -3,8 +3,8 @@ from nonebot.plugin import PluginMetadata, inherit_supported_adapters
 
 require("nonebot_plugin_session")
 require("nonebot_plugin_saa")
+
 from . import __main__ as __main__  # noqa: E402
-from .config import ConfigModel  # noqa: E402
 
 __version__ = "0.1.1"
 __plugin_meta__ = PluginMetadata(
@@ -13,7 +13,7 @@ __plugin_meta__ = PluginMetadata(
     usage="使用【vrc帮助】指令获取帮助",
     type="application",
     homepage="https://github.com/Agnes4m/nonebot_plugin_vrchat",
-    config=ConfigModel,
+    config=None,
     supported_adapters=inherit_supported_adapters("nonebot_plugin_saa"),
     extra={
         "version": __version__,

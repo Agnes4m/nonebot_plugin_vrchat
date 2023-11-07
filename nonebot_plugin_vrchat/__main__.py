@@ -1,4 +1,4 @@
-from typing import Awaitable, Callable, List, NoReturn
+from typing import Awaitable, Callable, List
 
 from nonebot import on_command
 from nonebot.adapters import Event, Message
@@ -11,6 +11,7 @@ from nonebot_plugin_session import SessionId, SessionIdType
 
 from .config import config
 from .draw import draw_user_card_overview, draw_user_profile, i2b
+from .error import handle_error
 from .message import ErrorMsg, InfoMsg, SendMsg, WarningMsg
 from .vrchat import (
     ApiClient,
@@ -19,7 +20,6 @@ from .vrchat import (
     LimitedUserModel,
     NotLoggedInError,
     TwoFactorAuthError,
-    UnauthorizedException,
     get_all_friends,
     get_client,
     get_login_info,
@@ -55,22 +55,6 @@ search_user = on_command("vrcsu", aliases={"vrc查询用户"}, priority=20)
 world_search = on_command("vrcws", aliases={"vrc查询世界"}, priority=20)
 
 
-async def handle_error(matcher: Matcher, e: Exception) -> NoReturn:
-    if isinstance(e, NotLoggedInError):
-        await matcher.finish(ErrorMsg.Log)
-
-    if isinstance(e, UnauthorizedException):
-        logger.warning(f"UnauthorizedException: {e}")
-        await matcher.finish(ErrorMsg.Unauth)
-
-    if isinstance(e, ApiException):
-        logger.error(f"Error when requesting api: [{e.status}] {e.reason}")
-        await matcher.finish(f"服务器返回异常：[{e.status}] {e.reason}")
-
-    logger.exception("Exception when requesting api")
-    await matcher.finish(ErrorMsg.Unkown)
-
-
 @vrc_help.handle()
 async def _(matcher: Matcher):
     await matcher.finish(HELP)
@@ -83,7 +67,6 @@ async def _(
     session_id: str = SessionId(SessionIdType.USER),
     arg_msg: Message = CommandArg(),
 ):
-    """读取账号密码"""
     try:
         login_info = get_login_info(session_id)
     except NotLoggedInError:
@@ -112,7 +95,6 @@ async def _(
     state: T_State,
     session_id: str = SessionId(SessionIdType.USER),
 ):
-    """第一次尝试登录"""
     if (KEY_USERNAME in state) and (KEY_PASSWORD in state):
         username: str = state[KEY_USERNAME]
         password: str = state[KEY_PASSWORD]
@@ -137,13 +119,11 @@ async def _(
         await matcher.send(WarningMsg.Overwrite)
 
     try:
-        logger.info(f"{session_id} {username} {password}")
         current_user = await login_via_password(session_id, username, password)
 
     except TwoFactorAuthError as e:
-        logger.info(e)
         state[KEY_VERIFY_FUNC] = e.verify_func
-        secs = config.session_expire_timeout.seconds
+        secs = config.session_expire_timeout
         await matcher.pause(f"请在 {secs} 秒内发送 收到的邮箱验证码 或者 2FA验证码")
 
     except ApiException as e:
@@ -173,7 +153,6 @@ async def _(
     event: Event,
     session_id: str = SessionId(SessionIdType.USER),
 ):
-    """第二次尝试登录"""
     if KEY_CURRENT_USER in state:
         return  # skip
 
@@ -203,7 +182,6 @@ async def _(
 
 @vrc_login.handle()
 async def _(matcher: Matcher, state: T_State):
-    """登录成功"""
     current_user: CurrentUser = state[KEY_CURRENT_USER]
     await matcher.finish(f"登录成功，欢迎，{current_user.display_name}")
 
