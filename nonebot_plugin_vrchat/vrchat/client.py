@@ -1,4 +1,5 @@
 from http.cookiejar import LWPCookieJar
+from pathlib import Path
 from typing import Optional
 
 from nonebot import logger
@@ -7,7 +8,7 @@ from pydantic import BaseModel
 from vrchatapi import ApiClient, Configuration, NotificationsApi
 from vrchatapi.exceptions import UnauthorizedException
 
-from ..config import DATA_PATH
+from ..config import config
 
 # 关闭 `vrchatapi` 的客户端侧数据校验，这部分交给 pydantic 就行了
 _c = Configuration()
@@ -19,7 +20,7 @@ _last_usable_client: Optional[ApiClient] = None
 
 
 # 用户登录信息文件夹
-PLAYER_PATH = DATA_PATH / "player"
+PLAYER_PATH = Path(config.vrc_path, "player")
 PLAYER_PATH.mkdir(parents=True, exist_ok=True)
 
 

@@ -20,6 +20,7 @@ class VrcGroupConfig(BaseModel):
 
 class VrcConfig(BaseModel):
     session_expire_timeout: int = Field(default=120, alias="默认验证码时间(秒)")
+    vrc_path: str = Field(default="data/vrchat", alias="插件地址")
     group_config: Dict[int, VrcGroupConfig] = Field(default_factory=dict, alias="分群配置")
 
     def update(self, **kwargs):
