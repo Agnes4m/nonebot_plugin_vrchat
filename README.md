@@ -126,6 +126,11 @@ plugins = [
 <details>
 <summary>点击展开</summary>
 
+### 0.1.0
+
+- 新增了无法加载cookie的bug
+- 修改了部分注释
+
 ### 0.0.6
 
 - 修复了图片错误
