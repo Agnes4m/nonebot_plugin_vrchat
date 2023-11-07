@@ -20,7 +20,7 @@ _last_usable_client: Optional[ApiClient] = None
 
 
 # 用户登录信息文件夹
-PLAYER_PATH = Path(config.vrc_path, "player")
+PLAYER_PATH = Path(config.vrc_path) / "player"
 PLAYER_PATH.mkdir(parents=True, exist_ok=True)
 
 

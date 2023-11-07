@@ -137,11 +137,13 @@ async def _(
         await matcher.send(WarningMsg.Overwrite)
 
     try:
+        logger.info(f"{session_id} {username} {password}")
         current_user = await login_via_password(session_id, username, password)
 
     except TwoFactorAuthError as e:
+        logger.info(e)
         state[KEY_VERIFY_FUNC] = e.verify_func
-        secs = config.session_expire_timeout
+        secs = config.session_expire_timeout.seconds
         await matcher.pause(f"请在 {secs} 秒内发送 收到的邮箱验证码 或者 2FA验证码")
 
     except ApiException as e:
