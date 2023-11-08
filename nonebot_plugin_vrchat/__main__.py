@@ -249,7 +249,7 @@ async def _(
 @vrc_login.handle()
 async def _(matcher: Matcher, state: T_State, i18n: UserLocale):
     current_user: CurrentUser = state[KEY_CURRENT_USER]
-    await matcher.finish(i18n.login.logged_in.format(current_user.username))
+    await matcher.finish(i18n.login.logged_in.format(current_user.display_name))
 
 
 # endregion
