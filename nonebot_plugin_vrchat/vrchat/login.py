@@ -76,7 +76,7 @@ async def login_via_password(
 
         # 状态码为 200 时，则说明需要进行 2FA 验证
         if not (isinstance(e.reason, str) and "2 Factor Authentication" in e.reason):
-            raise TypeError(f"Unknown Reason: {e.reason}") from e  # 服务器返回值有误
+            raise TypeError(f"Unknown Reason: {e.reason}") from e
         two_fa_email = "Email 2 Factor Authentication" in e.reason
 
         # 定义一个用于提交 2FA 验证码并继续登录流程的闭包函数

@@ -201,11 +201,11 @@ async def random_client() -> ApiClient:
                 _last_usable_client = client
                 return client
 
-        except NotLoggedInError:  # 未找到该 Cookies 文件对应的登录信息
+        except NotLoggedInError:
             logger.warning(f"Found cookies but has no login info: {session_id}")
-        except Exception:  # 其他
+        except Exception:
             logger.exception(f"Error when checking client usability: {session_id}")
-        path.unlink()  # 删除此无效的 Cookies 文件
+        path.unlink()
 
     raise NotLoggedInError
 

@@ -23,8 +23,12 @@ _✨ 使用第三方 api 实现 vrchat 相关操作 ✨_
 <a href="https://pypi.python.org/pypi/nonebot_plugin_vrchat">
         <img src="https://img.shields.io/pypi/v/nonebot_plugin_vrchat.svg" alt="pypi">
 </a>
-    <img src="https://img.shields.io/badge/python-3.8 | 3.9 | 3.10 | 3.11-blue.svg" alt="python">
-    <img src="https://img.shields.io/badge/nonebot-2.0.* | 2.1.*-red.svg" alt="NoneBot">
+    <img src="https://img.shields.io/badge/python-3.8+-blue.svg" alt="python">
+    <img src="https://img.shields.io/badge/nonebot-2.1.0+-red.svg" alt="NoneBot">
+</a>
+<a href="https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere">
+        <img src="https://img.shields.io/badge/%E9%80%82%E9%85%8D%E5%99%A8-nonebot_plugin_saa-greg" alt="adpters">
+</a>
 </div>
 
 ## 说明
@@ -32,8 +36,6 @@ _✨ 使用第三方 api 实现 vrchat 相关操作 ✨_
 ![logo](/img/theme.jpg)
 
 本插件适配 nonebot2 框架，目的是在 qq 群中获取好友和地图的信息
-
-使用到了 saa 插件，这代表适配大多适配器
 
 首先你应该私聊机器人发送`vrc登录`，按提示输入账号密码和验证码，才能正常使用功能
 
@@ -126,10 +128,21 @@ plugins = [
 <details>
 <summary>点击展开</summary>
 
-### 0.1.0
+### 0.1.2
+
+- 修复了无法加载cookie的bug
+- 新增i18n
+
+### 0.1.1
 
 - 新增了无法加载cookie的bug
 - 修改了部分注释
+
+### 0.1.0
+
+- 修复人物图片错误
+- 新增好友参数显示
+- 新增查询好友图片
 
 ### 0.0.6
 
