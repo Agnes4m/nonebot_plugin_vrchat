@@ -1,0 +1,59 @@
+metadata:
+  name: English
+  author: GitHub Copilot & student_2333
+
+general:
+  help: |-
+    Available commands:
+    1. `vrcl` | Login to VRChat account, recommended to use in private chat
+    2. `vrcfl` | Get all friends' status
+    3. `vrcsu` | Search user
+    4. `vrcsw` | Search world
+    5. `vrccl` | Change language
+  unknown_error: An unexpected error occurred, please check the console output!
+  server_error: 'Server returned an error: [{0}] {1}'
+  discard_select: Selection canceled.
+  empty_search_keyword: Search keyword cannot be empty, please resend.
+  empty_message: Message cannot be empty, please resend.
+  invalid_ordinal_format: Invalid ordinal format, please resend.
+  invalid_ordinal_range: Ordinal out of range, please resend.
+
+login:
+  not_logged_in: Not logged in or login info expired, please send command `vrcl` in private chat to login again.
+  login_expired: Login expired, please login again.
+  overwrite_login_info: Cached login info detected, old login info will be overwritten after this login.
+  send_login_info: |-
+    Please send your account and password, separated by space, send `0` to cancel login.
+    Tip: The bot will save your login status, please login when you trust the bot.
+  send_2fa_code: Please send the 2FA code or email verification code within {0} seconds.
+  use_cached_login_info: Cached login info detected, trying to login again.
+  discard_login: Login canceled.
+  invalid_account: >-
+    Invalid account or password, please resend;
+    if you are sure that your account and password are 100% correct, please check if there is a new verification email in your mailbox.
+  invalid_info_format: Invalid login info format, please resend. Account and password should be separated by space.
+  invalid_2fa_format: Invalid 2FA code format, please resend.
+  invalid_2fa_code: Invalid 2FA code, please resend.
+  logged_in: Login successful, welcome, {0}!
+
+friend:
+  empty_friend_list: Your friend list is empty :(
+
+user:
+  send_user_name: Please send the user name you want to search.
+  no_user_found: No user found :(
+  searched_user_tip: 'Found {0} users:'
+
+world:
+  send_world_name: Please send the world name you want to search.
+  no_world_found: No world found :(
+  searched_world_tip: 'Found {0} worlds:'
+  searched_world_info: |-
+    {0}. {1}
+    Author: {2}
+    Created at: {3}
+
+locale:
+  available_locales_tip: 'Available languages:'
+  select_locale_tip: 'Tip: Send the ordinal to select language, or send `0` to cancel.'
+  locale_changed: 'Language changed to {0} ({1}), translator: {2}'

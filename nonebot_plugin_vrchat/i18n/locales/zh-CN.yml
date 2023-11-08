@@ -1,0 +1,57 @@
+metadata:
+  name: 简体中文
+  author: Agnes_Digital & student_2333
+
+general:
+  help: |-
+    --------vrc指令--------
+    1、【vrc登录】 | 登录vrc账户，建议私聊
+    2、【vrc全部好友】 | 获取全部好友信息
+    3、【vrc查询用户】【text】 | 查询玩家
+    4、【vrc查询世界】【text】 | 查询世界
+    5、【vrc切换语言】 | 切换插件语言
+  unknown_error: 遇到未知错误，请检查后台输出
+  server_error: 服务器返回异常：[{0}] {1}
+  discard_select: 已取消选择
+  empty_search_keyword: 搜索关键词不能为空，请重新发送
+  empty_message: 消息不能为空，请重新发送
+  invalid_ordinal_format: 序号格式不正确，请重新发送
+  invalid_ordinal_range: 序号不在范围内，请重新发送
+
+login:
+  not_logged_in: 尚未登录，或登录信息失效，请私聊并发送【vrc登录】来重新登录
+  login_expired: 登录已过期，请重新登录
+  overwrite_login_info: 检测到已缓存的登录信息，本次登录成功后旧登录信息将被覆盖
+  send_login_info: |-
+    请发送登录账号密码，用空格分隔，发送 0 取消登录
+    提示：机器人会保存你的登录状态,请在信任机器人的情况下登录
+  send_2fa_code: 请在 {0} 秒内发送 收到的邮箱验证码 或者 2FA验证码
+  use_cached_login_info: 检测到缓存的登录信息，尝试重新登录
+  discard_login: 已取消登录
+  invalid_account: 用户名或密码错误，请重新发送；如果你确认你的账号密码 100% 正确，请检查你的邮箱是否有新地址登录验证邮件
+  invalid_info_format: 消息格式不符合规范，请重新发送账号密码，用空格分隔
+  invalid_2fa_format: 验证码格式不正确
+  invalid_2fa_code: 验证码错误，请重新发送
+  logged_in: 登录成功，欢迎，{0}
+
+friend:
+  empty_friend_list: 当前没有好友捏
+
+user:
+  send_user_name: 请发送要查询的玩家名称
+  no_user_found: 没搜到任何玩家捏
+  searched_user_tip: 搜索到以下 {0} 个玩家
+
+world:
+  send_world_name: 请发送要查询的地图名称
+  no_world_found: 没搜到任何地图捏
+  searched_world_tip: 搜索到以下 {0} 个地图
+  searched_world_info: |-
+    {0}. {1}
+    作者：{2}
+    创建日期：{3}
+
+locale:
+  available_locales_tip: 可用语言列表：
+  select_locale_tip: Tip：发送序号选择语言，或发送 0 取消选择
+  locale_changed: 当前语言已更改为 {0} ({1})，译者：{2}

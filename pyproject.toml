@@ -6,7 +6,7 @@ authors = [
     { name = "Agnes_Digital", email = "Z735803792@163.com" },
     { name = "student_2333", email = "lgc2333@126.com" },
 ]
-requires-python = ">=3.9,<4.0"
+requires-python = ">=3.8,<4.0"
 keywords = ["steam", "game", "vrchat", "nonebot2", "plugin"]
 dependencies = [
     "nonebot2>=2.0.0",
@@ -15,9 +15,8 @@ dependencies = [
     "httpx>=0.25.0",
     "pil-utils>=0.1.8",
     "async-lru>=2.0.4",
-    "nonebot-plugin-session>=0.1.0",
-    "ruamel.yaml=0.17.21",
-    "nonebot_plugin_datastore<=2.0.0",
+    "nonebot-plugin-session>=0.2.0",
+    "ruamel-yaml>=0.18.5",
 ]
 classifiers = [
     "License :: OSI Approved :: MIT License",
