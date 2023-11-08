@@ -316,7 +316,7 @@ async def _(
 ):
     arg = arg.strip()
     if not arg:
-        await matcher.reject()
+        await matcher.reject(i18n.general.empty_search_keyword)
 
     try:
         client = await get_or_random_client(session_id)
