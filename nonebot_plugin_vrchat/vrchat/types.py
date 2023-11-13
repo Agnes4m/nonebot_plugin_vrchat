@@ -112,7 +112,7 @@ class LimitedUserModel(BaseModel):
     """用户id"""
     current_avatar_image_url: str
     """头像url"""
-    current_avatar_thumbnail_image_url: str
+    current_avatar_thumbnail_image_url: Optional[str]
     """缩略图头像url"""
     developer_type: DeveloperType
     """开发者模式"""
