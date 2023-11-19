@@ -112,25 +112,25 @@ class LimitedUserModel(BaseModel):
     """用户id"""
     current_avatar_image_url: str
     """头像url"""
-    current_avatar_thumbnail_image_url: Optional[str]
-    """缩略图头像url"""
     developer_type: DeveloperType
     """开发者模式"""
     display_name: str
     """姓名"""
     is_friend: bool
     last_platform: str
-    profile_pic_override: str
     original_status: StatusType = Field(alias="status")
     status_description: str
     tags: List[str]
-    user_icon: str
 
     bio: Optional[str] = None
+    current_avatar_thumbnail_image_url: Optional[str] = None
+    """缩略图头像url"""
     fallback_avatar: Optional[str] = None
     location: Optional[str] = None
     friend_key: Optional[str] = None
     last_login: Optional[datetime] = None
+    profile_pic_override: Optional[str] = None
+    user_icon: Optional[str] = None
 
     @property
     def status(self) -> NormalizedStatusType:
