@@ -336,10 +336,7 @@ async def draw_user_card_on_image(
     # avatar
     avatar_img = (
         await get_image_or_default(
-            (
-                user.current_avatar_thumbnail_image_url
-                or user.current_avatar_image_url
-            ),
+            (user.current_avatar_thumbnail_image_url or user.current_avatar_image_url),
             USER_AVATAR_SIZE,
         )
     ).convert("RGBA")
