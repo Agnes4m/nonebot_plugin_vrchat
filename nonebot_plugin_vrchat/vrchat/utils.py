@@ -24,13 +24,11 @@ P = ParamSpec("P")
 
 
 class HasToDictProtocol(Protocol):
-    def to_dict(self) -> dict:
-        ...
+    def to_dict(self) -> dict: ...
 
 
 class PaginationCallable(Protocol, Generic[T]):
-    async def __call__(self, page_size: int, offset: int) -> Optional[List[T]]:
-        ...
+    async def __call__(self, page_size: int, offset: int) -> Optional[List[T]]: ...
 
 
 class ApiModelClass(Protocol):

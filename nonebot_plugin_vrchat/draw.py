@@ -454,9 +454,11 @@ async def draw_user_card_overview(
 
     # sort online status
     user_dict = dict(
-        ((k, user_dict[k]) for k in STATUS_DESC_MAP if k in user_dict)
-        if group
-        else (("unknown", [x for y in user_dict.values() for x in y]),),
+        (
+            ((k, user_dict[k]) for k in STATUS_DESC_MAP if k in user_dict)
+            if group
+            else (("unknown", [x for y in user_dict.values() for x in y]),)
+        ),
     )
 
     # sort trust level
