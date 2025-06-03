@@ -32,11 +32,11 @@ class ConfigBaseModel(BaseModel):
 
     def update(self):
         for k, v in self.read().items():
-            if k in self.__fields__:
+            if k in self.model_fields:
                 setattr(self, k, v)
 
     def save(self):
-        data = self.dict(by_alias=True)
+        data = self.model_dump(by_alias=True)
         if "__root__" in data:
             data = data["__root__"]
         dump_yaml(self._path, data)
@@ -49,7 +49,7 @@ class EnvConfig(BaseModel):
     session_expire_timeout: timedelta
 
 
-env_config = EnvConfig.parse_obj(get_driver().config)
+env_config = EnvConfig.model_validate(get_driver().config.model_dump())
 
 
 # endregion
@@ -83,21 +83,21 @@ default_session_config = SessionConfig()
 
 class SessionConfigManager(ConfigBaseModel):
     _path = PrivateAttr(SESSION_CONFIG_PATH)
-    __root__: Dict[str, SessionConfig] = Field(default_factory=dict)
+    sessions: Dict[str, SessionConfig] = Field(default_factory=dict)
 
     def __getitem__(self, session_id: str) -> SessionConfig:
-        return self.__root__[session_id]
+        return self.sessions[session_id]
 
     def __setitem__(self, session_id: str, config: SessionConfig) -> None:
-        self.__root__[session_id] = config
+        self.sessions[session_id] = config
         self.save()
 
     def __delitem__(self, session_id: str) -> None:
-        del self.__root__[session_id]
+        del self.sessions[session_id]
         self.save()
 
     def __contains__(self, session_id: str) -> bool:
-        return session_id in self.__root__
+        return session_id in self.sessions
 
     def get(
         self,
@@ -118,8 +118,8 @@ class SessionConfigManager(ConfigBaseModel):
         """
 
         for session in session_ids:
-            if session in self.__root__:
-                return self.__root__[session], session
+            if session in self.sessions:
+                return self.sessions[session], session
         return default_session_config, None
 
 

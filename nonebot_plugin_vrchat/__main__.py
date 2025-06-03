@@ -130,8 +130,25 @@ async def _(
     i18n: UserLocale,
     arg_msg: Message = CommandArg(),
 ):
+    """
+    异步处理登录请求。
+
+    Args:
+        matcher (Matcher): 用于匹配用户输入的匹配器对象。
+        state (T_State): 用于保存处理状态的对象。
+        session_id (UserSessionId): 用户会话ID。
+        i18n (UserLocale): 用户语言环境。
+        arg_msg (Message, optional): 用户输入的命令参数消息，默认为 CommandArg().
+
+    Returns:
+        None
+
+    Raises:
+        NotLoggedInError: 如果用户未登录则抛出此异常。
+    """
     try:
         login_info = get_login_info(session_id)
+        logger.info(f"login_info: {login_info}")
     except NotLoggedInError:
         login_info = None
 
