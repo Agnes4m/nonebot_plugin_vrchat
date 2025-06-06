@@ -6,7 +6,9 @@ from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import ArgPlainText, CommandArg, EventMessage
 from nonebot.typing import T_State
-from nonebot_plugin_saa import Image, MessageFactory, Text
+
+# from nonebot_plugin_saa import Image, MessageFactory, Text
+from nonebot_plugin_alconna import UniMessage
 
 from .config import env_config, session_config
 from .draw import draw_user_card_overview, draw_user_profile, i2b
@@ -303,7 +305,7 @@ async def _(
     except Exception as e:
         await handle_error(matcher, i18n, e)
 
-    await MessageFactory(Image(pic)).finish()
+    await UniMessage.image(raw=pic).finish()
 
 
 # endregion
@@ -355,12 +357,10 @@ async def _(
     except Exception as e:
         await handle_error(matcher, i18n, e)
 
-    await MessageFactory(
-        [
-            Text(i18n.user.searched_user_tip.format(len(resp))),
-            Image(pic),
-        ],
-    ).finish()  # .pause()
+    await (
+        UniMessage.text(i18n.user.searched_user_tip.format(len(resp)))
+        + UniMessage.image(raw=pic)
+    ).finish()
 
 
 # TODO 没做完
@@ -395,7 +395,7 @@ async def _(
     except Exception as e:
         await handle_error(matcher, i18n, e)
 
-    await MessageFactory(Image(pic)).finish()
+    await UniMessage.image(raw=pic).finish()
 
 
 # endregion
@@ -436,9 +436,9 @@ async def _(
         await matcher.finish(i18n.world.no_world_found)
 
     len_worlds = len(worlds)
-    msg_factory = MessageFactory(i18n.world.searched_world_tip.format(len_worlds))
+    msg_factory = UniMessage.text(i18n.world.searched_world_tip.format(len_worlds))
     for i, wld in enumerate(worlds, 1):
-        msg_factory += Image(wld.thumbnail_image_url)
+        msg_factory += UniMessage.image(wld.thumbnail_image_url)
         msg_factory += i18n.world.searched_world_info.format(
             i,
             wld.name,
