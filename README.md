@@ -31,11 +31,9 @@ _✨ 使用第三方 api 实现 vrchat 相关操作 ✨_
 </a>
 </div>
 
-## 说明
+## 说明(国内服务器可使用)
 
 ![logo](/img/theme.jpg)
-
-**由于vrchat需要魔法网络才能登录，使用国内服务器的可以忽略了**
 
 本插件适配 nonebot2 框架，目的是在 qq 群中获取好友和地图的信息
 
@@ -114,7 +112,7 @@ plugins = [
 - `vrc登录`： 登录（需要输入账号密码，建议私聊）
 - `vrc全部好友`： 查询当前全部好友状态
 - `vrc查询好友【text】`：查询用户名称
-- `vrc查询世界【text】`： 查询世界名称 （未完成）
+- `vrc查询世界【text】`： 查询世界名称
 
 ## 感谢
 
@@ -122,8 +120,8 @@ plugins = [
 
 ## 其他
 
-- 插件报错或建议 q 群：[q 群: VR CHAT 交流群](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=SgA58TsEk1S4axSecQaPObNiwiOrlVwH&authKey=6Ob3NjrYayRDY029j6bPDH40oLQeZYYJQ7zlT4Pju0Iqb2uN3b4FBSBZV7d%2BrruK&noverify=0&group_code=579924932)
-- [爱发电](https://afdian.net/a/agnes_digital) 感谢大家的赞助！你们的赞助将是我继续创作的动力！
+- 插件报错或建议：发iss或者 [q 群](https://qm.qq.com/q/qK3156ysN2) 或者邮箱：[Z735803792@163.com](mailto:Z735803792@163.com)
+- [爱发电](https://afdian.tv/a/agnes_digital) 感谢大家的赞助！你们的赞助将是我继续创作的动力！
 
 ## 📝 更新日志
 
