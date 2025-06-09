@@ -1,7 +1,6 @@
 [project]
 name = "nonebot-plugin-vrchat"
 dynamic = ["version"]
-version = "0.2.0"
 description = "使用第三方api实现vrchat相关操作,plugin for nonebot2"
 authors = [
     { name = "Agnes_Digital", email = "Z735803792@163.com" },
@@ -37,7 +36,11 @@ license = { text = "MIT" }
 homepage = "https://github.com/Agnes4m/nonebot_plugin_vrchat"
 
 [tool.pdm.build]
-includes = []
+includes = [
+    "nonebot_plugin_vrchat/i18n/locales/*.yml",
+    "nonebot_plugin_vrchat/vrchat/*.py",
+    "nonebot_plugin_vrchat/*.py"
+]
 
 [tool.pdm.version]
 source = "file"

@@ -23,17 +23,21 @@ _✨ 使用第三方 api 实现 vrchat 相关操作 ✨_
 <a href="https://pypi.python.org/pypi/nonebot_plugin_vrchat">
         <img src="https://img.shields.io/pypi/v/nonebot_plugin_vrchat.svg" alt="pypi">
 </a>
-    <img src="https://img.shields.io/badge/python-3.8+-blue.svg" alt="python">
+    <img src="https://img.shields.io/badge/python-3.9+-blue.svg" alt="python">
     <img src="https://img.shields.io/badge/nonebot-2.1.0+-red.svg" alt="NoneBot">
 </a>
-<a href="https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere">
-        <img src="https://img.shields.io/badge/%E9%80%82%E9%85%8D%E5%99%A8-nonebot_plugin_saa-greg" alt="adpters">
+</a>
+    <img src="https://img.shields.io/badge/pydantic-v2.11+-blue.svg" alt="python">
+    <img src="https://img.shields.io/badge/pydantic-v2.11+-red.svg" alt="NoneBot">
+</a>
+<a href="https://github.com/nonebot/plugin-alconna">
+        <img src="https://img.shields.io/badge/%E9%80%82%E9%85%8D%E5%99%A8-nonebot_plugin_alconna-greg" alt="adpters">
 </a>
 </div>
 
 ## 说明(国内服务器可使用)
 
-![logo](/img/theme.jpg)
+![logo](./img/theme.jpg)
 
 本插件适配 nonebot2 框架，目的是在 qq 群中获取好友和地图的信息
 
@@ -120,7 +124,7 @@ plugins = [
 
 ## 其他
 
-- 插件报错或建议：发iss或者 [q 群](https://qm.qq.com/q/qK3156ysN2) 或者邮箱：[Z735803792@163.com](mailto:Z735803792@163.com)
+- 插件报错或建议：发iss或者 [q 群](https://qm.qq.com/q/qK3156ysN2) 或者邮箱
 - [爱发电](https://afdian.tv/a/agnes_digital) 感谢大家的赞助！你们的赞助将是我继续创作的动力！
 
 ## 📝 更新日志
