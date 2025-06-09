@@ -10,6 +10,7 @@ from .utils import (
     auto_parse_iterator_return,
     auto_parse_return,
     iter_pagination_func,
+    user_agent,
 )
 
 
@@ -29,7 +30,7 @@ def search_users(
     Returns:
         获取搜索到用户的异步迭代器
     """
-
+    client.user_agent = user_agent
     api = UsersApi(client)
 
     @auto_parse_iterator_return(LimitedUserModel)
@@ -55,7 +56,7 @@ async def get_user(client: ApiClient, user_id: str) -> User:
     Returns:
         用户信息
     """
-
+    client.user_agent = user_agent
     api = UsersApi(client)
     return await cast(
         Awaitable[User],

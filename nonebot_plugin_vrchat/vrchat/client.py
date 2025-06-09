@@ -8,6 +8,7 @@ from vrchatapi import ApiClient, Configuration, NotificationsApi
 from vrchatapi.exceptions import UnauthorizedException
 
 from ..config import DATA_DIR
+from .utils import user_agent
 
 # 关闭 `vrchatapi` 的客户端侧数据校验，这部分交给 pydantic 就行了
 _c = Configuration()
@@ -105,7 +106,7 @@ def get_login_info(session_id: str) -> LoginInfo:
     info_path = PLAYER_PATH / f"{session_id}.json"
     if not info_path.exists():
         raise NotLoggedInError
-    return LoginInfo.parse_raw(info_path.read_text(encoding="utf-8"))
+    return LoginInfo.model_validate_json(info_path.read_text(encoding="utf-8"))
 
 
 def remove_login_info(session_id: str):
@@ -150,7 +151,7 @@ async def get_client(
     )
     configuration.client_side_validation = False
     client = ApiClient(configuration)
-
+    client.user_agent = user_agent
     if load_cookies:
         load_cookies_to_client(client, session_id)
 

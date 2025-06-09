@@ -10,6 +10,7 @@ from .utils import (
     auto_parse_iterator_return,
     auto_parse_return,
     iter_pagination_func,
+    user_agent,
 )
 
 
@@ -28,7 +29,7 @@ def search_worlds(
     Returns:
         获取搜索到世界的异步迭代器
     """
-
+    client.user_agent = user_agent
     api = WorldsApi(client)
 
     @auto_parse_iterator_return(LimitedWorldModel)

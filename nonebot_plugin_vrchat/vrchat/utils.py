@@ -21,6 +21,7 @@ from pydantic import BaseModel
 T = TypeVar("T")
 TM = TypeVar("TM", bound=BaseModel)
 P = ParamSpec("P")
+user_agent = "nonebot_plugin_vrchat/0.2.0 Z735803792@163.com"
 
 
 class HasToDictProtocol(Protocol):
@@ -162,8 +163,9 @@ def patch_api_model_append_attr(
         default: 该属性的默认值
     """
 
-    if hasattr(cls, attr):
-        raise ValueError(f"Attribute `{attr}` already exists")
+    # 如果属性已存在则直接跳过
+    if attr in cls.openapi_types or attr in cls.attribute_map:
+        return
 
     cls.openapi_types[attr] = attr_type
     cls.attribute_map[attr] = real_attr

@@ -8,6 +8,7 @@ from vrchatapi.models.two_factor_auth_code import TwoFactorAuthCode
 from vrchatapi.models.two_factor_email_code import TwoFactorEmailCode
 
 from .client import PLAYER_PATH, LoginInfo, get_client, save_client_cookies
+from .utils import user_agent
 
 
 class TwoFactorAuthError(Exception):
@@ -48,6 +49,7 @@ async def login_via_password(
         session_id=session_id,
         login_info=LoginInfo(username=username, password=password),
     )
+    client.user_agent = user_agent
     api = AuthenticationApi(client)
 
     def save_user_info():

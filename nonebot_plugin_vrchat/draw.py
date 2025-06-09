@@ -176,7 +176,7 @@ def with_semaphore(semaphore: Semaphore):
 
 def get_fittable_text(text: str, size: int, max_width: int, **kwargs) -> Text2Image:
     text_obj = Text2Image.from_text(text, size, **kwargs)
-    if text_obj.width <= max_width:
+    if text_obj.longest_line <= max_width:
         return text_obj
 
     while True:
@@ -184,7 +184,7 @@ def get_fittable_text(text: str, size: int, max_width: int, **kwargs) -> Text2Im
             raise ValueError("max_width too small")
         text = text[:-1]
         text_obj = Text2Image.from_text(text + "...", size, **kwargs)
-        if text_obj.width <= max_width:
+        if text_obj.longest_line <= max_width:
             return text_obj
 
 
@@ -395,7 +395,7 @@ async def draw_user_card_on_image(
         USER_TITLE_FONT_SIZE,
         title_width,
         fill=USER_CARD_TITLE_COLOR,
-        weight="bold",
+        font_style="bold",
     )
 
     content = user.status_description or STATUS_DESC_MAP[user.status]
@@ -497,7 +497,7 @@ async def draw_user_card_overview(
                 f"{STATUS_DESC_MAP[status]} ({len(users)})",
                 OVERVIEW_TITLE_FONT_SIZE,
                 fill=OVERVIEW_TITLE_COLOR,
-                weight="bold",
+                font_style="bold",
             )
             title_text.draw_on_image(image.image, (USER_CARD_MARGIN, y_offset))
             y_offset += title_h + USER_CARD_MARGIN
@@ -610,7 +610,7 @@ async def draw_group_on_image(
         GROUP_TITLE_TEXT_SIZE,
         card_w - (GROUP_CARD_PADDING * 2) - GROUP_TITLE_MARGIN_LEFT,
         fill=GROUP_TITLE_COLOR,
-        weight="bold",
+        font_style="bold",
     )
     title_txt.draw_on_image(
         image.image,
@@ -644,7 +644,7 @@ async def draw_group_on_image(
     desc_txt.draw_on_image(
         image.image,
         (
-            offset_x + ((card_w - desc_txt.width) // 2),
+            offset_x + ((card_w - desc_txt.longest_line) // 2),
             desc_y,
         ),
     )
@@ -683,7 +683,7 @@ async def draw_group_on_image(
                 + card_w
                 - GROUP_CARD_PADDING
                 - GROUP_FOOTER_PADDING_LEFT
-                - code_text.width
+                - code_text.longest_line
             ),
             footer_top_y + ((user_icon_h - code_text.height) // 2),
         ),
