@@ -16,13 +16,13 @@ from typing import (
     Tuple,
     TypeVar,
 )
-from typing_extensions import ParamSpec
 
 from async_lru import alru_cache
 from httpx import AsyncClient
 from nonebot import logger
 from PIL.ImageFilter import GaussianBlur
 from pil_utils import BuildImage, Text2Image
+from typing_extensions import ParamSpec
 
 from .vrchat import (
     ApiClient,
@@ -694,9 +694,16 @@ async def draw_group_on_image(
 
 async def draw_user_profile(user: UserModel) -> BuildImage:
     bg = BuildImage.new("RGBA", (500, 500), BG_COLOR)
+    logger.debug(user.__dict__)
     bg.draw_text(
         (5, 5),
-        f"User: {user.display_name}\nWorking in progress",
+        f""""User: {user.display_name} 
+        id: {user.user_id}
+        last_activity: {user.last_activity}
+        status: {user.status}
+        des: {user.status_description}
+        bio: {user.bio}
+        """,
         fill=OVERVIEW_TITLE_COLOR,
     )
     return bg

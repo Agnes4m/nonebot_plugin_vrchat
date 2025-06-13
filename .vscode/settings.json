@@ -1,6 +1,6 @@
 {
-  "python.languageServer": "Pylance",
-  "python.analysis.typeCheckingMode": "basic",
+  "python.languageServer": "None",
+  "python.analysis.typeCheckingMode": "off",
   "editor.formatOnSave": true,
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter",

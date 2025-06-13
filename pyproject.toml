@@ -36,11 +36,7 @@ license = { text = "MIT" }
 homepage = "https://github.com/Agnes4m/nonebot_plugin_vrchat"
 
 [tool.pdm.build]
-includes = [
-    "nonebot_plugin_vrchat/i18n/locales/*.yml",
-    "nonebot_plugin_vrchat/vrchat/*.py",
-    "nonebot_plugin_vrchat/*.py"
-]
+includes = []
 
 [tool.pdm.version]
 source = "file"

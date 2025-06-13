@@ -360,10 +360,11 @@ async def _(
     await (
         UniMessage.text(i18n.user.searched_user_tip.format(len(resp)))
         + UniMessage.image(raw=pic)
-    ).finish()
+    ).send()
+    # 进入多步会话，等待用户选择
+    await matcher.pause("请选择要查询的用户序号：\n输入 0 取消选择\n")
 
 
-# TODO 没做完
 @search_user.handle()
 async def _(
     matcher: Matcher,
