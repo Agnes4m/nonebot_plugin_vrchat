@@ -23,8 +23,9 @@ from nonebot import logger
 from PIL.ImageFilter import GaussianBlur
 from pil_utils import BuildImage, Text2Image
 from typing_extensions import ParamSpec
+from vrchatapi.models import FriendStatus
 
-from .vrchat import (
+from ..vrchat import (
     ApiClient,
     GroupModel,
     LimitedUserModel,
@@ -445,6 +446,87 @@ async def draw_user_card_overview(
     group: bool = True,
     client: Optional[ApiClient] = None,
 ) -> BuildImage:
+    if not client:
+        client = await random_client()
+
+    user_dict: Dict[NormalizedStatusType, List[LimitedUserModel]] = {}
+    for user in users:
+        user_dict.setdefault(user.status, []).append(user)
+
+    # sort online status
+    user_dict = dict(
+        (
+            ((k, user_dict[k]) for k in STATUS_DESC_MAP if k in user_dict)
+            if group
+            else (("unknown", [x for y in user_dict.values() for x in y]),)
+        ),
+    )
+
+    # sort trust level
+    trust_keys = list(TRUST_COLORS.keys())
+    for li in user_dict.values():
+        li.sort(key=lambda x: trust_keys.index(x.trust), reverse=True)
+
+    card_w, card_h = USER_CARD_SIZE
+    width_multiplier = max((len(x) for x in user_dict.values()), default=0)
+    if width_multiplier > OVERVIEW_MAX_CARDS_PER_LINE:
+        width_multiplier = OVERVIEW_MAX_CARDS_PER_LINE
+
+    title_h = 49
+    width = width_multiplier * card_w + (width_multiplier + 1) * USER_CARD_MARGIN
+    height = USER_CARD_MARGIN
+    for users in user_dict.values():
+        height_multiplier = ceil(len(users) / width_multiplier)
+        height += (
+            (
+                title_h
+                + height_multiplier * card_h
+                + (height_multiplier + 1) * USER_CARD_MARGIN
+            )
+            if group
+            else (height_multiplier * card_h + height_multiplier * USER_CARD_MARGIN)
+        )
+
+    image = BuildImage.new("RGBA", (width, height), BG_COLOR)
+    tasks: List[Awaitable] = []
+    semaphore = Semaphore(8)
+
+    y_offset = USER_CARD_MARGIN
+    for status, users in user_dict.items():
+        if group:
+            title_text = Text2Image.from_text(
+                f"{STATUS_DESC_MAP[status]} ({len(users)})",
+                OVERVIEW_TITLE_FONT_SIZE,
+                fill=OVERVIEW_TITLE_COLOR,
+                font_style="bold",
+            )
+            title_text.draw_on_image(image.image, (USER_CARD_MARGIN, y_offset))
+            y_offset += title_h + USER_CARD_MARGIN
+
+        for line in chunks(users, width_multiplier):
+            x_offset = USER_CARD_MARGIN
+            for user in line:
+                tasks.append(
+                    with_semaphore(semaphore)(draw_user_card_on_image)(
+                        client,
+                        user,
+                        image,
+                        (x_offset, y_offset),
+                    ),
+                )
+                x_offset += card_w + USER_CARD_MARGIN
+            y_offset += card_h + USER_CARD_MARGIN
+
+    await asyncio.gather(*tasks)
+
+    return image
+
+
+async def draw_one_user_card_overview(
+    user: FriendStatus,
+    group: bool = True,
+    client: Optional[ApiClient] = None,
+):
     if not client:
         client = await random_client()
 

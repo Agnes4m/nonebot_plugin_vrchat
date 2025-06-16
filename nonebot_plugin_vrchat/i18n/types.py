@@ -34,6 +34,7 @@ class I18NLogin(BaseModel):
 
 class I18NFriend(BaseModel):
     empty_friend_list: str
+    empty_friend: str
 
 
 class I18NUser(BaseModel):

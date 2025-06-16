@@ -1,12 +1,12 @@
 from pathlib import Path
 from typing import Dict
-from typing_extensions import Annotated
 
 from nonebot import logger
 from nonebot.params import Depends
+from typing_extensions import Annotated
 
 from ..config import plugin_config, session_config
-from ..utils import GroupSessionId, UserSessionId, load_yaml
+from ..utils import load_yaml
 from .types import I18N as I18N
 from .types import I18NFriend as I18NFriend
 from .types import I18NGeneral as I18NGeneral
@@ -14,6 +14,7 @@ from .types import I18NLogin as I18NLogin
 from .types import I18NMetadata as I18NMetadata
 from .types import I18NUser as I18NUser
 from .types import I18NWorld as I18NWorld
+from .utils import GroupSessionId, UserSessionId
 
 LOCALE_PATH = Path(__file__).parent / "locales"
 FALLBACK_LOCALE = "zh-CN"

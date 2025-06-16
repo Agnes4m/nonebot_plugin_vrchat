@@ -4,8 +4,11 @@ from nonebot.plugin import PluginMetadata, inherit_supported_adapters
 require("nonebot_plugin_session")
 require("nonebot_plugin_alconna")
 
-from . import __main__ as __main__  # noqa: E402
-from .config import EnvConfig  # noqa: E402
+from .commands import load_commands
+from .config import EnvConfig
+
+load_commands()
+
 
 __version__ = "0.2.0"
 __plugin_meta__ = PluginMetadata(

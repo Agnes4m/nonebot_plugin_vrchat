@@ -38,6 +38,7 @@ login:
 
 friend:
   empty_friend_list: Your friend list is empty :(
+  empty_friend:  Specified friend does not exist :(
 
 user:
   send_user_name: Please send the user name you want to search.

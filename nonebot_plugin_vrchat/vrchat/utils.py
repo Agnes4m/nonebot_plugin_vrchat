@@ -14,9 +14,9 @@ from typing import (
     TypedDict,
     TypeVar,
 )
-from typing_extensions import NotRequired, ParamSpec, Unpack
 
 from pydantic import BaseModel
+from typing_extensions import NotRequired, ParamSpec, Unpack
 
 T = TypeVar("T")
 TM = TypeVar("TM", bound=BaseModel)
@@ -138,6 +138,7 @@ def auto_parse_return(model: Type[TM]):
         @wraps(func)
         async def wrapper(*args: P.args, **kwargs: P.kwargs):
             resp = await func(*args, **kwargs)
+            print("DEBUG resp.to_dict():", resp.to_dict())  # 调试用
             return model(**resp.to_dict())
 
         return wrapper

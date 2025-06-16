@@ -36,6 +36,7 @@ login:
 
 friend:
   empty_friend_list: 当前没有好友捏
+  empty_friend: 指定好友不存在捏
 
 user:
   send_user_name: 请发送要查询的玩家名称
