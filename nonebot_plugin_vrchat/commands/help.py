@@ -1,7 +1,7 @@
 from nonebot import on_command
 from nonebot.matcher import Matcher
 
-from ..i18n import UserLocale
+from ..i18n import Lang
 from .utils import rule_enable
 
 vrc_help = on_command(
@@ -13,5 +13,5 @@ vrc_help = on_command(
 
 
 @vrc_help.handle()
-async def _(matcher: Matcher, i18n: UserLocale):
-    await matcher.finish(i18n.general.help)
+async def _(matcher: Matcher):
+    await matcher.finish(Lang.nbp_vrc.general.help())

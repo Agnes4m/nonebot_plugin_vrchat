@@ -1,0 +1,72 @@
+{
+  "$schema": "./.template.schema.json",
+  "scopes": [
+    {
+      "scope": "nbp_vrc",
+      "types": [
+        {
+          "subtype": "general",
+          "types": [
+            "help",
+            "unknown_error",
+            "server_error",
+            "discard_select",
+            "empty_search_keyword",
+            "empty_message",
+            "invalid_ordinal_format",
+            "invalid_ordinal_range"
+          ]
+        },
+        {
+          "subtype": "login",
+          "types": [
+            "not_logged_in",
+            "login_expired",
+            "overwrite_login_info",
+            "send_login_info",
+            "send_2fa_code",
+            "use_cached_login_info",
+            "discard_login",
+            "invalid_account",
+            "invalid_info_format",
+            "invalid_2fa_format",
+            "invalid_2fa_code",
+            "logged_in"
+          ]
+        },
+        {
+          "subtype": "friend",
+          "types": [
+            "empty_friend_list",
+            "empty_friend"
+          ]
+        },
+        {
+          "subtype": "user",
+          "types": [
+            "send_user_name",
+            "no_user_found",
+            "searched_user_tip"
+          ]
+        },
+        {
+          "subtype": "world",
+          "types": [
+            "send_world_name",
+            "no_world_found",
+            "searched_world_tip",
+            "searched_world_info"
+          ]
+        },
+        {
+          "subtype": "locale",
+          "types": [
+            "available_locales_tip",
+            "select_locale_tip",
+            "locale_changed"
+          ]
+        }
+      ]
+    }
+  ]
+}

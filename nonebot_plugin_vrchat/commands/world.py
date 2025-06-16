@@ -3,7 +3,7 @@ from nonebot.matcher import Matcher
 from nonebot.params import ArgPlainText
 from nonebot_plugin_alconna import UniMessage
 
-from ..i18n import UserLocale
+from ..i18n import Lang
 from ..vrchat import get_or_random_client, search_worlds
 from .utils import (
     KEY_ARG,
@@ -21,34 +21,38 @@ search_world = on_command(
 )
 
 
-register_arg_got_handlers(search_world, lambda i18n: i18n.world.send_world_name)
+register_arg_got_handlers(
+    search_world,
+    lambda matcher: Lang.nbp_vrc.world.send_world_name(),
+)
 
 
 @search_world.handle()
 async def _(
     matcher: Matcher,
     session_id: UserSessionId,
-    i18n: UserLocale,
     arg: str = ArgPlainText(KEY_ARG),
 ):
     arg = arg.strip()
     if not arg:
-        await matcher.reject(i18n.general.empty_search_keyword)
+        await matcher.reject(Lang.nbp_vrc.general.empty_search_keyword())
 
     try:
         client = await get_or_random_client(session_id)
         worlds = [x async for x in search_worlds(client, arg, max_size=10)]
     except Exception as e:
-        await handle_error(matcher, i18n, e)
+        await handle_error(matcher, e)
 
     if not worlds:
-        await matcher.finish(i18n.world.no_world_found)
+        await matcher.finish(Lang.nbp_vrc.world.no_world_found())
 
     len_worlds = len(worlds)
-    msg_factory = UniMessage.text(i18n.world.searched_world_tip.format(len_worlds))
+    msg_factory = UniMessage.text(
+        Lang.nbp_vrc.world.searched_world_tip().format(len_worlds)
+    )
     for i, wld in enumerate(worlds, 1):
         msg_factory += UniMessage.image(wld.thumbnail_image_url)
-        msg_factory += i18n.world.searched_world_info.format(
+        msg_factory += Lang.nbp_vrc.world.searched_world_info().format(
             i,
             wld.name,
             wld.author_name,

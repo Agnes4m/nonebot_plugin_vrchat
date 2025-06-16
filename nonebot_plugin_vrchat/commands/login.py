@@ -8,7 +8,7 @@ from nonebot.params import CommandArg
 from nonebot.typing import T_State
 
 from ..config import env_config
-from ..i18n import UserLocale
+from ..i18n import Lang
 from ..vrchat import (
     ApiException,
     CurrentUser,
@@ -42,7 +42,6 @@ async def _(
     matcher: Matcher,
     state: T_State,
     session_id: UserSessionId,
-    i18n: UserLocale,
     arg_msg: Message = CommandArg(),
 ):
     """
@@ -77,10 +76,10 @@ async def _(
     if login_info:
         state[KEY_USERNAME] = login_info.username
         state[KEY_PASSWORD] = login_info.password
-        await matcher.send(i18n.login.use_cached_login_info)
+        await matcher.send(Lang.nbp_vrc.login.use_cached_login_info())
         return  # skip
 
-    await matcher.pause(i18n.login.send_login_info)
+    await matcher.pause(Lang.nbp_vrc.login.send_login_info())
 
 
 @vrc_login.handle()
@@ -89,7 +88,6 @@ async def _(
     event: Event,
     state: T_State,
     session_id: UserSessionId,
-    i18n: UserLocale,
 ):
     if (KEY_USERNAME in state) and (KEY_PASSWORD in state):
         username: str = state[KEY_USERNAME]
@@ -104,15 +102,15 @@ async def _(
 
         arg = arg.strip()
         if arg == "0":
-            await matcher.finish(i18n.login.discard_login)
+            await matcher.finish(Lang.nbp_vrc.login.discard_login())
 
         parsed = arg.split(" ")
         if len(parsed) != 2:
-            await matcher.reject(i18n.login.invalid_info_format)
+            await matcher.reject(Lang.nbp_vrc.login.invalid_info_format())
         username, password = parsed
 
     if KEY_OVERRIDE_LOGIN_INFO in state:
-        await matcher.send(i18n.login.overwrite_login_info)
+        await matcher.send(Lang.nbp_vrc.login.overwrite_login_info())
 
     try:
         current_user = await login_via_password(session_id, username, password)
@@ -120,7 +118,9 @@ async def _(
     except TwoFactorAuthError as e:
         state[KEY_VERIFY_FUNC] = e.verify_func
         await matcher.pause(
-            i18n.login.send_2fa_code.format(env_config.session_expire_timeout.seconds),
+            Lang.nbp_vrc.login.send_2fa_code().format(
+                env_config.session_expire_timeout.seconds
+            ),
         )
 
     except ApiException as e:
@@ -129,16 +129,18 @@ async def _(
                 del state[KEY_USERNAME]
             if KEY_PASSWORD in state:
                 del state[KEY_PASSWORD]
-            await matcher.reject(i18n.login.invalid_account)
+            await matcher.reject(Lang.nbp_vrc.login.invalid_account())
 
         logger.error(f"Api error when logging in: [{e.status}] {e.reason}")
         remove_login_info(session_id)
-        await matcher.finish(i18n.general.server_error.format(e.status, e.reason))
+        await matcher.finish(
+            Lang.nbp_vrc.general.server_error().format(e.status, e.reason),
+        )
 
     except Exception:
         logger.exception("Exception when logging in")
         remove_login_info(session_id)
-        await matcher.finish(i18n.general.unknown_error)
+        await matcher.finish(Lang.nbp_vrc.general.unknown_error())
 
     state[KEY_CURRENT_USER] = current_user
 
@@ -149,14 +151,13 @@ async def _(
     state: T_State,
     event: Event,
     session_id: UserSessionId,
-    i18n: UserLocale,
 ):
     if KEY_CURRENT_USER in state:
         return  # skip
 
     verify_code = event.get_plaintext().strip()
     if not verify_code.isdigit():
-        await matcher.reject(i18n.login.invalid_2fa_format)
+        await matcher.reject(Lang.nbp_vrc.login.invalid_2fa_format())
 
     verify_func: Callable[[str], Awaitable[CurrentUser]] = state[KEY_VERIFY_FUNC]
     try:
@@ -164,37 +165,42 @@ async def _(
 
     except ApiException as e:
         if e.status == 401:
-            await matcher.reject(i18n.login.invalid_2fa_code)
+            await matcher.reject(Lang.nbp_vrc.login.invalid_2fa_code())
 
         logger.error(f"Api error when verifying 2FA code: [{e.status}] {e.reason}")
         remove_login_info(session_id)
-        await matcher.finish(i18n.general.server_error.format(e.status, e.reason))
+        await matcher.finish(
+            Lang.nbp_vrc.general.server_error().format(e.status, e.reason)
+        )
 
     except Exception:
         logger.exception("Exception when verifying 2FA code")
         remove_login_info(session_id)
-        await matcher.finish(i18n.general.unknown_error)
+        await matcher.finish(Lang.nbp_vrc.general.unknown_error())
 
     state[KEY_CURRENT_USER] = current_user
 
 
 @vrc_login.handle()
-async def _(matcher: Matcher, state: T_State, i18n: UserLocale):
+async def _(matcher: Matcher, state: T_State):
     current_user: CurrentUser = state[KEY_CURRENT_USER]
-    await matcher.finish(i18n.login.logged_in.format(current_user.display_name))
+    await matcher.finish(
+        Lang.nbp_vrc.login.logged_in().format(current_user.display_name)
+    )
     state[KEY_CURRENT_USER] = current_user
 
 
 @vrc_login.handle()
-async def _(matcher: Matcher, state: T_State, i18n: UserLocale):
+async def _(matcher: Matcher, state: T_State):
     current_user: CurrentUser = state[KEY_CURRENT_USER]
-    await matcher.finish(i18n.login.logged_in.format(current_user.display_name))
+    await matcher.finish(
+        Lang.nbp_vrc.login.logged_in().format(current_user.display_name)
+    )
 
 
 @vrc_login.handle()
-async def _(matcher: Matcher, state: T_State, i18n: UserLocale):
+async def _(matcher: Matcher, state: T_State):
     current_user: CurrentUser = state[KEY_CURRENT_USER]
-    await matcher.finish(i18n.login.logged_in.format(current_user.display_name))
-    await matcher.finish(i18n.login.logged_in.format(current_user.display_name))
-    await matcher.finish(i18n.login.logged_in.format(current_user.display_name))
-    await matcher.finish(i18n.login.logged_in.format(current_user.display_name))
+    await matcher.finish(
+        Lang.nbp_vrc.login.logged_in().format(current_user.display_name)
+    )

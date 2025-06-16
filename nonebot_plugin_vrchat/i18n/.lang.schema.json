@@ -1,0 +1,58 @@
+{
+  "title": "Lang Schema",
+  "description": "Schema for lang file",
+  "type": "object",
+  "properties": {
+    "nbp-vrc": {
+      "title": "Nbp-vrc",
+      "description": "Scope 'nbp-vrc' of lang item",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "commands": {
+          "title": "Commands",
+          "description": "Scope 'commands' of lang item",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "change_lag": {
+              "title": "change_lag",
+              "description": "value of lang item type 'change_lag'",
+              "type": "string"
+            },
+            "friend": {
+              "title": "friend",
+              "description": "value of lang item type 'friend'",
+              "type": "string"
+            },
+            "help": {
+              "title": "help",
+              "description": "value of lang item type 'help'",
+              "type": "string"
+            },
+            "login": {
+              "title": "login",
+              "description": "value of lang item type 'login'",
+              "type": "string"
+            },
+            "search": {
+              "title": "search",
+              "description": "value of lang item type 'search'",
+              "type": "string"
+            },
+            "utils": {
+              "title": "utils",
+              "description": "value of lang item type 'utils'",
+              "type": "string"
+            },
+            "world": {
+              "title": "world",
+              "description": "value of lang item type 'world'",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

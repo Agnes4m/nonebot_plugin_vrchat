@@ -3,8 +3,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
 
 from nonebot import get_driver
-from pydantic import BaseModel, PrivateAttr
-from pydantic.fields import Field
+from pydantic import BaseModel, Field, PrivateAttr
 
 from .utils import dump_yaml, load_yaml
 
@@ -16,11 +15,11 @@ SESSION_CONFIG_PATH = DATA_DIR / "session_config.yml"
 
 
 class ConfigBaseModel(BaseModel):
-    _path: Path = PrivateAttr(None)
+    _path: Path = PrivateAttr()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        if not self._path:
+        if not hasattr(self, "_path") or self._path is None:
             raise ValueError("ConfigBaseModel must be subclassed with _path set")
         self.update()
 
@@ -32,7 +31,7 @@ class ConfigBaseModel(BaseModel):
 
     def update(self):
         for k, v in self.read().items():
-            if k in self.model_fields:
+            if k in self.__class__.model_fields:
                 setattr(self, k, v)
 
     def save(self):
@@ -52,25 +51,13 @@ class EnvConfig(BaseModel):
 env_config = EnvConfig.model_validate(get_driver().config.model_dump())
 
 
-# endregion
-
-
-# region plugin config
-
-
 class PluginConfig(ConfigBaseModel):
-    _path = PrivateAttr(PLUGIN_CONFIG_PATH)
+    _path: Path = PrivateAttr(default=PLUGIN_CONFIG_PATH)
 
     locale: str = "zh-CN"
 
 
 plugin_config = PluginConfig()
-
-
-# endregion
-
-
-# region session config
 
 
 class SessionConfig(BaseModel):
@@ -82,7 +69,7 @@ default_session_config = SessionConfig()
 
 
 class SessionConfigManager(ConfigBaseModel):
-    _path = PrivateAttr(SESSION_CONFIG_PATH)
+    _path: Path = PrivateAttr(default=SESSION_CONFIG_PATH)
     sessions: Dict[str, SessionConfig] = Field(default_factory=dict)
 
     def __getitem__(self, session_id: str) -> SessionConfig:
@@ -93,8 +80,9 @@ class SessionConfigManager(ConfigBaseModel):
         self.save()
 
     def __delitem__(self, session_id: str) -> None:
-        del self.sessions[session_id]
-        self.save()
+        if session_id in self.sessions:
+            del self.sessions[session_id]
+            self.save()
 
     def __contains__(self, session_id: str) -> bool:
         return session_id in self.sessions
@@ -124,6 +112,3 @@ class SessionConfigManager(ConfigBaseModel):
 
 
 session_config = SessionConfigManager()
-
-
-# endregion

@@ -1,0 +1,49 @@
+{
+  "$schema": ".lang.schema.json",
+  "nbp_vrc": {
+    "general": {
+      "help": "--------VRC Commands--------\n1. `vrcl` | Login to your VRChat account (recommended in private chat)\n2. `vrcfl` | Get all friends' information\n3. `vrcsu` | Search user\n4. `vrcsw` | Search world\n5. `vrccl` | Change plugin language",
+      "unknown_error": "An unknown error occurred, please check the console output.",
+      "server_error": "Server returned an exception: [{0}] {1}",
+      "discard_select": "Selection canceled.",
+      "empty_search_keyword": "Search keyword cannot be empty, please resend.",
+      "empty_message": "Message cannot be empty, please resend.",
+      "invalid_ordinal_format": "Invalid ordinal format, please resend.",
+      "invalid_ordinal_range": "Ordinal out of range, please resend."
+    },
+    "login": {
+      "not_logged_in": "Not logged in or login info expired. Please send `vrcl` in private chat to login again.",
+      "login_expired": "Login expired, please login again.",
+      "overwrite_login_info": "Cached login info detected. After this login, the old info will be overwritten.",
+      "send_login_info": "Please send your account and password separated by a space. Send 0 to cancel login.\nTip: The bot will save your login status. Please login only if you trust the bot.",
+      "send_2fa_code": "Please send the email verification code or 2FA code within {0} seconds.",
+      "use_cached_login_info": "Cached login info detected, trying to login again.",
+      "discard_login": "Login canceled.",
+      "invalid_account": "Incorrect username or password, please resend. If you are sure your credentials are 100% correct, please check your email for a new device verification.",
+      "invalid_info_format": "Message format is incorrect. Please resend your account and password separated by a space.",
+      "invalid_2fa_format": "Invalid verification code format.",
+      "invalid_2fa_code": "Incorrect verification code, please resend.",
+      "logged_in": "Login successful, welcome, {0}!"
+    },
+    "friend": {
+      "empty_friend_list": "You have no friends.",
+      "empty_friend": "The specified friend does not exist."
+    },
+    "user": {
+      "send_user_name": "Please send the player name you want to search.",
+      "no_user_found": "No users found.",
+      "searched_user_tip": "Found {0} users:"
+    },
+    "world": {
+      "send_world_name": "Please send the world name you want to search.",
+      "no_world_found": "No worlds found.",
+      "searched_world_tip": "Found {0} worlds:",
+      "searched_world_info": "{0}. {1}\nAuthor: {2}\nCreated at: {3}"
+    },
+    "locale": {
+      "available_locales_tip": "Available languages:",
+      "select_locale_tip": "Tip: Send the number to select a language, or send 0 to cancel.",
+      "locale_changed": "Current language changed to {0} ({1}), translator: {2}"
+    }
+  }
+}

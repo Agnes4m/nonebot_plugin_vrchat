@@ -1,8 +1,8 @@
-from nonebot import logger, on_command
+from nonebot import on_command
 from nonebot.matcher import Matcher
 from nonebot_plugin_alconna.uniseg import UniMessage
 
-from ..i18n import UserLocale
+from ..i18n import Lang
 from ..message import draw_user_card_overview, i2b
 from ..vrchat import get_all_friends, get_client
 from .utils import UserSessionId, handle_error, rule_enable
@@ -22,20 +22,20 @@ friend_list = on_command(
 async def _(
     matcher: Matcher,
     session_id: UserSessionId,
-    i18n: UserLocale,
 ):
     try:
         client = await get_client(session_id)
         resp = [x async for x in get_all_friends(client)]
     except Exception as e:
-        await handle_error(matcher, i18n, e)
+        # await matcher.finish(Lang.nbp_vrc.general.server_error(str(e)))
+        await handle_error(matcher, e)
 
     if not resp:
-        await matcher.finish(i18n.friend.empty_friend_list)
-
+        await matcher.send(Lang.nbp_vrc.friend.empty_friend_list())
     try:
         pic = i2b(await draw_user_card_overview(resp, client=client))
     except Exception as e:
-        await handle_error(matcher, i18n, e)
+        await handle_error(matcher, e)
+        # await matcher.finish(Lang.nbp_vrc.general.server_error(str(e)))
 
     await UniMessage.image(raw=pic).finish()

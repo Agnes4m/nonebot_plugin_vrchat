@@ -7,7 +7,7 @@ from nonebot.params import ArgPlainText, EventMessage
 from nonebot.typing import T_State
 from nonebot_plugin_alconna import UniMessage
 
-from ..i18n import UserLocale
+from ..i18n import Lang
 from ..message import draw_user_card_overview, draw_user_profile, i2b
 from ..vrchat import (
     ApiClient,
@@ -34,7 +34,10 @@ search_user = on_command(
 )
 
 
-register_arg_got_handlers(search_user, lambda i18n: i18n.user.send_user_name)
+register_arg_got_handlers(
+    search_user,
+    lambda matcher: Lang.nbp_vrc.user.send_user_name(),  # noqa: N803
+)
 
 
 @search_user.handle()
@@ -42,21 +45,20 @@ async def _(
     matcher: Matcher,
     state: T_State,
     session_id: UserSessionId,
-    i18n: UserLocale,
     arg: str = ArgPlainText(KEY_ARG),
 ):
     arg = arg.strip()
     if not arg:
-        await matcher.reject(i18n.general.empty_search_keyword)
+        await matcher.reject(Lang.nbp_vrc.general.empty_search_keyword())
 
     try:
         client = await get_or_random_client(session_id)
         resp = [x async for x in search_users(client, arg)]
     except Exception as e:
-        await handle_error(matcher, i18n, e)
+        await handle_error(matcher, e)
 
     if not resp:
-        await matcher.finish(i18n.user.no_user_found)
+        await matcher.finish(Lang.nbp_vrc.user.no_user_found())
 
     state[KEY_CLIENT] = client
     state[KEY_SEARCH_RESP] = resp
@@ -67,10 +69,10 @@ async def _(
         resp = [x async for x in search_users(client, arg, max_size=10)]
         pic = i2b(await draw_user_card_overview(resp, group=False, client=client))
     except Exception as e:
-        await handle_error(matcher, i18n, e)
+        await handle_error(matcher, e)
 
     await (
-        UniMessage.text(i18n.user.searched_user_tip.format(len(resp)))
+        UniMessage.text(Lang.nbp_vrc.user.searched_user_tip().format(len(resp)))
         + UniMessage.image(raw=pic)
     ).send()
     # 进入多步会话，等待用户选择
@@ -81,7 +83,6 @@ async def _(
 async def _(
     matcher: Matcher,
     state: T_State,
-    i18n: UserLocale,
     message: Message = EventMessage(),
 ):
     client: ApiClient = state[KEY_CLIENT]
@@ -92,20 +93,20 @@ async def _(
     else:
         arg = message.extract_plain_text().strip()
         if arg == "0":
-            await matcher.finish(i18n.general.discard_select)
+            await matcher.finish(Lang.nbp_vrc.general.discard_select())
 
         if not arg.isdigit():
-            await matcher.reject(i18n.general.invalid_ordinal_format)
+            await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_format())
 
         index = int(arg) - 1
         if not (0 <= index < len(resp)):
-            await matcher.reject(i18n.general.invalid_ordinal_range)
+            await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_range())
 
     user_id = resp[index].user_id
     try:
         user = await get_user(client, user_id)
         pic = i2b(await draw_user_profile(user))
     except Exception as e:
-        await handle_error(matcher, i18n, e)
+        await handle_error(matcher, e)
 
     await UniMessage.image(raw=pic).finish()
