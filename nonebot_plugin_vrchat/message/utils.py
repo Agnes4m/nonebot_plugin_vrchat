@@ -1,9 +1,8 @@
-import asyncio
 from pathlib import Path
 from typing import Dict, Optional, TypeVar
+from typing_extensions import ParamSpec
 
 import httpx
-from typing_extensions import ParamSpec
 
 from ..vrchat import NormalizedStatusType, TrustType
 

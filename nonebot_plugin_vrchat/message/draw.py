@@ -3,38 +3,29 @@ from asyncio import Semaphore
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 from io import BytesIO
-from math import ceil, isclose
+from math import isclose
 from pathlib import Path
 from typing import (
     Awaitable,
     Callable,
-    Dict,
     Iterator,
-    List,
     Optional,
     Sequence,
     Tuple,
-    TypeVar,
 )
 
 from async_lru import alru_cache
 from httpx import AsyncClient
 from nonebot import logger
-from nonebot_plugin_htmlrender import template_to_pic
 from PIL.ImageFilter import GaussianBlur
 from pil_utils import BuildImage, Text2Image
-from typing_extensions import ParamSpec
-from vrchatapi.models import FriendStatus
 
 from ..vrchat import (
     ApiClient,
     GroupModel,
     LimitedUserModel,
-    NormalizedStatusType,
-    TrustType,
     UserModel,
     get_world,
-    random_client,
 )
 from .utils import *
 

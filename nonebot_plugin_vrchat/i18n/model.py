@@ -11,9 +11,12 @@ class NbpVrcGeneral:
     discard_select: LangItem = LangItem("nbp_vrc", "general.discard_select")
     empty_search_keyword: LangItem = LangItem("nbp_vrc", "general.empty_search_keyword")
     empty_message: LangItem = LangItem("nbp_vrc", "general.empty_message")
-    invalid_ordinal_format: LangItem = LangItem("nbp_vrc", "general.invalid_ordinal_format")
-    invalid_ordinal_range: LangItem = LangItem("nbp_vrc", "general.invalid_ordinal_range")
-
+    invalid_ordinal_format: LangItem = LangItem(
+        "nbp_vrc", "general.invalid_ordinal_format"
+    )
+    invalid_ordinal_range: LangItem = LangItem(
+        "nbp_vrc", "general.invalid_ordinal_range"
+    )
 
 
 class NbpVrcLogin:
@@ -31,18 +34,15 @@ class NbpVrcLogin:
     logged_in: LangItem = LangItem("nbp_vrc", "login.logged_in")
 
 
-
 class NbpVrcFriend:
     empty_friend_list: LangItem = LangItem("nbp_vrc", "friend.empty_friend_list")
     empty_friend: LangItem = LangItem("nbp_vrc", "friend.empty_friend")
-
 
 
 class NbpVrcUser:
     send_user_name: LangItem = LangItem("nbp_vrc", "user.send_user_name")
     no_user_found: LangItem = LangItem("nbp_vrc", "user.no_user_found")
     searched_user_tip: LangItem = LangItem("nbp_vrc", "user.searched_user_tip")
-
 
 
 class NbpVrcWorld:
@@ -52,12 +52,10 @@ class NbpVrcWorld:
     searched_world_info: LangItem = LangItem("nbp_vrc", "world.searched_world_info")
 
 
-
 class NbpVrcLocale:
     available_locales_tip: LangItem = LangItem("nbp_vrc", "locale.available_locales_tip")
     select_locale_tip: LangItem = LangItem("nbp_vrc", "locale.select_locale_tip")
     locale_changed: LangItem = LangItem("nbp_vrc", "locale.locale_changed")
-
 
 
 class NbpVrc:

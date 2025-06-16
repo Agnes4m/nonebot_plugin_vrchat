@@ -48,7 +48,7 @@ async def _(
 
     len_worlds = len(worlds)
     msg_factory = UniMessage.text(
-        Lang.nbp_vrc.world.searched_world_tip().format(len_worlds)
+        Lang.nbp_vrc.world.searched_world_tip().format(len_worlds),
     )
     for i, wld in enumerate(worlds, 1):
         msg_factory += UniMessage.image(wld.thumbnail_image_url)

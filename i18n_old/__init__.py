@@ -1,9 +1,9 @@
 from pathlib import Path
 from typing import Dict
+from typing_extensions import Annotated
 
 from nonebot import logger
 from nonebot.params import Depends
-from typing_extensions import Annotated
 
 from ..config import plugin_config, session_config
 from ..utils import load_yaml

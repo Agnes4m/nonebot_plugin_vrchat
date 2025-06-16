@@ -1,12 +1,8 @@
-from typing import AsyncIterable, Awaitable, List, cast
+from typing import Awaitable, cast
 
 from nonebot.utils import run_sync
-from typing_extensions import Unpack
 from vrchatapi import ApiClient, FavoritesApi
 from vrchatapi.models import AddFavoriteRequest, FavoriteType, Success
-
-from .types import LimitedUserModel
-from .utils import IterPFKwargs, auto_parse_iterator_return, iter_pagination_func
 
 
 async def add_favorite(

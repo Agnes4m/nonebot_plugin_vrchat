@@ -9,7 +9,9 @@ from .utils import STATUS_DESC_MAP, TRUST_COLORS
 
 
 async def draw_user_card_overview(
-    users: List[LimitedUserModel], group: bool = True, client: Optional[ApiClient] = None
+    users: List[LimitedUserModel],
+    group: bool = True,
+    client: Optional[ApiClient] = None,
 ) -> bytes:
     """
     用 HTML 渲染好友总览卡片并转为图片，按状态分组

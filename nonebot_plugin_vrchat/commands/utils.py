@@ -1,11 +1,11 @@
 from typing import Callable, NoReturn, Type
+from typing_extensions import Annotated
 
 from nonebot.adapters import Message
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, EventMessage
 from nonebot_plugin_session import SessionId, SessionIdType
-from typing_extensions import Annotated
 
 from ..config import session_config
 from ..i18n import Lang
@@ -42,7 +42,7 @@ async def handle_error(matcher: Matcher, e: Exception) -> NoReturn:
     if isinstance(e, ApiException):
         logger.error(f"Error when requesting api: [{e.status}] {e.reason}")
         await matcher.finish(
-            Lang.nbp_vrc.general.server_error().format(e.status, e.reason)
+            Lang.nbp_vrc.general.server_error().format(e.status, e.reason),
         )
 
     logger.exception("Exception when requesting api")

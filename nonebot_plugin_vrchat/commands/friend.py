@@ -2,10 +2,9 @@ from loguru import logger
 from nonebot import on_command
 from nonebot.matcher import Matcher
 from nonebot_plugin_alconna.uniseg import UniMessage
-from nonebot_plugin_waiter import waiter
 
 from ..i18n import Lang
-from ..message import draw_user_card_overview, i2b
+from ..message import draw_user_card_overview
 from ..vrchat import get_all_friends, get_client
 from .utils import UserSessionId, handle_error, rule_enable
 

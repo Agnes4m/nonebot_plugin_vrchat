@@ -1,7 +1,7 @@
 from typing import AsyncIterable, Awaitable, List, cast
+from typing_extensions import Unpack
 
 from nonebot.utils import run_sync
-from typing_extensions import Unpack
 from vrchatapi import ApiClient, FriendsApi
 from vrchatapi.models import FriendStatus, LimitedUser, Notification, Success
 

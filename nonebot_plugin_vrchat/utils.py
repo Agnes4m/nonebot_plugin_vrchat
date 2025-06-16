@@ -1,9 +1,7 @@
 from pathlib import Path
 from typing import Any
 
-from nonebot_plugin_session import SessionId, SessionIdType
 from ruamel.yaml import YAML
-from typing_extensions import Annotated
 
 yaml = YAML(typ="safe")
 yaml.indent = 2
