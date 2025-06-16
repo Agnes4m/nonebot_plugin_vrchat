@@ -1,14 +1,18 @@
 from nonebot import require
 from nonebot.plugin import PluginMetadata, inherit_supported_adapters
 
-require("nonebot_plugin_session")
-require("nonebot_plugin_alconna")
-
 from .commands import load_commands
-from .config import EnvConfig
 
+require("nonebot_plugin_session")
+require("nonebot_plugin_waiter")
+require("nonebot_plugin_htmlrender")
+require("nonebot_plugin_alconna")
+from nonebot_plugin_alconna import load_builtin_plugin  # noqa: E402
+
+from .config import EnvConfig  # noqa: E402
+
+load_builtin_plugin("lang")
 load_commands()
-
 
 __version__ = "0.2.0"
 __plugin_meta__ = PluginMetadata(

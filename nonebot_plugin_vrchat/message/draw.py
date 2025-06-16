@@ -20,6 +20,7 @@ from typing import (
 from async_lru import alru_cache
 from httpx import AsyncClient
 from nonebot import logger
+from nonebot_plugin_htmlrender import template_to_pic
 from PIL.ImageFilter import GaussianBlur
 from pil_utils import BuildImage, Text2Image
 from typing_extensions import ParamSpec
@@ -35,119 +36,9 @@ from ..vrchat import (
     get_world,
     random_client,
 )
+from .utils import *
 
 # region common const & type
-T = TypeVar("T")
-P = ParamSpec("P")
-
-
-STATUS_COLORS: Dict[NormalizedStatusType, str] = {
-    "online": "#51e57e",
-    "webonline": "#51e57e",
-    "joinme": "#42caff",
-    "busy": "#5b0b0b",
-    "askme": "#e88134",
-    "offline": "gray",
-    "unknown": "gray",
-}
-TRUST_COLORS: Dict[TrustType, str] = {
-    "visitor": "#cccccc",
-    "new": "#1778ff",
-    "user": "#2bcf5c",
-    "known": "#ff7b42",
-    "trusted": "#8143e6",
-    "friend": "#ffff00",
-    "developer": "#b52626",
-    "moderator": "#b52626",
-}
-STATUS_DESC_MAP: Dict[NormalizedStatusType, str] = {
-    "online": "在线",
-    "joinme": "欢迎加入",
-    "busy": "请勿打扰",
-    "askme": "请先询问",
-    "webonline": "网页在线",
-    "offline": "离线",
-    "unknown": "未知",
-}
-OFFLINE_STATUSES = ["offline", "unknown"]
-UNKNOWN_WORLD_TIP = "未知世界"
-LOCATION_TRAVELING_TIP = "加载世界中"
-LOCATION_PRIVATE_TIP = "私人世界"
-LOCATION_INVITE_PREFIX = "邀"
-LOCATION_INVITE_PLUS_PREFIX = "邀+"
-LOCATION_FRIENDS_PREFIX = "友"
-LOCATION_FRIENDS_PLUS_PREFIX = "友+"
-LOCATION_PUB_PREFIX = "公"
-LOCATION_GROUP_PREFIX = "群"
-LOCATION_GROUP_PLUS_PREFIX = "群+"
-LOCATION_GROUP_PUB_PREFIX = "群公"
-
-RES_IMG_PATH = Path(__file__).parent / "img"
-DEFAULT_IMG_PATH = RES_IMG_PATH / "default_img.png"
-USER_ICON_PATH = RES_IMG_PATH / "fa-users-40px.png"
-
-BG_COLOR = (5, 5, 5)
-# endregion
-
-
-# region user card & overview const
-USER_CARD_BG_COLOR = (36, 42, 49)
-USER_CARD_TITLE_COLOR = (9, 93, 106)
-USER_CARD_FONT_COLOR = "#f8f9fa"
-USER_AVATAR_BORDER_COLOR = "gray"
-USER_AVATAR_WEB_ONLINE_BORDER_COLOR = "#ebd23b"
-USER_AVATAR_ONLINE_BORDER_COLOR = "#67d781"
-OVERVIEW_TITLE_COLOR = (248, 249, 250)
-
-USER_CARD_SIZE = (710, 190)
-USER_CARD_PADDING = 30
-USER_CARD_BORDER_RADIUS = 8
-USER_CARD_BORDER_WIDTH = 4
-USER_CARD_MARGIN = 16
-
-USER_AVATAR_SIZE = (248, 140)
-USER_AVATAR_BORDER_RADIUS = 8
-USER_AVATAR_BORDER_WIDTH = 4
-USER_AVATAR_BG_BLUR = 20
-USER_AVATAR_MARGIN_RIGHT = 20
-
-USER_STATUS_SIZE = 30
-USER_STATUS_PADDING = 20
-
-USER_TITLE_FONT_SIZE = 32
-USER_TEXT_FONT_SIZE = 30
-OVERVIEW_TITLE_FONT_SIZE = 36
-
-OVERVIEW_MAX_CARDS_PER_LINE = 2
-# endregion
-
-
-# region group card const
-GROUP_TOP_BG_COLOR = (37, 42, 48)
-GROUP_BOTTOM_BG_COLOR = (24, 27, 31)
-GROUP_TITLE_COLOR = (255, 255, 255)
-GROUP_CONTENT_COLOR = (115, 115, 114)
-GROUP_ICON_BORDER_COLOR = (24, 27, 31)
-
-GROUP_CARD_SIZE = (640, 485)
-GROUP_CARD_PADDING = 10
-GROUP_BANNER_SIZE = (620, 205)
-GROUP_CARD_BORDER_RADIUS = 16
-GROUP_BANNER_BORDER_RADIUS = 16
-GROUP_CARD_TOP_HEIGHT = 290
-GROUP_CARD_TOP_PADDING_BOTTOM = 20
-GROUP_TITLE_MARGIN_LEFT = 200
-GROUP_TITLE_MARGIN_BOTTOM = 20
-GROUP_ICON_SIZE = 138
-GROUP_ICON_BORDER_WIDTH = 6
-GROUP_ICON_MARGIN_LEFT = 26
-GROUP_ICON_BOTTOM_PLUS = 64
-GROUP_FOOTER_HEIGHT = 40
-GROUP_FOOTER_PADDING_LEFT = 40
-
-GROUP_TITLE_TEXT_SIZE = 38
-GROUP_CONTENT_TEXT_SIZE = 26
-# endregion
 
 
 # region user detail const
@@ -441,166 +332,84 @@ async def draw_user_card_on_image(
     return image
 
 
-async def draw_user_card_overview(
-    users: List[LimitedUserModel],
-    group: bool = True,
-    client: Optional[ApiClient] = None,
-) -> BuildImage:
-    if not client:
-        client = await random_client()
+# async def draw_user_card_overview(
+#     users: List[LimitedUserModel],
+#     group: bool = True,
+#     client: Optional[ApiClient] = None,
+# ) -> BuildImage:
+#     if not client:
+#         client = await random_client()
 
-    user_dict: Dict[NormalizedStatusType, List[LimitedUserModel]] = {}
-    for user in users:
-        user_dict.setdefault(user.status, []).append(user)
+#     user_dict: Dict[NormalizedStatusType, List[LimitedUserModel]] = {}
+#     for user in users:
+#         user_dict.setdefault(user.status, []).append(user)
 
-    # sort online status
-    user_dict = dict(
-        (
-            ((k, user_dict[k]) for k in STATUS_DESC_MAP if k in user_dict)
-            if group
-            else (("unknown", [x for y in user_dict.values() for x in y]),)
-        ),
-    )
+#     # sort online status
+#     user_dict = dict(
+#         (
+#             ((k, user_dict[k]) for k in STATUS_DESC_MAP if k in user_dict)
+#             if group
+#             else (("unknown", [x for y in user_dict.values() for x in y]),)
+#         ),
+#     )
+#     # sort trust level
+#     trust_keys = list(TRUST_COLORS.keys())
+#     for li in user_dict.values():
+#         li.sort(key=lambda x: trust_keys.index(x.trust), reverse=True)
 
-    # sort trust level
-    trust_keys = list(TRUST_COLORS.keys())
-    for li in user_dict.values():
-        li.sort(key=lambda x: trust_keys.index(x.trust), reverse=True)
+#     card_w, card_h = USER_CARD_SIZE
+#     width_multiplier = max((len(x) for x in user_dict.values()), default=0)
+#     if width_multiplier > OVERVIEW_MAX_CARDS_PER_LINE:
+#         width_multiplier = OVERVIEW_MAX_CARDS_PER_LINE
 
-    card_w, card_h = USER_CARD_SIZE
-    width_multiplier = max((len(x) for x in user_dict.values()), default=0)
-    if width_multiplier > OVERVIEW_MAX_CARDS_PER_LINE:
-        width_multiplier = OVERVIEW_MAX_CARDS_PER_LINE
+#     title_h = 49
+#     width = width_multiplier * card_w + (width_multiplier + 1) * USER_CARD_MARGIN
+#     height = USER_CARD_MARGIN
+#     for users in user_dict.values():
+#         height_multiplier = ceil(len(users) / width_multiplier)
+#         height += (
+#             (
+#                 title_h
+#                 + height_multiplier * card_h
+#                 + (height_multiplier + 1) * USER_CARD_MARGIN
+#             )
+#             if group
+#             else (height_multiplier * card_h + height_multiplier * USER_CARD_MARGIN)
+#         )
 
-    title_h = 49
-    width = width_multiplier * card_w + (width_multiplier + 1) * USER_CARD_MARGIN
-    height = USER_CARD_MARGIN
-    for users in user_dict.values():
-        height_multiplier = ceil(len(users) / width_multiplier)
-        height += (
-            (
-                title_h
-                + height_multiplier * card_h
-                + (height_multiplier + 1) * USER_CARD_MARGIN
-            )
-            if group
-            else (height_multiplier * card_h + height_multiplier * USER_CARD_MARGIN)
-        )
+#     image = BuildImage.new("RGBA", (width, height), BG_COLOR)
+#     tasks: List[Awaitable] = []
+#     semaphore = Semaphore(8)
 
-    image = BuildImage.new("RGBA", (width, height), BG_COLOR)
-    tasks: List[Awaitable] = []
-    semaphore = Semaphore(8)
+#     y_offset = USER_CARD_MARGIN
+#     for status, users in user_dict.items():
+#         if group:
+#             title_text = Text2Image.from_text(
+#                 f"{STATUS_DESC_MAP[status]} ({len(users)})",
+#                 OVERVIEW_TITLE_FONT_SIZE,
+#                 fill=OVERVIEW_TITLE_COLOR,
+#                 font_style="bold",
+#             )
+#             title_text.draw_on_image(image.image, (USER_CARD_MARGIN, y_offset))
+#             y_offset += title_h + USER_CARD_MARGIN
 
-    y_offset = USER_CARD_MARGIN
-    for status, users in user_dict.items():
-        if group:
-            title_text = Text2Image.from_text(
-                f"{STATUS_DESC_MAP[status]} ({len(users)})",
-                OVERVIEW_TITLE_FONT_SIZE,
-                fill=OVERVIEW_TITLE_COLOR,
-                font_style="bold",
-            )
-            title_text.draw_on_image(image.image, (USER_CARD_MARGIN, y_offset))
-            y_offset += title_h + USER_CARD_MARGIN
+#         for line in chunks(users, width_multiplier):
+#             x_offset = USER_CARD_MARGIN
+#             for user in line:
+#                 tasks.append(
+#                     with_semaphore(semaphore)(draw_user_card_on_image)(
+#                         client,
+#                         user,
+#                         image,
+#                         (x_offset, y_offset),
+#                     ),
+#                 )
+#                 x_offset += card_w + USER_CARD_MARGIN
+#             y_offset += card_h + USER_CARD_MARGIN
 
-        for line in chunks(users, width_multiplier):
-            x_offset = USER_CARD_MARGIN
-            for user in line:
-                tasks.append(
-                    with_semaphore(semaphore)(draw_user_card_on_image)(
-                        client,
-                        user,
-                        image,
-                        (x_offset, y_offset),
-                    ),
-                )
-                x_offset += card_w + USER_CARD_MARGIN
-            y_offset += card_h + USER_CARD_MARGIN
+#     await asyncio.gather(*tasks)
 
-    await asyncio.gather(*tasks)
-
-    return image
-
-
-async def draw_one_user_card_overview(
-    user: FriendStatus,
-    group: bool = True,
-    client: Optional[ApiClient] = None,
-):
-    if not client:
-        client = await random_client()
-
-    user_dict: Dict[NormalizedStatusType, List[LimitedUserModel]] = {}
-    for user in users:
-        user_dict.setdefault(user.status, []).append(user)
-
-    # sort online status
-    user_dict = dict(
-        (
-            ((k, user_dict[k]) for k in STATUS_DESC_MAP if k in user_dict)
-            if group
-            else (("unknown", [x for y in user_dict.values() for x in y]),)
-        ),
-    )
-
-    # sort trust level
-    trust_keys = list(TRUST_COLORS.keys())
-    for li in user_dict.values():
-        li.sort(key=lambda x: trust_keys.index(x.trust), reverse=True)
-
-    card_w, card_h = USER_CARD_SIZE
-    width_multiplier = max((len(x) for x in user_dict.values()), default=0)
-    if width_multiplier > OVERVIEW_MAX_CARDS_PER_LINE:
-        width_multiplier = OVERVIEW_MAX_CARDS_PER_LINE
-
-    title_h = 49
-    width = width_multiplier * card_w + (width_multiplier + 1) * USER_CARD_MARGIN
-    height = USER_CARD_MARGIN
-    for users in user_dict.values():
-        height_multiplier = ceil(len(users) / width_multiplier)
-        height += (
-            (
-                title_h
-                + height_multiplier * card_h
-                + (height_multiplier + 1) * USER_CARD_MARGIN
-            )
-            if group
-            else (height_multiplier * card_h + height_multiplier * USER_CARD_MARGIN)
-        )
-
-    image = BuildImage.new("RGBA", (width, height), BG_COLOR)
-    tasks: List[Awaitable] = []
-    semaphore = Semaphore(8)
-
-    y_offset = USER_CARD_MARGIN
-    for status, users in user_dict.items():
-        if group:
-            title_text = Text2Image.from_text(
-                f"{STATUS_DESC_MAP[status]} ({len(users)})",
-                OVERVIEW_TITLE_FONT_SIZE,
-                fill=OVERVIEW_TITLE_COLOR,
-                font_style="bold",
-            )
-            title_text.draw_on_image(image.image, (USER_CARD_MARGIN, y_offset))
-            y_offset += title_h + USER_CARD_MARGIN
-
-        for line in chunks(users, width_multiplier):
-            x_offset = USER_CARD_MARGIN
-            for user in line:
-                tasks.append(
-                    with_semaphore(semaphore)(draw_user_card_on_image)(
-                        client,
-                        user,
-                        image,
-                        (x_offset, y_offset),
-                    ),
-                )
-                x_offset += card_w + USER_CARD_MARGIN
-            y_offset += card_h + USER_CARD_MARGIN
-
-    await asyncio.gather(*tasks)
-
-    return image
+#     return image
 
 
 async def draw_group_on_image(
@@ -791,4 +600,6 @@ async def draw_user_profile(user: UserModel) -> BuildImage:
     return bg
 
 
+# endregion
+# endregion
 # endregion

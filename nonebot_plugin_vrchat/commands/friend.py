@@ -1,6 +1,8 @@
+from loguru import logger
 from nonebot import on_command
 from nonebot.matcher import Matcher
 from nonebot_plugin_alconna.uniseg import UniMessage
+from nonebot_plugin_waiter import waiter
 
 from ..i18n import Lang
 from ..message import draw_user_card_overview, i2b
@@ -33,7 +35,9 @@ async def _(
     if not resp:
         await matcher.send(Lang.nbp_vrc.friend.empty_friend_list())
     try:
-        pic = i2b(await draw_user_card_overview(resp, client=client))
+        pic = await draw_user_card_overview(resp, client=client)
+        if pic:
+            logger.info("有输出")
     except Exception as e:
         await handle_error(matcher, e)
         # await matcher.finish(Lang.nbp_vrc.general.server_error(str(e)))

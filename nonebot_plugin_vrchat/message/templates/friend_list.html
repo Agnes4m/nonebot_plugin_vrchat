@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>好友总览</title>
+    <link rel="stylesheet" href="friend_list.css">
+</head>
+
+<body>
+    <div class="friend-list-card">
+        <h2>好友总览</h2>
+        {% for status, friends in user_dict.items() %}
+        <div class="friend-group">
+            <div class="group-title">
+                {{ status_desc_map[status] }} ({{ friends|length }})
+            </div>
+            <div class="friend-list two-cols">
+                {% for friend in friends %}
+                <div class="friend-item">
+                    <img class="avatar"
+                        src="{{ friend.current_avatar_thumbnail_image_url or friend.current_avatar_image_url }}"
+                        alt="avatar">
+                    <div class="info">
+                        <div class="name">{{ friend.display_name }}</div>
+                        <div class="status">{{ friend.status_description or status_desc_map[status] }}</div>
+                        <div class="location">{{ friend.location }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+
+</html>

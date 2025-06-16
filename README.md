@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD026 MD031 MD033 MD036 MD041 MD046 MD051 -->
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Agnes4m/nonebot_plugin_l4d2_server/main/image/logo.png" width="180" height="180"  alt="AgnesDigitalLogo">
+  <img src="https://raw.githubusercontent.com/Agnes4m/nonebot_plugin_vrchat/main/img/logo.png" width="180" height="180"  alt="AgnesDigitalLogo">
   <br>
   <p><img src="https://s2.loli.net/2022/06/16/xsVUGRrkbn1ljTD.png" width="240" alt="NoneBotPluginText"></p>
 </div>
@@ -35,15 +35,19 @@ _✨ 使用第三方 api 实现 vrchat 相关操作 ✨_
 </a>
 </div>
 
-## 说明(国内服务器可使用)
+## 说明
 
 ![logo](./img/theme.jpg)
 
-本插件适配 nonebot2 框架，目的是在 qq 群中获取好友和地图的信息
+- 本插件国内服务器可使用
+- 本插件支持alconna跨平台适配器使用
+- 本插件支持alconna的i18n多语言适配
+
+## 使用
 
 首先你应该私聊机器人发送`vrc登录`，按提示输入账号密码和验证码，才能正常使用功能
 
-~~元宇宙大失败~~
+~~来erp吗~~
 
 ## 安装
 
@@ -104,7 +108,7 @@ conda install nonebot-plugin-vrchat
 [tool.nonebot]
 plugins = [
     # ...
-    "nonebot_plugin_pjsk"
+    "nonebot_plugin_vrchat"
 ]
 ```
 
@@ -117,6 +121,12 @@ plugins = [
 - `vrc全部好友`： 查询当前全部好友状态
 - `vrc查询好友【text】`：查询用户名称
 - `vrc查询世界【text】`： 查询世界名称
+
+### 其他指令
+
+- `lang switch zn-CN`： 切换语言为中文
+- `lang switch en-US`： 切换语言为英文
+- `lang switch ja-JP`： 切换语言为日语
 
 ## 感谢
 
