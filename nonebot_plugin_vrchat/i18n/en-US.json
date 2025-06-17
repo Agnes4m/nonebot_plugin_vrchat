@@ -32,13 +32,13 @@
     "user": {
       "send_user_name": "Please send the player name you want to search.",
       "no_user_found": "No users found.",
-      "searched_user_tip": "Found {0} users:"
+      "searched_user_tip": "Found {count} users:"
     },
     "world": {
       "send_world_name": "Please send the world name you want to search.",
       "no_world_found": "No worlds found.",
-      "searched_world_tip": "Found {0} worlds:",
-      "searched_world_info": "{0}. {1}\nAuthor: {2}\nCreated at: {3}"
+      "searched_world_tip": "Found {count} worlds:",
+      "searched_world_info": "{index}. {name}\nAuthor: {author}\nCreated at: {created_at}"
     },
     "locale": {
       "available_locales_tip": "Available languages:",

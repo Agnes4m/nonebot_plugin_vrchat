@@ -331,7 +331,7 @@ class WorldModel(BaseModel):
     image_url: str
     labs_publication_date: str
     name: str
-    namespace: str
+    namespace: Optional[str] = None
     publication_date: str
     tags: List[str]
     thumbnail_image_url: str

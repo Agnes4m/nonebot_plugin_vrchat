@@ -8,7 +8,7 @@ from nonebot.typing import T_State
 from nonebot_plugin_alconna import UniMessage
 
 from ..i18n import Lang
-from ..message import draw_user_card_overview, draw_user_profile, i2b
+from ..message import draw_user_card_overview, draw_user_profile_card
 from ..vrchat import (
     ApiClient,
     LimitedUserModel,
@@ -36,7 +36,7 @@ search_user = on_command(
 
 register_arg_got_handlers(
     search_user,
-    lambda matcher: Lang.nbp_vrc.user.send_user_name(),  # noqa: N803
+    lambda matcher: Lang.nbp_vrc.user.send_user_name(),  # noqa: ARG005
 )
 
 
@@ -67,12 +67,12 @@ async def _(
 
     try:
         resp = [x async for x in search_users(client, arg, max_size=10)]
-        pic = i2b(await draw_user_card_overview(resp, group=False, client=client))
+        pic = await draw_user_card_overview(resp, group=False, client=client)
     except Exception as e:
         await handle_error(matcher, e)
 
     await (
-        UniMessage.text(Lang.nbp_vrc.user.searched_user_tip().format(len(resp)))
+        UniMessage.text(Lang.nbp_vrc.user.searched_user_tip(count=len(resp)))
         + UniMessage.image(raw=pic)
     ).send()
     # 进入多步会话，等待用户选择
@@ -105,7 +105,7 @@ async def _(
     user_id = resp[index].user_id
     try:
         user = await get_user(client, user_id)
-        pic = i2b(await draw_user_profile(user))
+        pic = await draw_user_profile_card(user)
     except Exception as e:
         await handle_error(matcher, e)
 

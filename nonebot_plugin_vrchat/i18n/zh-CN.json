@@ -32,13 +32,13 @@
     "user": {
       "send_user_name": "请发送要查询的玩家名称",
       "no_user_found": "没搜到任何玩家捏",
-      "searched_user_tip": "搜索到以下 {0} 个玩家"
+      "searched_user_tip": "搜索到以下 {count} 个玩家"
     },
     "world": {
       "send_world_name": "请发送要查询的地图名称",
       "no_world_found": "没搜到任何地图捏",
-      "searched_world_tip": "搜索到以下 {0} 个地图",
-      "searched_world_info": "{0}. {1}\n作者：{2}\n创建日期：{3}"
+      "searched_world_tip": "搜索到以下 {count} 个世界",
+      "searched_world_info": "{index}. {name}\n作者: {author}\n创建时间: {created_at}"
     },
     "locale": {
       "available_locales_tip": "可用语言列表：",

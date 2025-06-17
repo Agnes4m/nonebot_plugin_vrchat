@@ -1,15 +1,20 @@
+from datetime import timedelta
+from io import BytesIO
 from pathlib import Path
-from typing import Dict, Optional, TypeVar
+from typing import Dict, Optional, Tuple, TypeVar
+
+import aiofiles
+import httpx
+from async_lru import alru_cache
+from httpx import AsyncClient
+from nonebot.log import logger
+from PIL import Image
 from typing_extensions import ParamSpec
 
-import httpx
-
-from ..vrchat import NormalizedStatusType, TrustType
+from ..vrchat import ApiClient, NormalizedStatusType, TrustType, get_world
 
 T = TypeVar("T")
 P = ParamSpec("P")
-
-
 STATUS_COLORS: Dict[NormalizedStatusType, str] = {
     "online": "#51e57e",
     "webonline": "#51e57e",
@@ -143,3 +148,139 @@ async def fetch_image_bytes(url: str, timeout: float = 3.0) -> Optional[bytes]:
                 return resp.content
     except Exception:
         return None
+
+
+async def format_location(client: Optional[ApiClient], location: Optional[str]):
+    if not location:
+        return ""
+    if location == "traveling":
+        return LOCATION_TRAVELING_TIP
+    if location == "private":
+        return LOCATION_PRIVATE_TIP
+
+    world_id = location.split(":")[0]
+    logger.debug(f"location: {location}, world_id: {world_id}")
+    region = (
+        location[location.find("region(") + 7 : location.find(")")].upper()
+        if "region(" in location
+        else None
+    )
+
+    if "group" in location:
+        if "groupAccessType(members)" in location:
+            prefix = LOCATION_GROUP_PREFIX
+        elif "groupAccessType(plus)" in location:
+            prefix = LOCATION_GROUP_PLUS_PREFIX
+        else:  # elif "groupAccessType(public)" in location:
+            prefix = LOCATION_GROUP_PUB_PREFIX
+
+    elif "private" in location:
+        if "canRequestInvite" in location:
+            prefix = LOCATION_INVITE_PLUS_PREFIX
+        else:
+            prefix = LOCATION_INVITE_PREFIX
+
+    elif "friends" in location:
+        prefix = LOCATION_FRIENDS_PREFIX
+
+    elif "hidden" in location:
+        prefix = LOCATION_FRIENDS_PLUS_PREFIX
+
+    else:
+        prefix = LOCATION_PUB_PREFIX
+    try:
+        world = await get_world(client, world_id)
+        world_name = world.name
+    except Exception as e:
+        world_name = UNKNOWN_WORLD_TIP
+        logger.exception(
+            f"Failed to get info of world `{world_id}`: {type(e).__name__}: {e}",
+        )
+
+    ret = f"{prefix}|"
+    if region:
+        ret = f"{ret}{region}|"
+    return f"{ret}{world_name}"
+
+
+def td_format(td_object: timedelta):
+    seconds = int(td_object.total_seconds())
+    periods = [
+        ("年", 60 * 60 * 24 * 365),
+        ("月", 60 * 60 * 24 * 30),
+        ("日", 60 * 60 * 24),
+        ("小时", 60 * 60),
+        ("分钟", 60),
+        ("秒", 1),
+    ]
+
+    for period_name, period_seconds in periods:
+        if seconds > period_seconds:
+            period_value, seconds = divmod(seconds, period_seconds)
+            return f"{period_value}{period_name}前上线"
+
+    return "很久没上线"
+
+
+async def get_image_or_default(
+    url: Optional[str],
+    default_size: Optional[Tuple[int, int]] = None,
+    default_img_path: Optional[Path] = None,
+) -> bytes:
+    img = None
+
+    if url:
+        try:
+            img = await get_url_bytes(url, default_size=default_size)
+        except Exception as e:
+            logger.warning(
+                f"Failed to get image, url `{url}`: {type(e).__name__}: {e}",
+            )
+
+    if not img:
+        img_path = default_img_path or DEFAULT_IMG_PATH
+        async with aiofiles.open(img_path, "rb") as f:
+            img_bytes = await f.read()
+        if default_size:
+            from io import BytesIO
+
+            from PIL import Image
+
+            with Image.open(BytesIO(img_bytes)) as im:
+                im = im.convert("RGBA")
+                im.thumbnail(default_size, Image.Resampling.LANCZOS)
+                buf = BytesIO()
+                im.save(buf, format="PNG")
+                img = buf.getvalue()
+        else:
+            img = img_bytes
+    return img
+
+
+@alru_cache()
+async def get_url_bytes(
+    url: str, default_size: Optional[Tuple[int, int]] = None
+) -> bytes:
+    async with AsyncClient(
+        follow_redirects=True,
+        headers={
+            "Referer": "https://vrchat.com/",
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/117.0.0.0 "
+                "Safari/537.36"
+            ),
+        },
+    ) as cli:
+        resp = await cli.get(url)
+        resp.raise_for_status()
+        img_bytes = resp.content
+        if default_size:
+            with Image.open(BytesIO(img_bytes)) as img:
+                img = img.convert("RGBA")
+                img.thumbnail(default_size, Image.Resampling.LANCZOS)
+                buf = BytesIO()
+                img.save(buf, format="PNG")
+                return buf.getvalue()
+        return img_bytes

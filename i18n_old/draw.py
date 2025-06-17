@@ -5,14 +5,7 @@ from functools import wraps
 from io import BytesIO
 from math import isclose
 from pathlib import Path
-from typing import (
-    Awaitable,
-    Callable,
-    Iterator,
-    Optional,
-    Sequence,
-    Tuple,
-)
+from typing import Awaitable, Callable, Iterator, Optional, Sequence, Tuple
 
 from async_lru import alru_cache
 from httpx import AsyncClient
@@ -20,13 +13,7 @@ from nonebot import logger
 from PIL.ImageFilter import GaussianBlur
 from pil_utils import BuildImage, Text2Image
 
-from ..vrchat import (
-    ApiClient,
-    GroupModel,
-    LimitedUserModel,
-    UserModel,
-    get_world,
-)
+from ..vrchat import ApiClient, GroupModel, LimitedUserModel, UserModel, get_world
 from .utils import *
 
 # region common const & type

@@ -13,14 +13,13 @@
         {% for status, friends in user_dict.items() %}
         <div class="friend-group">
             <div class="group-title">
+                <span class="status-dot" style="background-color: {{ status_colors[status] }};"></span>
                 {{ status_desc_map[status] }} ({{ friends|length }})
             </div>
             <div class="friend-list two-cols">
                 {% for friend in friends %}
                 <div class="friend-item">
-                    <img class="avatar"
-                        src="{{ friend.current_avatar_thumbnail_image_url or friend.current_avatar_image_url }}"
-                        alt="avatar">
+                    <img class="avatar" src="{{ friend.current_avatar_thumbnail_image_url }}" alt="avatar">
                     <div class="info">
                         <div class="name">{{ friend.display_name }}</div>
                         <div class="status">{{ friend.status_description or status_desc_map[status] }}</div>

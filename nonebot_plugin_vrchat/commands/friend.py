@@ -36,7 +36,7 @@ async def _(
     try:
         pic = await draw_user_card_overview(resp, client=client)
         if pic:
-            logger.info("有输出")
+            logger.info("绘制好友列表成功")
     except Exception as e:
         await handle_error(matcher, e)
         # await matcher.finish(Lang.nbp_vrc.general.server_error(str(e)))

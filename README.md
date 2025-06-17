@@ -27,11 +27,11 @@ _✨ 使用第三方 api 实现 vrchat 相关操作 ✨_
     <img src="https://img.shields.io/badge/nonebot-2.1.0+-red.svg" alt="NoneBot">
 </a>
 </a>
-    <img src="https://img.shields.io/badge/pydantic-v2.11+-blue.svg" alt="python">
-    <img src="https://img.shields.io/badge/pydantic-v2.11+-red.svg" alt="NoneBot">
+    <img src="https://img.shields.io/badge/pydantic-v2-blue.svg" alt="python">
+    <img src="https://img.shields.io/badge/多语言-alconna_lang-blue.svg" alt="lang">
 </a>
 <a href="https://github.com/nonebot/plugin-alconna">
-        <img src="https://img.shields.io/badge/%E9%80%82%E9%85%8D%E5%99%A8-nonebot_plugin_alconna-greg" alt="adpters">
+        <img src="https://img.shields.io/badge/%E9%80%82%E9%85%8D%E5%99%A8-alconna-greg" alt="adpters">
 </a>
 </div>
 

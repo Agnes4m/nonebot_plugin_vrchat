@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ user.display_name }} 的个人信息</title>
+    <link rel="stylesheet" href="player.css">
+</head>
+
+<body>
+    <div class="profile-card">
+        <div class="avatar-wrap">
+            <img class="avatar" src="{{ user.current_avatar_thumbnail_image_url or user.current_avatar_image_url }}"
+                alt="avatar">
+        </div>
+        <div class="main-info">
+            <div class="name">{{ user.display_name }}</div>
+            <div class="status">{{ user.status_description or user.status }}</div>
+        </div>
+        <ul class="desc-list">
+            <li><span>用户ID</span><span>{{ user.user_id }}</span></li>
+            <li><span>平台</span><span>{{ user.last_platform }}</span></li>
+            <li><span>信任等级</span><span>{{ user.trust }}</span></li>
+            <li><span>位置</span><span>{{ user.location }}</span></li>
+            <li><span>上次登录</span><span>{{ user.last_login }}</span></li>
+        </ul>
+        {% if user.bio %}
+        <div class="bio-title">个性签名</div>
+        <div class="bio">{{ user.bio }}</div>
+        {% endif %}
+    </div>
+</body>
+
+</html>

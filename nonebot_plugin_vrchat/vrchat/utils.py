@@ -14,9 +14,9 @@ from typing import (
     TypedDict,
     TypeVar,
 )
-from typing_extensions import NotRequired, ParamSpec, Unpack
 
 from pydantic import BaseModel
+from typing_extensions import NotRequired, ParamSpec, Unpack
 
 T = TypeVar("T")
 TM = TypeVar("TM", bound=BaseModel)

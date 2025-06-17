@@ -23,7 +23,7 @@ search_world = on_command(
 
 register_arg_got_handlers(
     search_world,
-    lambda matcher: Lang.nbp_vrc.world.send_world_name(),
+    lambda matcher: Lang.nbp_vrc.world.send_world_name(),  # noqa: ARG005
 )
 
 
@@ -48,15 +48,15 @@ async def _(
 
     len_worlds = len(worlds)
     msg_factory = UniMessage.text(
-        Lang.nbp_vrc.world.searched_world_tip().format(len_worlds),
+        Lang.nbp_vrc.world.searched_world_tip(count=len_worlds),
     )
     for i, wld in enumerate(worlds, 1):
         msg_factory += UniMessage.image(wld.thumbnail_image_url)
-        msg_factory += Lang.nbp_vrc.world.searched_world_info().format(
-            i,
-            wld.name,
-            wld.author_name,
-            wld.created_at,
+        msg_factory += Lang.nbp_vrc.world.searched_world_info(
+            index=i,
+            name=wld.name,
+            author=wld.author_name,
+            created_at=wld.created_at,
         )
         if i != len_worlds:
             msg_factory += "\n-\n"

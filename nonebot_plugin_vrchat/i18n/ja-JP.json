@@ -32,13 +32,13 @@
         "user": {
             "send_user_name": "検索したいプレイヤー名を送信してください。",
             "no_user_found": "ユーザーが見つかりませんでした。",
-            "searched_user_tip": "{0}人のユーザーが見つかりました："
+            "searched_user_tip": "{count}人のユーザーが見つかりました："
         },
         "world": {
             "send_world_name": "検索したいワールド名を送信してください。",
             "no_world_found": "ワールドが見つかりませんでした。",
-            "searched_world_tip": "{0}件のワールドが見つかりました：",
-            "searched_world_info": "{0}. {1}\n作者: {2}\n作成日: {3}"
+            "searched_world_tip": "{count}件のワールドが見つかりました：",
+            "searched_world_info": "{index}. {name}\n作者: {author}\n作成日: {created_at}"
         },
         "locale": {
             "available_locales_tip": "利用可能な言語：",

@@ -1,0 +1,105 @@
+body {
+    background: #20232a;
+    color: #fff;
+    font-family: "Segoe UI", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.profile-card {
+    background: #282c34;
+    border-radius: 18px;
+    box-shadow: 0 6px 32px #000a;
+    width: 420px;
+    margin: 40px auto;
+    padding: 32px 36px 28px 36px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.avatar-wrap {
+    background: linear-gradient(135deg, #51e57e 0%, #42caff 100%);
+    border-radius: 50%;
+    padding: 4px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 12px #51e57e44;
+}
+
+.avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: block;
+    border: 3px solid #fff;
+    background: #fff;
+}
+
+.main-info {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+.name {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+}
+
+.status {
+    font-size: 16px;
+    color: #51e57e;
+    margin-bottom: 2px;
+}
+
+.desc-list {
+    width: 100%;
+    margin: 0 0 18px 0;
+    padding: 0;
+    list-style: none;
+    background: #23272f;
+    border-radius: 10px;
+    box-shadow: 0 1px 6px #0002;
+}
+
+.desc-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 16px;
+    border-bottom: 1px solid #333842;
+    font-size: 15px;
+}
+
+.desc-list li:last-child {
+    border-bottom: none;
+}
+
+.desc-list span:first-child {
+    color: #b0b8c7;
+}
+
+.desc-list span:last-child {
+    color: #fff;
+    font-weight: 500;
+}
+
+.bio-title {
+    font-size: 15px;
+    color: #42caff;
+    margin-bottom: 6px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.bio {
+    background: #23272f;
+    border-radius: 8px;
+    color: #b0b8c7;
+    font-size: 14px;
+    padding: 12px 16px;
+    white-space: pre-line;
+    box-shadow: 0 1px 6px #0002;
+    width: 100%;
+    word-break: break-all;
+}
