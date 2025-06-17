@@ -1,19 +1,18 @@
+import logging
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional
 
 from nonebot import logger
-from nonebot_plugin_htmlrender import template_to_pic
+from nonebot_plugin_htmlrender import template_to_pic as t2p
 
 from ..vrchat import ApiClient, LimitedUserModel
-from .utils import (
-    OFFLINE_STATUSES,
-    STATUS_COLORS,
-    STATUS_DESC_MAP,
-    TRUST_COLORS,
-    format_location,
-    td_format,
-)
+from .utils import OFFLINE_STATUSES as OFFLINE
+from .utils import STATUS_COLORS as S_COLORS
+from .utils import STATUS_DESC_MAP as S_DESC
+from .utils import TRUST_COLORS as T_COLORS
+from .utils import format_location as fmt_loc
+from .utils import td_format as td_fmt
 
 
 async def draw_user_card_overview(
@@ -25,26 +24,26 @@ async def draw_user_card_overview(
     time_now = datetime.now(timezone.utc)
     raw_user_dict: Dict[str, List[dict]] = {}
     logger.debug(users)
-    for user in users:
+    for idx, user in enumerate(users):
         loc = ""
-        # content = user.status_description or STATUS_DESC_MAP[user.status]
         content = user.status_description
-        if user.status in OFFLINE_STATUSES:
+        if user.status in OFFLINE:
             logger.debug(f"user: {user.status}")
             if user.last_login:
                 delta = time_now - user.last_login
-                content = f"{content}\n{td_format(delta)}"
+                content = f"{content}\n{td_fmt(delta)}"
         elif user.status != "webonline" and user.location:
-            loc = await format_location(client, user.location)
+            loc = await fmt_loc(client, user.location)
             content = f"{content}\n{loc}"
 
-        user.location = content
+        location_content = content
         effective_status = user.status
         if user.status == "unknown" and user.original_status == "offline":
             effective_status = "offline"
         raw_user_dict.setdefault(effective_status, []).append(
             {
-                "location": user.location,
+                "index": idx,  # 新增index字段
+                "location": location_content,
                 "original_status": user.original_status,
                 "status_description": user.status_description,
                 "display_name": user.display_name,
@@ -55,37 +54,65 @@ async def draw_user_card_overview(
 
     # 按 STATUS_DESC_MAP 顺序排序
     if group:
-        user_dict = {k: raw_user_dict[k] for k in STATUS_DESC_MAP if k in raw_user_dict}
+        user_dict = {k: raw_user_dict[k] for k in S_DESC if k in raw_user_dict}
+
+        logger.debug(f"User dict: {user_dict}")
+        # 按信任等级排序
+        trust_keys = list(T_COLORS.keys())
+        for li in user_dict.values():
+            li.sort(key=lambda x: trust_keys.index(x["trust"]), reverse=True)
     else:
         user_dict = {"unknown": [x for y in raw_user_dict.values() for x in y]}
-    logger.debug(f"User dict: {user_dict}")
-    # 按信任等级排序
-    trust_keys = list(TRUST_COLORS.keys())
-    for li in user_dict.values():
-        li.sort(key=lambda x: trust_keys.index(x["trust"]), reverse=True)
-
     logger.debug(f"Draw user card overview for {len(users)} users")
-    return await template_to_pic(
+    logger.debug(f"User dict: {user_dict}")
+    return await t2p(
         template_path=str(Path(__file__).parent / "templates"),
         template_name="friend_list.html",
         templates={
             "user_dict": user_dict,
-            "status_desc_map": STATUS_DESC_MAP,
-            "status_colors": STATUS_COLORS,
+            "status_desc_map": S_DESC,
+            "status_colors": S_COLORS,
+            "trust_colors": T_COLORS,
             "title": title,
         },
     )
 
 
 async def draw_user_profile_card(user: LimitedUserModel) -> bytes:
-    if hasattr(user, "model_dump"):
-        user_dict = user.model_dump()
-    elif hasattr(user, "__dict__"):
-        user_dict = user.__dict__
+    time_now = datetime.now(timezone.utc)
+    logger.debug(user)
+    loc = ""
+    content = user.status_description
+    if user.status in OFFLINE:
+        logger.debug(f"user: {user.status}")
+        if user.last_login:
+            delta = time_now - user.last_login
+            content = f"{content}\n{td_fmt(delta)}"
+    elif user.status != "webonline" and user.location:
+        loc = await fmt_loc(None, user.location)
+        content = f"{content}\n{loc}"
+    location_content = content
+
+    # 在线或者时间
+    if user.status in OFFLINE and user.last_login:
+        delta = time_now - user.last_login
+        last_login = f"{content}\n{td_fmt(delta)}"
     else:
-        user_dict = user
+        last_login = S_DESC[user.status]
+
+    user_dict = {
+        "location": location_content,
+        "original_status": user.original_status,
+        "status_description": user.status_description,
+        "display_name": user.display_name,
+        "current_avatar_thumbnail_image_url": user.current_avatar_thumbnail_image_url,
+        "trust": user.trust,
+        "last_platform": user.last_platform,
+        "last_login": last_login,
+    }
+
     logger.debug(f"Draw user profile card for {user_dict}")
-    return await template_to_pic(
+    return await t2p(
         template_path=str(Path(__file__).parent / "templates"),
         template_name="player.html",
         templates={"user": user_dict},

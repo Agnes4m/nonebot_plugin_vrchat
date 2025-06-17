@@ -131,6 +131,7 @@ class LimitedUserModel(BaseModel):
     last_login: Optional[datetime] = None
     profile_pic_override: Optional[str] = None
     user_icon: Optional[str] = None
+    index: int = 0
 
     @property
     def status(self) -> NormalizedStatusType:

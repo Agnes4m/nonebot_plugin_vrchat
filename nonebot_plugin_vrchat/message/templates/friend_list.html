@@ -9,7 +9,7 @@
 
 <body>
     <div class="friend-list-card">
-        <h2>好友总览</h2>
+        <h2>{{ title }}</h2>
         {% for status, friends in user_dict.items() %}
         <div class="friend-group">
             <div class="group-title">
@@ -19,9 +19,14 @@
             <div class="friend-list two-cols">
                 {% for friend in friends %}
                 <div class="friend-item">
+                    <!-- 头像显示trust颜色这部分有问题 to do  -->
+                    <!-- <div class="avatar-border" style="border-color: {{ trust_colors[friend.trust] }};"> -->
                     <img class="avatar" src="{{ friend.current_avatar_thumbnail_image_url }}" alt="avatar">
+                    <!-- </div> -->
                     <div class="info">
-                        <div class="name">{{ friend.display_name }}</div>
+                        <div class="index-name">
+                            {{ friend.index + 1 }}. {{ friend.display_name }}
+                        </div>
                         <div class="status">{{ friend.status_description or status_desc_map[status] }}</div>
                         <div class="location">{{ friend.location }}</div>
                     </div>

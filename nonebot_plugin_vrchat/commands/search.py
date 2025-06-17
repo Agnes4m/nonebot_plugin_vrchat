@@ -104,7 +104,7 @@ async def _(
             await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_format())
 
         index = int(arg) - 1
-        if not (0 <= index < len(resp)):
+        if index < 0 or index >= len(resp):
             await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_range())
 
     user_id = resp[index].user_id
