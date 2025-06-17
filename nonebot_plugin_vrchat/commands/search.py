@@ -28,7 +28,7 @@ from .utils import (
 
 search_user = on_command(
     "vrcsu",
-    aliases={"vrcus", "vrc查询用户"},
+    aliases={"vrcus", "vrc搜索用户"},
     rule=rule_enable,
     priority=20,
 )
@@ -67,7 +67,12 @@ async def _(
 
     try:
         resp = [x async for x in search_users(client, arg, max_size=10)]
-        pic = await draw_user_card_overview(resp, group=False, client=client)
+        pic = await draw_user_card_overview(
+            resp,
+            group=False,
+            client=client,
+            title="搜索结果",
+        )
     except Exception as e:
         await handle_error(matcher, e)
 

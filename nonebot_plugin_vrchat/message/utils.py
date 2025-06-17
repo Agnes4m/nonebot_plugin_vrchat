@@ -3,6 +3,7 @@ from datetime import timedelta
 from io import BytesIO
 from pathlib import Path
 from typing import Dict, Optional, Tuple, TypeVar
+from typing_extensions import ParamSpec
 
 import aiofiles
 import httpx
@@ -10,7 +11,6 @@ from async_lru import alru_cache
 from httpx import AsyncClient
 from nonebot.log import logger
 from PIL import Image
-from typing_extensions import ParamSpec
 
 from ..vrchat import ApiClient, NormalizedStatusType, TrustType, get_world
 
@@ -246,7 +246,7 @@ async def get_image_or_default(
 
             with Image.open(BytesIO(img)) as im:
                 im = im.convert("RGBA")
-                im.thumbnail(default_size, Image.LANCZOS)
+                im.thumbnail(default_size, Image.Resampling.LANCZOS)
                 buf = BytesIO()
                 im.save(buf, format="PNG")
                 img = buf.getvalue()
@@ -257,7 +257,8 @@ async def get_image_or_default(
 
 @alru_cache()
 async def get_url_bytes(
-    url: str, default_size: Optional[Tuple[int, int]] = None
+    url: str,
+    default_size: Optional[Tuple[int, int]] = None,
 ) -> bytes:
     async with AsyncClient(
         follow_redirects=True,

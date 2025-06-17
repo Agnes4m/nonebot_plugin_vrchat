@@ -1,4 +1,3 @@
-import base64
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -21,6 +20,7 @@ async def draw_user_card_overview(
     users: List[LimitedUserModel],
     group: bool = True,
     client: Optional[ApiClient] = None,
+    title: str = "好友列表",
 ) -> bytes:
     time_now = datetime.now(timezone.utc)
     raw_user_dict: Dict[str, List[dict]] = {}
@@ -54,11 +54,10 @@ async def draw_user_card_overview(
         )
 
     # 按 STATUS_DESC_MAP 顺序排序
-    logger.info(raw_user_dict)
-    # if group:
-    user_dict = {k: raw_user_dict[k] for k in STATUS_DESC_MAP if k in raw_user_dict}
-    # else:
-    #     user_dict = {"unknown": [x for y in raw_user_dict.values() for x in y]}
+    if group:
+        user_dict = {k: raw_user_dict[k] for k in STATUS_DESC_MAP if k in raw_user_dict}
+    else:
+        user_dict = {"unknown": [x for y in raw_user_dict.values() for x in y]}
     logger.debug(f"User dict: {user_dict}")
     # 按信任等级排序
     trust_keys = list(TRUST_COLORS.keys())
@@ -73,18 +72,21 @@ async def draw_user_card_overview(
             "user_dict": user_dict,
             "status_desc_map": STATUS_DESC_MAP,
             "status_colors": STATUS_COLORS,
+            "title": title,
         },
     )
 
 
-async def draw_user_profile_card(user) -> bytes:
-    if hasattr(user, "dict"):
-        user = user.dict()
+async def draw_user_profile_card(user: LimitedUserModel) -> bytes:
+    if hasattr(user, "model_dump"):
+        user_dict = user.model_dump()
     elif hasattr(user, "__dict__"):
-        user = user.__dict__
-
+        user_dict = user.__dict__
+    else:
+        user_dict = user
+    logger.debug(f"Draw user profile card for {user_dict}")
     return await template_to_pic(
         template_path=str(Path(__file__).parent / "templates"),
         template_name="player.html",
-        templates={"user": user},
+        templates={"user": user_dict},
     )

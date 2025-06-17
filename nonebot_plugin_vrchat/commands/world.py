@@ -15,7 +15,7 @@ from .utils import (
 
 search_world = on_command(
     "vrcsw",
-    aliases={"vrcws", "vrc查询世界"},
+    aliases={"vrcws", "vrc搜索世界"},
     rule=rule_enable,
     priority=20,
 )
