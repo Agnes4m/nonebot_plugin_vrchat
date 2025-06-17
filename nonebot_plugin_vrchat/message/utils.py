@@ -1,3 +1,4 @@
+import base64
 from datetime import timedelta
 from io import BytesIO
 from pathlib import Path
@@ -56,7 +57,7 @@ LOCATION_GROUP_PREFIX = "群"
 LOCATION_GROUP_PLUS_PREFIX = "群+"
 LOCATION_GROUP_PUB_PREFIX = "群公"
 
-RES_IMG_PATH = Path(__file__).parent / "img"
+RES_IMG_PATH = Path(__file__).parent.parent / "img"
 DEFAULT_IMG_PATH = RES_IMG_PATH / "default_img.png"
 USER_ICON_PATH = RES_IMG_PATH / "fa-users-40px.png"
 
@@ -159,7 +160,7 @@ async def format_location(client: Optional[ApiClient], location: Optional[str]):
         return LOCATION_PRIVATE_TIP
 
     world_id = location.split(":")[0]
-    logger.debug(f"location: {location}, world_id: {world_id}")
+    # logger.debug(f"location: {location}, world_id: {world_id}")
     region = (
         location[location.find("region(") + 7 : location.find(")")].upper()
         if "region(" in location
@@ -226,7 +227,7 @@ async def get_image_or_default(
     url: Optional[str],
     default_size: Optional[Tuple[int, int]] = None,
     default_img_path: Optional[Path] = None,
-) -> bytes:
+) -> str:
     img = None
 
     if url:
@@ -240,21 +241,18 @@ async def get_image_or_default(
     if not img:
         img_path = default_img_path or DEFAULT_IMG_PATH
         async with aiofiles.open(img_path, "rb") as f:
-            img_bytes = await f.read()
+            img = await f.read()
         if default_size:
-            from io import BytesIO
 
-            from PIL import Image
-
-            with Image.open(BytesIO(img_bytes)) as im:
+            with Image.open(BytesIO(img)) as im:
                 im = im.convert("RGBA")
-                im.thumbnail(default_size, Image.Resampling.LANCZOS)
+                im.thumbnail(default_size, Image.LANCZOS)
                 buf = BytesIO()
                 im.save(buf, format="PNG")
                 img = buf.getvalue()
-        else:
-            img = img_bytes
-    return img
+
+    # 转为base64字符串并加前缀
+    return f"data:image/png;base64,{base64.b64encode(img).decode()}"
 
 
 @alru_cache()
@@ -283,4 +281,6 @@ async def get_url_bytes(
                 buf = BytesIO()
                 img.save(buf, format="PNG")
                 return buf.getvalue()
+        return img_bytes
+        return img_bytes
         return img_bytes

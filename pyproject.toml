@@ -13,7 +13,6 @@ dependencies = [
     "nonebot-plugin-alconna>=0.58.2",
     "vrchatapi>=1.19.0",
     "httpx>=0.25.0",
-    "pil-utils>=0.2.2",
     "async-lru>=2.0.4",
     "nonebot-plugin-session>=0.3.2",
     "nonebot-plugin-htmlrender>=0.6.6",

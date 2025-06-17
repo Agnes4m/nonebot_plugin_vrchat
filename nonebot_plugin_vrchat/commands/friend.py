@@ -1,3 +1,5 @@
+import time
+
 from loguru import logger
 from nonebot import on_command
 from nonebot.matcher import Matcher
@@ -24,6 +26,7 @@ async def _(
     matcher: Matcher,
     session_id: UserSessionId,
 ):
+    start_time = time.perf_counter()
     try:
         client = await get_client(session_id)
         resp = [x async for x in get_all_friends(client)]
@@ -41,4 +44,6 @@ async def _(
         await handle_error(matcher, e)
         # await matcher.finish(Lang.nbp_vrc.general.server_error(str(e)))
 
+    end_time = time.perf_counter()
+    logger.debug(f"@friend_list.handle() 执行用时: {end_time - start_time:.3f} 秒")
     await UniMessage.image(raw=pic).finish()
