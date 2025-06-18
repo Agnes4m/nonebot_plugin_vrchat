@@ -103,3 +103,12 @@ body {
     width: 100%;
     word-break: break-all;
 }
+
+.trust-dot {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    margin-left: 8px;
+    vertical-align: middle;
+}

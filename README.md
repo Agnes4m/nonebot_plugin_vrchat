@@ -9,7 +9,7 @@
 
 # nonebot_plugin_vrchat
 
-_✨ 使用第三方 api 实现 vrchat 相关操作 ✨_
+_✨ ~~来erp吗~~使用第三方 api 实现 vrchat 相关操作 ✨_
 
 <a href="https://github.com/Agnes4m/nonebot_plugin_vrchat/stargazers">
         <img alt="GitHub stars" src="https://img.shields.io/github/stars/Agnes4m/nonebot_plugin_vrchat" alt="stars">
@@ -42,12 +42,11 @@ _✨ 使用第三方 api 实现 vrchat 相关操作 ✨_
 - 本插件国内服务器可使用
 - 本插件支持alconna跨平台适配器使用
 - 本插件支持alconna的i18n多语言适配
+- 本插件图片生成使用浏览器渲染
 
 ## 使用
 
 首先你应该私聊机器人发送`vrc登录`，按提示输入账号密码和验证码，才能正常使用功能
-
-~~来erp吗~~
 
 ## 安装
 
@@ -119,7 +118,8 @@ plugins = [
 - `vrc帮助`： 获取指令帮助
 - `vrc登录`： 登录（需要输入账号密码，建议私聊）
 - `vrc全部好友`： 查询当前全部好友状态
-- `vrc搜索好友【text】`：查询用户名称
+- `vrc搜索用户【text】`：查询用户名称
+  - `【index】`：返回查询列表的序号用户的具体信息
 - `vrc搜索世界【text】`： 查询世界名称
 
 ### 其他指令
@@ -127,6 +127,10 @@ plugins = [
 - `lang switch zn-CN`： 切换语言为中文
 - `lang switch en-US`： 切换语言为英文
 - `lang switch ja-JP`： 切换语言为日语
+
+## 截图展示
+
+![截图](./img/test1.png)
 
 ## 感谢
 

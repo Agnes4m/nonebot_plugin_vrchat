@@ -44,6 +44,13 @@ STATUS_DESC_MAP: Dict[NormalizedStatusType, str] = {
     "offline": "离线",
     "unknown": "未知",
 }
+
+PLATFORM_DESC = {
+    "standalonewindows": "电脑windows",
+    "android": "安卓",
+    "oculus": "Oculus",
+    "unknownplatform": "未知设备",
+}
 OFFLINE_STATUSES = ["offline", "unknown"]
 UNKNOWN_WORLD_TIP = "未知世界"
 LOCATION_TRAVELING_TIP = "加载世界中"
@@ -190,8 +197,11 @@ async def format_location(client: Optional[ApiClient], location: Optional[str]):
     else:
         prefix = LOCATION_PUB_PREFIX
     try:
-        world = await get_world(client, world_id)
-        world_name = world.name
+        if client is not None:
+            world = await get_world(client, world_id)
+            world_name = world.name
+        else:
+            world_name = UNKNOWN_WORLD_TIP
     except Exception as e:
         world_name = UNKNOWN_WORLD_TIP
         logger.exception(

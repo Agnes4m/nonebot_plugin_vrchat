@@ -45,10 +45,10 @@ class ConfigBaseModel(BaseModel):
 
 
 class EnvConfig(BaseModel):
-    session_expire_timeout: timedelta
+    session_expire_timeout: timedelta = timedelta(minutes=1)
 
 
-env_config = EnvConfig.model_validate(get_driver().config.model_dump())
+env_config = EnvConfig.model_validate(dict(get_driver().config))
 
 
 class PluginConfig(ConfigBaseModel):

@@ -16,6 +16,7 @@ GroupPrivacyType = Literal["default", "private"]
 GroupJoinStateType = Literal["closed", "invite", "request", "open"]
 GroupMemberStatusType = Literal["inactive", "member", "requested", "invited"]
 ReleaseStatusType = Literal["public", "private", "hidden", "all"]
+PlatfoemType = Literal
 
 NormalizedStatusType = Literal[
     "online",
@@ -84,6 +85,24 @@ def extract_trust_level(tags: List[str], developer_type: Optional[str]) -> Trust
 
     Args:
         tags: user.tags
+            "system_no_captcha",  # 无验证
+            "system_avatar_access",  # 头像接口
+            "system_world_access",  # 世界接口
+            "system_feedback_access",  # 反馈接口
+            "system_trust_basic",  # 蓝名
+            "system_trust_trusted",  # 绿名
+            "system_trust_veteran",  # 橙名
+            "system_trust_known",  # 紫名
+            "show_social_rank",  # 排行榜
+            # 语言
+            "language_zho",  # 中文
+            "language_yue",  # 粤语
+            "language_jpn",  # 日语
+            "language_eng",  # 英语
+            "language_kor",  # 韩语
+            "language_fra",  # 法语
+            "language_vie",  # 越南语
+            "language_rus",  # 俄语
         developer_type: user.developer_type
 
     Returns:
@@ -118,6 +137,11 @@ class LimitedUserModel(BaseModel):
     """姓名"""
     is_friend: bool
     last_platform: str
+    """
+    - standalonewindows : 桌面端
+    - android : 安卓
+    - 其他unity版本 : 2019.3.1p2-845-Release
+    """
     original_status: StatusType = Field(alias="status")
     status_description: str
     tags: List[str]
@@ -126,11 +150,12 @@ class LimitedUserModel(BaseModel):
     """缩略图头像url"""
     bio: Optional[str] = None
     fallback_avatar: Optional[str] = None
+    """备用着色器"""
     location: Optional[str] = None
     friend_key: Optional[str] = None
     last_login: Optional[datetime] = None
-    profile_pic_override: Optional[str] = None
-    user_icon: Optional[str] = None
+    profile_pic_override: str = ""
+    user_icon: str = ""
     index: int = 0
 
     @property
@@ -142,39 +167,74 @@ class LimitedUserModel(BaseModel):
         return extract_trust_level(self.tags, self.developer_type)
 
 
+class Badge(BaseModel):
+    """徽章"""
+
+    assigned_at: datetime
+    badge_description: str
+    badge_id: str
+    badge_image_url: str
+    badge_name: str
+    hidden: bool
+    showcased: bool
+    updated_at: datetime
+
+
 class UserModel(BaseModel):
     """信任用户信息"""
 
     user_id: str = Field(alias="id")
+
+    age_verification_status: Literal["hidden"]
+    """未知"""
+    age_verified: bool
+    """年龄验证状态"""
+    allow_avatar_copying: bool = True
+    """允许复制头像"""
+    badges: Optional[List[Badge]] = None
     bio: str
+    """用户简介"""
     bio_links: List[str]
     current_avatar_image_url: str
     current_avatar_thumbnail_image_url: str
+    """当前头像缩略图url"""
+    current_avatar_tags: List[str]
     date_joined: date
+    """加入日期"""
     developer_type: DeveloperType
+    """开发者模式"""
     display_name: str
+    """用户名"""
     friend_key: str
+    friend_request_status: str = "null"
+    instance_id: Literal["offline", "private"]
+    """非好友是离线,好友处于私人状态是私密"""
     is_friend: bool
     last_activity: str
     last_login: str
+    last_mobile: Optional[str] = None
     last_platform: str
+    """
+    - standalonewindows : 桌面端
+    - android : 安卓
+    - 其他unity版本 : 2019.3.1p2-845-Release
+    """
+    location: Optional[str] = "offline"
+    note: Optional[str] = None
+    platform: Optional[str] = "offline"
     profile_pic_override: str
+    profile_pic_override_thumbnail: str
+    pronouns: str
     state: StateType
-    original_status: StatusType = Field(alias="status")
     status_description: str
     tags: List[str]
-    user_icon: str
-
-    allow_avatar_copying: bool = True
-    instance_id: str = "offline"
-
-    friend_request_status: Optional[str] = None
-    note: Optional[str] = None
-    location: Optional[str] = None
+    original_status: StatusType = Field(alias="status")
     traveling_to_instance: Optional[str] = None
     traveling_to_location: Optional[str] = None
     traveling_to_world: Optional[str] = None
-    world_id: Optional[str] = None
+    user_icon: str
+    # username: str 弃用
+    world_id: str = "offline"
 
     @property
     def status(self) -> NormalizedStatusType:

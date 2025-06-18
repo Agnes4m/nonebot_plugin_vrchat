@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -6,8 +5,9 @@ from typing import Dict, List, Optional
 from nonebot import logger
 from nonebot_plugin_htmlrender import template_to_pic as t2p
 
-from ..vrchat import ApiClient, LimitedUserModel
+from ..vrchat import ApiClient, LimitedUserModel, UserModel
 from .utils import OFFLINE_STATUSES as OFFLINE
+from .utils import PLATFORM_DESC as P_DESC
 from .utils import STATUS_COLORS as S_COLORS
 from .utils import STATUS_DESC_MAP as S_DESC
 from .utils import TRUST_COLORS as T_COLORS
@@ -30,7 +30,8 @@ async def draw_user_card_overview(
         if user.status in OFFLINE:
             logger.debug(f"user: {user.status}")
             if user.last_login:
-                delta = time_now - user.last_login
+                last_login_dt = user.last_login
+                delta = time_now - last_login_dt
                 content = f"{content}\n{td_fmt(delta)}"
         elif user.status != "webonline" and user.location:
             loc = await fmt_loc(client, user.location)
@@ -78,42 +79,46 @@ async def draw_user_card_overview(
     )
 
 
-async def draw_user_profile_card(user: LimitedUserModel) -> bytes:
+async def draw_user_profile_card(user: UserModel) -> bytes:
     time_now = datetime.now(timezone.utc)
-    logger.debug(user)
+    logger.debug(dict(user))
     loc = ""
     content = user.status_description
     if user.status in OFFLINE:
-        logger.debug(f"user: {user.status}")
         if user.last_login:
-            delta = time_now - user.last_login
+            last_login_dt = user.last_login
+            if isinstance(last_login_dt, str):
+                last_login_dt = datetime.fromisoformat(last_login_dt)
+            delta = time_now - last_login_dt
             content = f"{content}\n{td_fmt(delta)}"
     elif user.status != "webonline" and user.location:
         loc = await fmt_loc(None, user.location)
         content = f"{content}\n{loc}"
-    location_content = content
-
-    # 在线或者时间
-    if user.status in OFFLINE and user.last_login:
-        delta = time_now - user.last_login
-        last_login = f"{content}\n{td_fmt(delta)}"
-    else:
-        last_login = S_DESC[user.status]
 
     user_dict = {
-        "location": location_content,
-        "original_status": user.original_status,
+        "location": content,
+        "original_status": user.status,
         "status_description": user.status_description,
         "display_name": user.display_name,
         "current_avatar_thumbnail_image_url": user.current_avatar_thumbnail_image_url,
         "trust": user.trust,
         "last_platform": user.last_platform,
-        "last_login": last_login,
+        "bio": user.bio or "",
+        "age_verified": user.age_verified,
+        "date_joined": user.date_joined.isoformat(),
+        "is_friend": user.is_friend,
     }
 
     logger.debug(f"Draw user profile card for {user_dict}")
     return await t2p(
         template_path=str(Path(__file__).parent / "templates"),
         template_name="player.html",
-        templates={"user": user_dict},
+        templates={
+            "user": user_dict,
+            "status_colors": S_COLORS,
+            "trust_colors": T_COLORS,
+            "last_platform": P_DESC,
+            "status_desc_map": S_DESC,
+            "state": user.state,
+        },
     )
