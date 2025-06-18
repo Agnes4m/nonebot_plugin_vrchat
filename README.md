@@ -125,7 +125,7 @@ plugins = [
 
 ### 其他指令
 
-- `lang switch zn-CN`： 切换语言为中文
+- `lang switch zh-CN`： 切换语言为中文
 - `lang switch en-US`： 切换语言为英文
 - `lang switch ja-JP`： 切换语言为日语
 

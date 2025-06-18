@@ -2,7 +2,7 @@ from typing import List
 
 from loguru import logger
 from nonebot import on_command
-from nonebot.adapters import Event, Message
+from nonebot.adapters import Message
 from nonebot.matcher import Matcher
 from nonebot.params import ArgPlainText, EventMessage
 from nonebot.typing import T_State

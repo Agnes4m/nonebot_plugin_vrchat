@@ -118,8 +118,8 @@ async def _(
     except TwoFactorAuthError as e:
         state[KEY_VERIFY_FUNC] = e.verify_func
         await matcher.pause(
-            Lang.nbp_vrc.login.send_2fa_code().format(
-                env_config.session_expire_timeout.seconds,
+            Lang.nbp_vrc.login.send_2fa_code(
+                second=env_config.session_expire_timeout.seconds,
             ),
         )
 
@@ -134,7 +134,7 @@ async def _(
         logger.error(f"Api error when logging in: [{e.status}] {e.reason}")
         remove_login_info(session_id)
         await matcher.finish(
-            Lang.nbp_vrc.general.server_error().format(e.status, e.reason),
+            Lang.nbp_vrc.general.server_error(status=e.status, reason=e.reason),
         )
 
     except Exception:
@@ -184,10 +184,10 @@ async def _(
 @vrc_login.handle()
 async def _(matcher: Matcher, state: T_State):
     current_user: CurrentUser = state[KEY_CURRENT_USER]
-    await matcher.finish(
-        Lang.nbp_vrc.login.logged_in().format(current_user.display_name),
-    )
     state[KEY_CURRENT_USER] = current_user
+    await matcher.finish(
+        Lang.nbp_vrc.login.logged_in(name=current_user.display_name),
+    )
 
 
 @vrc_login.handle()
