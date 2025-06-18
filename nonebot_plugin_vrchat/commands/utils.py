@@ -1,11 +1,15 @@
-from typing import Callable, NoReturn, Type
+from pathlib import Path
+from typing import Callable, NoReturn, Type, Union
 from typing_extensions import Annotated
 
+import aiofiles
+import ujson as json
 from nonebot.adapters import Message
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, EventMessage
 from nonebot_plugin_session import SessionId, SessionIdType
+from vrchatapi import LimitedUser
 
 from ..config import session_config
 from ..i18n import Lang
@@ -69,3 +73,35 @@ def register_arg_got_handlers(
 
     matcher.append_handler(handler1)
     matcher.append_handler(handler2)
+
+
+async def save_to_file(
+    msg_id: str,
+    msg: Union[LimitedUser, list[LimitedUser], dict, list],
+    name: str = "msg_id",
+):
+    msg_path = Path(f"data/vrchat/{name}/") / f"{msg_id}.json"
+    msg_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # 处理为json格式
+    def to_dict(obj):
+        if hasattr(obj, "model_dump"):
+            return obj.model_dump()
+        if hasattr(obj, "dict"):
+            return obj.dict()
+        return obj
+
+    data = [to_dict(x) for x in msg] if isinstance(msg, list) else to_dict(msg)
+
+    async with aiofiles.open(msg_path, "w", encoding="utf-8") as f:
+        await f.write(json.dumps(data, ensure_ascii=False, indent=4))
+
+
+async def read_to_file(msg_id: Union[str, int]) -> Union[dict, list, None]:
+
+    msg_path = Path("data/vrchat/msg_id/") / f"{msg_id}.json"
+    logger.debug(f"Reading message from {msg_path}")
+    if not msg_path.exists():
+        return None
+    async with aiofiles.open(msg_path, "r", encoding="utf-8") as f:
+        return json.loads(await f.read())

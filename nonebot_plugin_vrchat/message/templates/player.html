@@ -22,7 +22,8 @@
     <div class="profile-card">
         <!-- 头像外环颜色由信任等级决定 -->
         <div class="avatar-wrap" style="border: 4px solid {{ trust_colors[user.trust]|default('#ccc') }};">
-            <img class="avatar" src="{{ user.current_avatar_thumbnail_image_url }}" alt="avatar">
+            <img class="avatar" src="{{ user.current_avatar_thumbnail_image_url }}" alt="avatar"
+                onerror="this.onerror=null;this.src='default.png';">
         </div>
         <div class="main-info">
             <div class="name">{{ user.display_name }}</div>

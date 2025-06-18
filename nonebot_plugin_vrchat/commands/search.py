@@ -1,7 +1,8 @@
 from typing import List
 
+from loguru import logger
 from nonebot import on_command
-from nonebot.adapters import Message
+from nonebot.adapters import Event, Message
 from nonebot.matcher import Matcher
 from nonebot.params import ArgPlainText, EventMessage
 from nonebot.typing import T_State
@@ -12,6 +13,7 @@ from ..message import draw_user_card_overview, draw_user_profile_card
 from ..vrchat import (
     ApiClient,
     LimitedUserModel,
+    friend,
     get_or_random_client,
     get_user,
     search_users,
@@ -48,9 +50,10 @@ async def _(
     arg: str = ArgPlainText(KEY_ARG),
 ):
     arg = arg.strip()
+
     if not arg:
         await matcher.reject(Lang.nbp_vrc.general.empty_search_keyword())
-
+    logger.info(f"正在查询{arg}")
     try:
         client = await get_or_random_client(session_id)
         resp = [x async for x in search_users(client, arg)]
@@ -62,25 +65,25 @@ async def _(
 
     state[KEY_CLIENT] = client
     state[KEY_SEARCH_RESP] = resp
-    # if len(resp) == 1:
-    #     return  # skip
 
-    # try:
-    resp = [x async for x in search_users(client, arg, max_size=10)]
-    pic = await draw_user_card_overview(
-        resp,
-        group=False,
-        client=client,
-        title="搜索结果",
-    )
-    # except Exception as e:
-    #     await handle_error(matcher, e)
+    try:
+        resp = [x async for x in search_users(client, arg, max_size=10)]
+        pic = await draw_user_card_overview(
+            resp,
+            group=False,
+            client=client,
+            title="搜索结果",
+        )
+    except Exception as e:
+        await handle_error(matcher, e)
 
     await (
         UniMessage.text(Lang.nbp_vrc.user.searched_user_tip(count=len(resp)))
         + UniMessage.image(raw=pic)
     ).send()
-    await matcher.pause("请选择要查询的用户序号：\n输入 0 取消选择\n")
+    await matcher.pause(
+        "请选择要查询的用户序号：\n输入 0 取消选择\n输入【添加 1】可以添加序号1为好友",
+    )
 
 
 @search_user.handle()
@@ -91,11 +94,27 @@ async def _(
 ):
     client: ApiClient = state[KEY_CLIENT]
     resp: List[LimitedUserModel] = state[KEY_SEARCH_RESP]
+    arg = message.extract_plain_text().strip()
+    # 添加好友
+    if arg.startswith("添加 "):
+        arg = arg[3:].strip()
+        if not arg.isdigit():
+            await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_format())
+        index = int(arg) - 1
+        if index < 0 or index >= len(resp):
+            await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_range())
+        user_id = resp[index].user_id
 
+        try:
+            resp_no = await friend(client, user_id)
+        except Exception as e:
+            await handle_error(matcher, e)
+        await matcher.finish(f"{resp_no.receiver_user_id}申请成功")
+    # 查询部分
     if len(resp) == 1:
         index = 0
     else:
-        arg = message.extract_plain_text().strip()
+
         if arg == "0":
             await matcher.finish(Lang.nbp_vrc.general.discard_select())
 

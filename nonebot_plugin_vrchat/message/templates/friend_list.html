@@ -22,7 +22,7 @@
                 <div class="friend-item">
                     <div class="avatar-border" style="border-color: {{ trust_colors.get(friend.trust, '#ccc') }};">
                         <img class="avatar" src="{{ friend.current_avatar_thumbnail_image_url }}"
-                            alt="{{ friend.display_name }}的头像">
+                            alt="{{ friend.display_name }}的头像" onerror="this.onerror=null;this.src='default.png';">
                     </div>
                     <div class="info">
                         <div class="index-name">

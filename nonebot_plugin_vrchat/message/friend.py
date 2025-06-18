@@ -27,7 +27,6 @@ async def draw_user_card_overview(
     for idx, user in enumerate(users):
         loc = ""
         if user.status in OFFLINE:
-            logger.debug(f"user: {user.status}")
             if user.last_login:
                 last_login_dt = user.last_login
                 delta = time_now - last_login_dt
@@ -60,7 +59,6 @@ async def draw_user_card_overview(
     if group:
         user_dict = {k: raw_user_dict[k] for k in S_DESC if k in raw_user_dict}
 
-        logger.debug(f"User dict: {user_dict}")
         # 按信任等级排序
         trust_keys = list(T_COLORS.keys())
         for li in user_dict.values():

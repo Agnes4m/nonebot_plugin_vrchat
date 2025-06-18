@@ -111,14 +111,14 @@ async def friend(
     user_id: str,
 ):
     """
-    异步函数，用于处理好友请求。
+    异步函数，用于发送好友请求。
 
     参数:
     client (ApiClient): API客户端实例。
     user_id (str): 用户ID。
 
     返回值:
-    Notification: 返回一个Notification对象的异步任务。
+    Notification: 返回一个Notification对象。
     """
 
     api = FriendsApi(client)

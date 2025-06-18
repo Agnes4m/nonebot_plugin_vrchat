@@ -22,28 +22,23 @@ friend_list = on_command(
 
 
 @friend_list.handle()
-async def _(
-    matcher: Matcher,
-    session_id: UserSessionId,
-):
+async def _(matcher: Matcher, session_id: UserSessionId):
+
     start_time = time.perf_counter()
     try:
         client = await get_client(session_id)
         resp = [x async for x in get_all_friends(client)]
     except Exception as e:
-        # await matcher.finish(Lang.nbp_vrc.general.server_error(str(e)))
         await handle_error(matcher, e)
 
     if not resp:
         await matcher.send(Lang.nbp_vrc.friend.empty_friend_list())
-    # try:
+
     pic = await draw_user_card_overview(resp, client=client)
     if pic:
         logger.info("绘制好友列表成功")
-    # except Exception as e:
-    #     await handle_error(matcher, e)
-    # await matcher.finish(Lang.nbp_vrc.general.server_error(str(e)))
 
     end_time = time.perf_counter()
     logger.debug(f"@friend_list.handle() 执行用时: {end_time - start_time:.3f} 秒")
+
     await UniMessage.image(raw=pic).finish()
