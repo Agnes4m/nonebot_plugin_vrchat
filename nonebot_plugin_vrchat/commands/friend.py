@@ -36,13 +36,13 @@ async def _(
 
     if not resp:
         await matcher.send(Lang.nbp_vrc.friend.empty_friend_list())
-    try:
-        pic = await draw_user_card_overview(resp, client=client)
-        if pic:
-            logger.info("绘制好友列表成功")
-    except Exception as e:
-        await handle_error(matcher, e)
-        # await matcher.finish(Lang.nbp_vrc.general.server_error(str(e)))
+    # try:
+    pic = await draw_user_card_overview(resp, client=client)
+    if pic:
+        logger.info("绘制好友列表成功")
+    # except Exception as e:
+    #     await handle_error(matcher, e)
+    # await matcher.finish(Lang.nbp_vrc.general.server_error(str(e)))
 
     end_time = time.perf_counter()
     logger.debug(f"@friend_list.handle() 执行用时: {end_time - start_time:.3f} 秒")

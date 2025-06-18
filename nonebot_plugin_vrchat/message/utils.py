@@ -3,7 +3,6 @@ from datetime import timedelta
 from io import BytesIO
 from pathlib import Path
 from typing import Dict, Optional, Tuple, TypeVar
-from typing_extensions import ParamSpec
 
 import aiofiles
 import httpx
@@ -11,6 +10,7 @@ from async_lru import alru_cache
 from httpx import AsyncClient
 from nonebot.log import logger
 from PIL import Image
+from typing_extensions import ParamSpec
 
 from ..vrchat import ApiClient, NormalizedStatusType, TrustType, get_world
 

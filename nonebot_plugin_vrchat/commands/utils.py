@@ -56,7 +56,7 @@ def register_arg_got_handlers(
 ):
     async def handler1(
         matcher: Matcher,
-        arg: Message = CommandArg(),  # noqa: B008
+        arg: Message = CommandArg(),
     ):
         if arg.extract_plain_text().strip():
             matcher.set_arg(key, arg)

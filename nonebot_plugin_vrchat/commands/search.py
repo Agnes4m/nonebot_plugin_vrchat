@@ -65,22 +65,21 @@ async def _(
     # if len(resp) == 1:
     #     return  # skip
 
-    try:
-        resp = [x async for x in search_users(client, arg, max_size=10)]
-        pic = await draw_user_card_overview(
-            resp,
-            group=False,
-            client=client,
-            title="搜索结果",
-        )
-    except Exception as e:
-        await handle_error(matcher, e)
+    # try:
+    resp = [x async for x in search_users(client, arg, max_size=10)]
+    pic = await draw_user_card_overview(
+        resp,
+        group=False,
+        client=client,
+        title="搜索结果",
+    )
+    # except Exception as e:
+    #     await handle_error(matcher, e)
 
     await (
         UniMessage.text(Lang.nbp_vrc.user.searched_user_tip(count=len(resp)))
         + UniMessage.image(raw=pic)
     ).send()
-    # 进入多步会话，等待用户选择
     await matcher.pause("请选择要查询的用户序号：\n输入 0 取消选择\n")
 
 

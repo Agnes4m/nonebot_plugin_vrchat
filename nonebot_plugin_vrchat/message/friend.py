@@ -26,24 +26,27 @@ async def draw_user_card_overview(
     logger.debug(users)
     for idx, user in enumerate(users):
         loc = ""
-        content = user.status_description
         if user.status in OFFLINE:
             logger.debug(f"user: {user.status}")
             if user.last_login:
                 last_login_dt = user.last_login
                 delta = time_now - last_login_dt
-                content = f"{content}\n{td_fmt(delta)}"
+                location_content = f"{td_fmt(delta)}"
+            else:
+                location_content = "离线"
         elif user.status != "webonline" and user.location:
             loc = await fmt_loc(client, user.location)
-            content = f"{content}\n{loc}"
+            location_content = f"{loc}"
+        else:
+            location_content = "离线"
 
-        location_content = content
+        # location_content = content
         effective_status = user.status
         if user.status == "unknown" and user.original_status == "offline":
             effective_status = "offline"
         raw_user_dict.setdefault(effective_status, []).append(
             {
-                "index": idx,  # 新增index字段
+                "index": idx + 1,
                 "location": location_content,
                 "original_status": user.original_status,
                 "status_description": user.status_description,

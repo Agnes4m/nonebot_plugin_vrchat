@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>{{ title }}</title>
+    <title> 多用户界面 </title>
     <link rel="stylesheet" href="friend_list.css">
 </head>
 
@@ -13,25 +13,31 @@
         {% for status, friends in user_dict.items() %}
         <div class="friend-group">
             <div class="group-title">
-                <span class="status-dot" style="background-color: {{ status_colors[status] }};"></span>
-                {{ status_desc_map[status] }} ({{ friends|length }})
+                <span class="status-dot" style="background-color: {{ status_colors.get(status, '#ccc') }};"></span>
+                {{ status_desc_map.get(status, status) }} ({{ friends|length }})
             </div>
             <div class="friend-list two-cols">
+                {% if friends %}
                 {% for friend in friends %}
                 <div class="friend-item">
-                    <!-- 头像显示trust颜色这部分有问题 to do  -->
-                    <!-- <div class="avatar-border" style="border-color: {{ trust_colors[friend.trust] }};"> -->
-                    <img class="avatar" src="{{ friend.current_avatar_thumbnail_image_url }}" alt="avatar">
-                    <!-- </div> -->
+                    <div class="avatar-border" style="border-color: {{ trust_colors.get(friend.trust, '#ccc') }};">
+                        <img class="avatar" src="{{ friend.current_avatar_thumbnail_image_url }}"
+                            alt="{{ friend.display_name }}的头像">
+                    </div>
                     <div class="info">
                         <div class="index-name">
-                            {{ friend.index + 1 }}. {{ friend.display_name }}
+                            {{ friend.index }}. {{ friend.display_name }}
                         </div>
-                        <div class="status">{{ friend.status_description or status_desc_map[status] }}</div>
+                        <div class="status">
+                            {{ friend.status_description or status_desc_map.get(status, status) }}
+                        </div>
                         <div class="location">{{ friend.location }}</div>
                     </div>
                 </div>
                 {% endfor %}
+                {% else %}
+                <div style="color:#888;padding:12px;">暂无好友</div>
+                {% endif %}
             </div>
         </div>
         {% endfor %}
