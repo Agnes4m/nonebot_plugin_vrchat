@@ -11,13 +11,14 @@ keywords = ["steam", "game", "vrchat", "nonebot2", "plugin"]
 dependencies = [
     "nonebot2>=2.1.0",
     "nonebot-plugin-alconna>=0.58.2",
-    "vrchatapi>=1.19.0",
+    "vrchatapi>=1.19.3",
     "httpx>=0.25.0",
     "async-lru>=2.0.4",
     "nonebot-plugin-session>=0.3.2",
     "nonebot-plugin-htmlrender>=0.6.6",
     "ruamel-yaml>=0.18.5",
-    "pydantic>=2.1.1"
+    "pydantic>=2.1.1",
+    "pillow>=10.0.0,<11.0.0"
 ]
 classifiers = [
     "License :: OSI Approved :: MIT License",

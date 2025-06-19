@@ -38,12 +38,14 @@
     "user": {
       "send_user_name": "Please send the player name you want to search for.",
       "no_user_found": "No players found.",
-      "searched_user_tip": "Found {count} players:"
+      "searched_user_tip": "Found the following {count} players",
+      "reply_index": "Please send the serial number of the player you want to view, enter 0 to cancel",
+      "reply_index_add": "Send [Add 1] to add the first player as a friend"
     },
     "world": {
-      "send_world_name": "Please send the world name you want to search for.",
+      "send_world_name": "Please send the name of the world you want to search for.",
       "no_world_found": "No worlds found.",
-      "searched_world_tip": "Found {count} worlds:",
+      "searched_world_tip": "Found the following {count} worlds",
       "searched_world_info": "{index}. {name}\nAuthor: {author}\nCreated at: {created_at}"
     }
   }

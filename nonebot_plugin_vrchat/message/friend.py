@@ -21,28 +21,27 @@ async def draw_user_card_overview(
     client: Optional[ApiClient] = None,
     title: str = "好友列表",
 ) -> bytes:
-
     time_now = datetime.now(timezone.utc)
     raw_user_dict: Dict[str, List[dict]] = {}
-    logger.debug(users)
+    logger.debug(f"用户数量: {len(users)}")
     for idx, user in enumerate(users):
-        loc = ""
+        # 计算location_content
         if user.status in OFFLINE:
             if user.last_login:
-                last_login_dt = user.last_login
-                delta = time_now - last_login_dt
-                location_content = f"{td_fmt(delta)}"
+                delta = time_now - user.last_login
+                location_content = td_fmt(delta)
             else:
                 location_content = "离线"
         elif user.status != "webonline" and user.location:
-            loc = await fmt_loc(client, user.location)
-            location_content = f"{loc}"
+            location_content = await fmt_loc(client, user.location)
         else:
             location_content = "离线"
 
-        effective_status = user.status
-        if user.status == "unknown" and user.original_status == "offline":
-            effective_status = "offline"
+        effective_status = (
+            "offline"
+            if user.status == "unknown" and user.original_status == "offline"
+            else user.status
+        )
         raw_user_dict.setdefault(effective_status, []).append(
             {
                 "index": idx + 1,
@@ -55,7 +54,7 @@ async def draw_user_card_overview(
             },
         )
 
-    # 按 在线状态 顺序排序
+    # 排序
     if group:
         user_dict = {k: raw_user_dict[k] for k in S_DESC if k in raw_user_dict}
         trust_keys = list(T_COLORS.keys())
@@ -63,6 +62,8 @@ async def draw_user_card_overview(
             li.sort(key=lambda x: trust_keys.index(x["trust"]), reverse=True)
     else:
         user_dict = {"unknown": [x for y in raw_user_dict.values() for x in y]}
+
+    # 渲染图片
     return await t2p(
         template_path=str(Path(__file__).parent / "templates"),
         template_name="friend_list.html",
@@ -79,11 +80,11 @@ async def draw_user_card_overview(
 
 
 async def draw_user_profile_card(user: UserModel) -> bytes:
-    """单人信息"""
+    """单人信息卡片渲染"""
     time_now = datetime.now(timezone.utc)
-    logger.debug(dict(user))
-    loc = ""
-    content = user.status_description
+    logger.debug(f"UserModel: {dict(user)}")
+    content = user.status_description or ""
+    # 计算location内容
     if user.status in OFFLINE:
         if user.last_login:
             last_login_dt = user.last_login
@@ -105,7 +106,7 @@ async def draw_user_profile_card(user: UserModel) -> bytes:
         "last_platform": user.last_platform,
         "bio": user.bio or "",
         "age_verified": user.age_verified,
-        "date_joined": user.date_joined.isoformat(),
+        "date_joined": user.date_joined.isoformat() if user.date_joined else "",
         "is_friend": user.is_friend,
     }
 

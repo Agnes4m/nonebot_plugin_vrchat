@@ -40,8 +40,7 @@
       "no_user_found": "没搜到任何玩家捏",
       "searched_user_tip": "搜索到以下 {count} 个玩家",
       "reply_index": "请发送要查看的玩家序号, 输入0取消",
-      "reply_index_add": "发送【添加 1】来添加第一位玩家为好友",
-"
+      "reply_index_add": "发送【添加 1】来添加第一位玩家为好友"
     },
     "world": {
       "send_world_name": "请发送要查询的地图名称",

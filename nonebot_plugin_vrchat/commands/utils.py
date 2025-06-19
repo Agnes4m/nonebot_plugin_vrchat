@@ -1,9 +1,15 @@
 from pathlib import Path
-from typing import Callable, NoReturn, Type, Union
-from typing_extensions import Annotated
+from typing import Callable, List, NoReturn, Type, Union
 
 import aiofiles
-import ujson as json
+
+try:
+    import ujson as json
+except ImportError:
+    import json
+
+from typing_extensions import Annotated
+
 from nonebot.adapters import Message
 from nonebot.log import logger
 from nonebot.matcher import Matcher
@@ -13,7 +19,12 @@ from vrchatapi import LimitedUser
 
 from ..config import session_config
 from ..i18n import Lang
-from ..vrchat import ApiException, NotLoggedInError, UnauthorizedException
+from ..vrchat import (
+    ApiException,
+    LimitedUserModel,
+    NotLoggedInError,
+    UnauthorizedException,
+)
 
 UserSessionId = Annotated[str, SessionId(SessionIdType.USER, include_bot_id=False)]
 GroupSessionId = Annotated[str, SessionId(SessionIdType.GROUP, include_bot_id=False)]
@@ -105,3 +116,14 @@ async def read_to_file(msg_id: Union[str, int]) -> Union[dict, list, None]:
         return None
     async with aiofiles.open(msg_path, "r", encoding="utf-8") as f:
         return json.loads(await f.read())
+
+
+async def parse_index(arg: str, resp: List[LimitedUserModel], matcher: Matcher):
+    """解析用户输入的序号，返回索引，异常时自动 reject."""
+    arg = arg.strip()
+    if not arg.isdigit():
+        await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_format())
+    index = int(arg) - 1
+    if index < 0 or index >= len(resp):
+        await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_range())
+    return index

@@ -23,8 +23,8 @@
         <!-- 头像外环颜色由信任等级决定 -->
         <div class="avatar-wrap" style="border: 4px solid {{ trust_colors[user.trust]|default('#ccc') }};">
             <img class="avatar"
-                src="{% if friend.current_avatar_thumbnail_image_url == 'https://assets.vrchat.com/system/defaultAvatarThumbnail.png' %}default.png{% else %}{{ friend.current_avatar_thumbnail_image_url }}{% endif %}"
-                alt="{{ friend.display_name }}的头像" onerror="this.onerror=null;this.src='default.png';">
+                src="{% if user.current_avatar_thumbnail_image_url == 'https://assets.vrchat.com/system/defaultAvatarThumbnail.png' %}default.png{% else %}{{ user.current_avatar_thumbnail_image_url }}{% endif %}"
+                alt="{{ user.display_name }}的头像" onerror="this.onerror=null;this.src='default.png';">
         </div>
         <div class="main-info">
             <div class="name">{{ user.display_name }}</div>

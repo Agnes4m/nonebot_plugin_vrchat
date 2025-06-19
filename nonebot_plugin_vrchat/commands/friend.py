@@ -20,13 +20,6 @@ friend_list = on_command(
     priority=20,
 )
 
-friend_request = on_command(
-    "vrcrq",
-    aliases={"vrc好友请求", "vrc查看请求"},
-    rule=rule_enable,
-    priority=20,
-)
-
 
 @friend_list.handle()
 async def _(matcher: Matcher, session_id: UserSessionId):

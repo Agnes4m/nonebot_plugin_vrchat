@@ -27,6 +27,7 @@ from .utils import (
     KEY_SEARCH_RESP,
     UserSessionId,
     handle_error,
+    parse_index,
     register_arg_got_handlers,
     rule_enable,
 )
@@ -79,13 +80,9 @@ async def _(
     except Exception as e:
         await handle_error(matcher, e)
 
-    if is_me:
-        msg = Lang.nbp_vrc.user.reply_index()
-
-    else:
-        msg = (
-            Lang.nbp_vrc.user.reply_index() + "\n" + Lang.nbp_vrc.user.reply_index_add()
-        )
+    msg = Lang.nbp_vrc.user.reply_index()
+    if not is_me:
+        msg += "\n" + Lang.nbp_vrc.user.reply_index_add()
     await (
         UniMessage.text(Lang.nbp_vrc.user.searched_user_tip(count=len(resp)))
         + UniMessage.image(raw=pic)
@@ -105,56 +102,38 @@ async def _(
     client: ApiClient = state[KEY_CLIENT]
     resp: List[LimitedUserModel] = state[KEY_SEARCH_RESP]
     arg = message.extract_plain_text().strip()
+
     # 添加好友
     if arg.startswith("添加"):
-        arg = arg.replace("添加", "").strip()
-        if not arg.isdigit():
-            await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_format())
-        index = int(arg) - 1
-        if index < 0 or index >= len(resp):
-            await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_range())
+        idx_str = arg.replace("添加", "").strip()
+        index = await parse_index(idx_str, resp, matcher)
         user_id = resp[index].user_id
 
-        # 先查看好友请求状态
-        if not arg.isdigit():
-            await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_format())
-        index = int(arg) - 1
-        if index < 0 or index >= len(resp):
-            await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_range())
-        user_id = resp[index].user_id
         try:
             fq_msg = await get_friend_status(client, user_id)
         except Exception as e:
             await handle_error(matcher, e)
 
         if fq_msg.is_friend:
-            # 已是好友
             await matcher.finish(Lang.nbp_vrc.friend.exist_friend())
         if fq_msg.incoming_request and not fq_msg.outgoing_request:
-            # 已收到好友请求
             await matcher.finish(Lang.nbp_vrc.friend.incoming_request())
         if fq_msg.outgoing_request and not fq_msg.incoming_request:
-            # 已发出好友请求
             await matcher.finish(Lang.nbp_vrc.friend.outgoing_request())
 
-        # 添加好友
         try:
             resp_no = await friend(client, user_id)
         except Exception as e:
             if isinstance(e, ApiException) and e.status == 400:
                 await matcher.finish(Lang.nbp_vrc.friend.exist_friend())
-
             await handle_error(matcher, e)
         logger.debug(resp_no)
         await matcher.finish(Lang.nbp_vrc.friend.sucess_request())
+
     # 查询好友请求状态
     elif arg.startswith("好友"):
-        arg = arg.replace("好友", "").strip()
-        if not arg.isdigit():
-            await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_format())
-        index = int(arg) - 1
-        if index < 0 or index >= len(resp):
-            await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_range())
+        idx_str = arg.replace("好友", "").strip()
+        index = await parse_index(idx_str, resp, matcher)
         user_id = resp[index].user_id
         try:
             fq_msg = await get_friend_status(client, user_id)
@@ -167,29 +146,23 @@ async def _(
             await matcher.send(Lang.nbp_vrc.friend.incoming_request())
         if fq_msg.outgoing_request and not fq_msg.incoming_request:
             await matcher.send(Lang.nbp_vrc.friend.outgoing_request())
-
         logger.info(fq_msg.is_friend)
         return
-    # 查询部分
-    if len(resp) == 1:
-        index = 0
+
+    # 查询用户详情
     else:
+        if len(resp) == 1:
+            index = 0
+        else:
+            if arg == "0":
+                await matcher.finish(Lang.nbp_vrc.general.discard_select())
+            index = await parse_index(arg, resp, matcher)
 
-        if arg == "0":
-            await matcher.finish(Lang.nbp_vrc.general.discard_select())
+        user_id = resp[index].user_id
+        try:
+            user = await get_user(client, user_id)
+            pic = await draw_user_profile_card(user)
+        except Exception as e:
+            await handle_error(matcher, e)
 
-        if not arg.isdigit():
-            await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_format())
-
-        index = int(arg) - 1
-        if index < 0 or index >= len(resp):
-            await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_range())
-
-    user_id = resp[index].user_id
-    try:
-        user = await get_user(client, user_id)
-        pic = await draw_user_profile_card(user)
-    except Exception as e:
-        await handle_error(matcher, e)
-
-    await UniMessage.image(raw=pic).finish()
+        await UniMessage.image(raw=pic).finish()
