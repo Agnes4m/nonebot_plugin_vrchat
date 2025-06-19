@@ -170,7 +170,7 @@ async def _(
         logger.error(f"Api error when verifying 2FA code: [{e.status}] {e.reason}")
         remove_login_info(session_id)
         await matcher.finish(
-            Lang.nbp_vrc.general.server_error().format(e.status, e.reason),
+            Lang.nbp_vrc.general.server_error(status=e.status, reason=e.reason),
         )
 
     except Exception:
@@ -187,20 +187,4 @@ async def _(matcher: Matcher, state: T_State):
     state[KEY_CURRENT_USER] = current_user
     await matcher.finish(
         Lang.nbp_vrc.login.logged_in(name=current_user.display_name),
-    )
-
-
-@vrc_login.handle()
-async def _(matcher: Matcher, state: T_State):
-    current_user: CurrentUser = state[KEY_CURRENT_USER]
-    await matcher.finish(
-        Lang.nbp_vrc.login.logged_in().format(current_user.display_name),
-    )
-
-
-@vrc_login.handle()
-async def _(matcher: Matcher, state: T_State):
-    current_user: CurrentUser = state[KEY_CURRENT_USER]
-    await matcher.finish(
-        Lang.nbp_vrc.login.logged_in().format(current_user.display_name),
     )

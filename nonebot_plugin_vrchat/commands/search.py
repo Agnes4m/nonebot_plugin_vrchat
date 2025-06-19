@@ -80,10 +80,12 @@ async def _(
         await handle_error(matcher, e)
 
     if is_me:
-        msg = "请选择要查询的用户序号：\n输入 0 取消选择\n输入【添加 1】可以添加序号1为好友"
+        msg = Lang.nbp_vrc.user.reply_index()
 
     else:
-        msg = "请选择要查询的用户序号：\n输入 0 取消选择"
+        msg = (
+            Lang.nbp_vrc.user.reply_index() + "\n" + Lang.nbp_vrc.user.reply_index_add()
+        )
     await (
         UniMessage.text(Lang.nbp_vrc.user.searched_user_tip(count=len(resp)))
         + UniMessage.image(raw=pic)
@@ -105,7 +107,7 @@ async def _(
     arg = message.extract_plain_text().strip()
     # 添加好友
     if arg.startswith("添加"):
-        arg = arg[3:].strip()
+        arg = arg.replace("添加", "").strip()
         if not arg.isdigit():
             await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_format())
         index = int(arg) - 1
@@ -113,18 +115,7 @@ async def _(
             await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_range())
         user_id = resp[index].user_id
 
-        try:
-            resp_no = await friend(client, user_id)
-        except Exception as e:
-            if isinstance(e, ApiException) and e.status == 400:
-                await matcher.finish(Lang.nbp_vrc.friend.exist_friend())
-
-            await handle_error(matcher, e)
-        logger.debug(resp_no)
-        await matcher.finish(Lang.nbp_vrc.friend.sucess_request())
-    # 查询好友请求状态
-    if arg.startswith("好友"):
-        arg = arg[3:].strip()
+        # 先查看好友请求状态
         if not arg.isdigit():
             await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_format())
         index = int(arg) - 1
@@ -136,10 +127,49 @@ async def _(
         except Exception as e:
             await handle_error(matcher, e)
 
-        if not resp:
-            await matcher.send(Lang.nbp_vrc.friend.empty_friend_request())
-        logger.info(fq_msg)
+        if fq_msg.is_friend:
+            # 已是好友
+            await matcher.finish(Lang.nbp_vrc.friend.exist_friend())
+        if fq_msg.incoming_request and not fq_msg.outgoing_request:
+            # 已收到好友请求
+            await matcher.finish(Lang.nbp_vrc.friend.incoming_request())
+        if fq_msg.outgoing_request and not fq_msg.incoming_request:
+            # 已发出好友请求
+            await matcher.finish(Lang.nbp_vrc.friend.outgoing_request())
 
+        # 添加好友
+        try:
+            resp_no = await friend(client, user_id)
+        except Exception as e:
+            if isinstance(e, ApiException) and e.status == 400:
+                await matcher.finish(Lang.nbp_vrc.friend.exist_friend())
+
+            await handle_error(matcher, e)
+        logger.debug(resp_no)
+        await matcher.finish(Lang.nbp_vrc.friend.sucess_request())
+    # 查询好友请求状态
+    elif arg.startswith("好友"):
+        arg = arg.replace("好友", "").strip()
+        if not arg.isdigit():
+            await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_format())
+        index = int(arg) - 1
+        if index < 0 or index >= len(resp):
+            await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_range())
+        user_id = resp[index].user_id
+        try:
+            fq_msg = await get_friend_status(client, user_id)
+        except Exception as e:
+            await handle_error(matcher, e)
+
+        if fq_msg.is_friend:
+            await matcher.send(Lang.nbp_vrc.friend.exist_friend())
+        if fq_msg.incoming_request and not fq_msg.outgoing_request:
+            await matcher.send(Lang.nbp_vrc.friend.incoming_request())
+        if fq_msg.outgoing_request and not fq_msg.incoming_request:
+            await matcher.send(Lang.nbp_vrc.friend.outgoing_request())
+
+        logger.info(fq_msg.is_friend)
+        return
     # 查询部分
     if len(resp) == 1:
         index = 0

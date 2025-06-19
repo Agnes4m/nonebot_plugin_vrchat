@@ -42,12 +42,17 @@ class NbpVrcFriend:
     empty_friend_request: LangItem = LangItem("nbp_vrc", "friend.empty_friend_request")
     exist_friend: LangItem = LangItem("nbp_vrc", "friend.exist_friend")
     sucess_request: LangItem = LangItem("nbp_vrc", "friend.sucess_request")
+    incoming_request: LangItem = LangItem("nbp_vrc", "friend.incoming_request")
+    outgoing_request: LangItem = LangItem("nbp_vrc", "friend.outgoing_request")
+    no_request: LangItem = LangItem("nbp_vrc", "friend.no_request")
 
 
 class NbpVrcUser:
     send_user_name: LangItem = LangItem("nbp_vrc", "user.send_user_name")
     no_user_found: LangItem = LangItem("nbp_vrc", "user.no_user_found")
     searched_user_tip: LangItem = LangItem("nbp_vrc", "user.searched_user_tip")
+    reply_index: LangItem = LangItem("nbp_vrc", "user.reply_index")
+    reply_index_add: LangItem = LangItem("nbp_vrc", "user.reply_index_add")
 
 
 class NbpVrcWorld:

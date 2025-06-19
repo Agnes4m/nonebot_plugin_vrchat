@@ -38,7 +38,7 @@ async def _(
         await matcher.reject(Lang.nbp_vrc.general.empty_search_keyword())
 
     try:
-        client = await get_or_random_client(session_id)
+        client, _ = await get_or_random_client(session_id)
         worlds = [x async for x in search_worlds(client, arg, max_size=10)]
     except Exception as e:
         await handle_error(matcher, e)

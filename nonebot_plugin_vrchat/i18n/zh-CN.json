@@ -30,12 +30,18 @@
       "empty_friend": "指定好友不存在捏",
       "empty_friend_request": "当前没有好友请求捏",
       "exist_friend": "你们已经是好友啦，请勿重复添加",
-      "sucess_request": "申请好友成功啦"
+      "sucess_request": "申请好友成功啦",
+      "incoming_request": "给你发好友请求了，都不知道看看",
+      "outgoing_request": "你已发送好友请求，快通知对象处理吧",
+      "no_request": "你们没有存在任何的好友请求"
     },
     "user": {
       "send_user_name": "请发送要查询的玩家名称",
       "no_user_found": "没搜到任何玩家捏",
-      "searched_user_tip": "搜索到以下 {count} 个玩家"
+      "searched_user_tip": "搜索到以下 {count} 个玩家",
+      "reply_index": "请发送要查看的玩家序号, 输入0取消",
+      "reply_index_add": "发送【添加 1】来添加第一位玩家为好友",
+"
     },
     "world": {
       "send_world_name": "请发送要查询的地图名称",
