@@ -1,3 +1,4 @@
+import time
 from typing import List
 
 from loguru import logger
@@ -50,13 +51,13 @@ async def _(
     arg: str = ArgPlainText(KEY_ARG),
 ):
     arg = arg.strip()
-
+    start_time = time.perf_counter()
     if not arg:
         await matcher.reject(Lang.nbp_vrc.general.empty_search_keyword())
     logger.info(f"正在查询{arg}")
     try:
         client = await get_or_random_client(session_id)
-        resp = [x async for x in search_users(client, arg)]
+        resp = [x async for x in search_users(client, arg, max_size=10)]
     except Exception as e:
         await handle_error(matcher, e)
 
@@ -67,7 +68,6 @@ async def _(
     state[KEY_SEARCH_RESP] = resp
 
     try:
-        resp = [x async for x in search_users(client, arg, max_size=10)]
         pic = await draw_user_card_overview(
             resp,
             group=False,
@@ -81,6 +81,9 @@ async def _(
         UniMessage.text(Lang.nbp_vrc.user.searched_user_tip(count=len(resp)))
         + UniMessage.image(raw=pic)
     ).send()
+    end_time = time.perf_counter()
+    logger.debug(f"搜索() 执行用时: {end_time - start_time:.3f} 秒")
+
     await matcher.pause(
         "请选择要查询的用户序号：\n输入 0 取消选择\n输入【添加 1】可以添加序号1为好友",
     )
@@ -96,7 +99,7 @@ async def _(
     resp: List[LimitedUserModel] = state[KEY_SEARCH_RESP]
     arg = message.extract_plain_text().strip()
     # 添加好友
-    if arg.startswith("添加 "):
+    if arg.startswith("添加"):
         arg = arg[3:].strip()
         if not arg.isdigit():
             await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_format())

@@ -39,6 +39,6 @@ async def _(matcher: Matcher, session_id: UserSessionId):
         logger.info("绘制好友列表成功")
 
     end_time = time.perf_counter()
-    logger.debug(f"@friend_list.handle() 执行用时: {end_time - start_time:.3f} 秒")
+    logger.debug(f"好友 执行用时: {end_time - start_time:.3f} 秒")
 
     await UniMessage.image(raw=pic).finish()

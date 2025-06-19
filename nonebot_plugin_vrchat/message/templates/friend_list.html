@@ -1,5 +1,16 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+<style>
+    * {
+        box-sizing: border-box;
+        animation: none !important;
+        transition: none !important;
+    }
+
+    img {
+        max-width: 100%;
+    }
+</style>
 
 <head>
     <meta charset="UTF-8">
@@ -21,7 +32,8 @@
                 {% for friend in friends %}
                 <div class="friend-item">
                     <div class="avatar-border" style="border-color: {{ trust_colors.get(friend.trust, '#ccc') }};">
-                        <img class="avatar" src="{{ friend.current_avatar_thumbnail_image_url }}"
+                        <img class="avatar"
+                            src="{% if friend.current_avatar_thumbnail_image_url == 'https://assets.vrchat.com/system/defaultAvatarThumbnail.png' %}default.png{% else %}{{ friend.current_avatar_thumbnail_image_url }}{% endif %}"
                             alt="{{ friend.display_name }}的头像" onerror="this.onerror=null;this.src='default.png';">
                     </div>
                     <div class="info">

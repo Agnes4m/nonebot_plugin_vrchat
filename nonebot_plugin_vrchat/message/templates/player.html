@@ -22,8 +22,9 @@
     <div class="profile-card">
         <!-- 头像外环颜色由信任等级决定 -->
         <div class="avatar-wrap" style="border: 4px solid {{ trust_colors[user.trust]|default('#ccc') }};">
-            <img class="avatar" src="{{ user.current_avatar_thumbnail_image_url }}" alt="avatar"
-                onerror="this.onerror=null;this.src='default.png';">
+            <img class="avatar"
+                src="{% if friend.current_avatar_thumbnail_image_url == 'https://assets.vrchat.com/system/defaultAvatarThumbnail.png' %}default.png{% else %}{{ friend.current_avatar_thumbnail_image_url }}{% endif %}"
+                alt="{{ friend.display_name }}的头像" onerror="this.onerror=null;this.src='default.png';">
         </div>
         <div class="main-info">
             <div class="name">{{ user.display_name }}</div>
@@ -40,8 +41,7 @@
                         style="background-color: {{ trust_colors[user.trust]|default('#ccc') }};"></span>
                 </span>
             </li>
-            <li><span>18+认证</span><span>{{ user.age_verified }}</span></li>
-            <li><span>在线</span><span>{{ status_desc_map.get(user.state, user.state) }}</span></li>
+            <li><span>18+认证</span><span>{{ "已认证" if user.age_verified else "未认证" }}</span></li>
             <li><span>加入时间</span><span>{{ user.date_joined }}</span></li>
             <li><span>是好友吗</span><span>{{ "是" if user.is_friend else "不是" }}</span></li>
         </ul>

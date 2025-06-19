@@ -21,6 +21,7 @@ async def draw_user_card_overview(
     client: Optional[ApiClient] = None,
     title: str = "好友列表",
 ) -> bytes:
+
     time_now = datetime.now(timezone.utc)
     raw_user_dict: Dict[str, List[dict]] = {}
     logger.debug(users)
@@ -39,7 +40,6 @@ async def draw_user_card_overview(
         else:
             location_content = "离线"
 
-        # location_content = content
         effective_status = user.status
         if user.status == "unknown" and user.original_status == "offline":
             effective_status = "offline"
@@ -55,18 +55,14 @@ async def draw_user_card_overview(
             },
         )
 
-    # 按 STATUS_DESC_MAP 顺序排序
+    # 按 在线状态 顺序排序
     if group:
         user_dict = {k: raw_user_dict[k] for k in S_DESC if k in raw_user_dict}
-
-        # 按信任等级排序
         trust_keys = list(T_COLORS.keys())
         for li in user_dict.values():
             li.sort(key=lambda x: trust_keys.index(x["trust"]), reverse=True)
     else:
         user_dict = {"unknown": [x for y in raw_user_dict.values() for x in y]}
-    logger.debug(f"Draw user card overview for {len(users)} users")
-    logger.debug(f"User dict: {user_dict}")
     return await t2p(
         template_path=str(Path(__file__).parent / "templates"),
         template_name="friend_list.html",
@@ -77,10 +73,13 @@ async def draw_user_card_overview(
             "trust_colors": T_COLORS,
             "title": title,
         },
+        device_scale_factor=1,
+        screenshot_timeout=60000,
     )
 
 
 async def draw_user_profile_card(user: UserModel) -> bytes:
+    """单人信息"""
     time_now = datetime.now(timezone.utc)
     logger.debug(dict(user))
     loc = ""
@@ -120,6 +119,5 @@ async def draw_user_profile_card(user: UserModel) -> bytes:
             "trust_colors": T_COLORS,
             "last_platform": P_DESC,
             "status_desc_map": S_DESC,
-            "state": user.state,
         },
     )
