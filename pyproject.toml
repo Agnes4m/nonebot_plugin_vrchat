@@ -10,7 +10,7 @@ requires-python = ">=3.9,<4.0"
 keywords = ["steam", "game", "vrchat", "nonebot2", "plugin"]
 dependencies = [
     "nonebot2>=2.1.0",
-    "nonebot-plugin-alconna>=0.58.2",
+    "nonebot-plugin-alconna>=0.58.5",
     "vrchatapi>=1.19.3",
     "httpx>=0.25.0",
     "async-lru>=2.0.4",

@@ -38,7 +38,13 @@
           "subtype": "friend",
           "types": [
             "empty_friend_list",
-            "empty_friend"
+            "empty_friend",
+            "empty_friend_request",
+            "exist_friend",
+            "sucess_request",
+            "incoming_request",
+            "outgoing_request",
+            "no_request"
           ]
         },
         {
@@ -46,7 +52,9 @@
           "types": [
             "send_user_name",
             "no_user_found",
-            "searched_user_tip"
+            "searched_user_tip",
+            "reply_index",
+            "reply_index_add"
           ]
         },
         {

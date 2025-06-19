@@ -38,7 +38,9 @@
         "user": {
             "send_user_name": "検索したいプレイヤー名を送信してください。",
             "no_user_found": "プレイヤーが見つかりませんでした。",
-            "searched_user_tip": "以下の{count}人のプレイヤーが見つかりました"
+            "searched_user_tip": "以下の{count}人のプレイヤーが見つかりました",
+            "reply_index": "表示したいプレイヤーの番号を送信してください。0を入力するとキャンセルします。",
+            "reply_index_add": "【追加 1】と送信すると1番目のプレイヤーをフレンド追加します"
         },
         "world": {
             "send_world_name": "検索したいワールド名を送信してください。",
