@@ -90,7 +90,7 @@ async def get_friend_status(
     user_id: str,
 ) -> FriendStatus:
     """
-    获取指定用户的好友状态信息。
+    获取是否是给定用户的好友，是否有传出的好友请求，以及是否有传入的好友请求信息。
 
     参数:
     client (ApiClient): API客户端实例，用于发起API请求

@@ -39,6 +39,9 @@ class NbpVrcLogin:
 class NbpVrcFriend:
     empty_friend_list: LangItem = LangItem("nbp_vrc", "friend.empty_friend_list")
     empty_friend: LangItem = LangItem("nbp_vrc", "friend.empty_friend")
+    empty_friend_request: LangItem = LangItem("nbp_vrc", "friend.empty_friend_request")
+    exist_friend: LangItem = LangItem("nbp_vrc", "friend.exist_friend")
+    sucess_request: LangItem = LangItem("nbp_vrc", "friend.sucess_request")
 
 
 class NbpVrcUser:

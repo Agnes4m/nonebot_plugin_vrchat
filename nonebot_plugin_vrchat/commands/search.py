@@ -8,6 +8,7 @@ from nonebot.matcher import Matcher
 from nonebot.params import ArgPlainText, EventMessage
 from nonebot.typing import T_State
 from nonebot_plugin_alconna import UniMessage
+from vrchatapi import ApiException
 
 from ..i18n import Lang
 from ..message import draw_user_card_overview, draw_user_profile_card
@@ -15,6 +16,7 @@ from ..vrchat import (
     ApiClient,
     LimitedUserModel,
     friend,
+    get_friend_status,
     get_or_random_client,
     get_user,
     search_users,
@@ -56,7 +58,7 @@ async def _(
         await matcher.reject(Lang.nbp_vrc.general.empty_search_keyword())
     logger.info(f"正在查询{arg}")
     try:
-        client = await get_or_random_client(session_id)
+        client, is_me = await get_or_random_client(session_id)
         resp = [x async for x in search_users(client, arg, max_size=10)]
     except Exception as e:
         await handle_error(matcher, e)
@@ -77,16 +79,19 @@ async def _(
     except Exception as e:
         await handle_error(matcher, e)
 
+    if is_me:
+        msg = "请选择要查询的用户序号：\n输入 0 取消选择\n输入【添加 1】可以添加序号1为好友"
+
+    else:
+        msg = "请选择要查询的用户序号：\n输入 0 取消选择"
     await (
         UniMessage.text(Lang.nbp_vrc.user.searched_user_tip(count=len(resp)))
         + UniMessage.image(raw=pic)
+        + UniMessage.text(msg)
     ).send()
     end_time = time.perf_counter()
     logger.debug(f"搜索() 执行用时: {end_time - start_time:.3f} 秒")
-
-    await matcher.pause(
-        "请选择要查询的用户序号：\n输入 0 取消选择\n输入【添加 1】可以添加序号1为好友",
-    )
+    await matcher.pause()
 
 
 @search_user.handle()
@@ -111,8 +116,30 @@ async def _(
         try:
             resp_no = await friend(client, user_id)
         except Exception as e:
+            if isinstance(e, ApiException) and e.status == 400:
+                await matcher.finish(Lang.nbp_vrc.friend.exist_friend())
+
             await handle_error(matcher, e)
-        await matcher.finish(f"{resp_no.receiver_user_id}申请成功")
+        logger.debug(resp_no)
+        await matcher.finish(Lang.nbp_vrc.friend.sucess_request())
+    # 查询好友请求状态
+    if arg.startswith("好友"):
+        arg = arg[3:].strip()
+        if not arg.isdigit():
+            await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_format())
+        index = int(arg) - 1
+        if index < 0 or index >= len(resp):
+            await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_range())
+        user_id = resp[index].user_id
+        try:
+            fq_msg = await get_friend_status(client, user_id)
+        except Exception as e:
+            await handle_error(matcher, e)
+
+        if not resp:
+            await matcher.send(Lang.nbp_vrc.friend.empty_friend_request())
+        logger.info(fq_msg)
+
     # 查询部分
     if len(resp) == 1:
         index = 0

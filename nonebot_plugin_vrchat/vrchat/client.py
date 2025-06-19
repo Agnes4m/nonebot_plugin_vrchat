@@ -1,5 +1,5 @@
 from http.cookiejar import LWPCookieJar
-from typing import Optional
+from typing import Optional, Tuple
 
 from nonebot import logger
 from nonebot.utils import run_sync
@@ -211,7 +211,7 @@ async def random_client() -> ApiClient:
     raise NotLoggedInError
 
 
-async def get_or_random_client(session_id: str) -> ApiClient:
+async def get_or_random_client(session_id: str) -> Tuple[ApiClient, bool]:
     """
     通过用户 SessionID 获取已加载 Cookies 的 ApiClient 实例，
     当不存在此用户的登录信息与 Cookies 时，返回一个可用的随机 ApiClient 实例
@@ -227,6 +227,6 @@ async def get_or_random_client(session_id: str) -> ApiClient:
     """
 
     try:
-        return await get_client(session_id)
+        return await get_client(session_id), True
     except NotLoggedInError:
-        return await random_client()
+        return await random_client(), False

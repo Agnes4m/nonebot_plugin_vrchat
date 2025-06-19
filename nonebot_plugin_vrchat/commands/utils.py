@@ -46,7 +46,7 @@ async def handle_error(matcher: Matcher, e: Exception) -> NoReturn:
     if isinstance(e, ApiException):
         logger.error(f"Error when requesting api: [{e.status}] {e.reason}")
         await matcher.finish(
-            Lang.nbp_vrc.general.server_error().format(e.status, e.reason),
+            Lang.nbp_vrc.general.server_error(status=e.status, reason=e.reason),
         )
 
     logger.exception("Exception when requesting api")

@@ -15,7 +15,14 @@ matcher_lyric = on_command("歌词", aliases={"lrc", "lyric", "lyrics"})
 
 friend_list = on_command(
     "vrcfl",
-    aliases={"vrcrq", "vrc全部好友", "vrc好友列表"},
+    aliases={"vrc全部好友", "vrc好友列表"},
+    rule=rule_enable,
+    priority=20,
+)
+
+friend_request = on_command(
+    "vrcrq",
+    aliases={"vrc好友请求", "vrc查看请求"},
     rule=rule_enable,
     priority=20,
 )
