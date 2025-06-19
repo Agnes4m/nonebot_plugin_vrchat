@@ -11,9 +11,12 @@ from vrchatapi.exceptions import NotFoundException as NotFoundException
 from vrchatapi.exceptions import ServiceException as ServiceException
 from vrchatapi.exceptions import UnauthorizedException as UnauthorizedException
 
+from .avatars import *
 from .client import *
+from .favorites import *
 from .friend import *
 from .login import *
+from .notifications import *
 from .types import *
 from .users import *
 from .utils import *

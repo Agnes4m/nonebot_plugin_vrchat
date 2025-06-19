@@ -10,9 +10,6 @@ from ..message import draw_user_card_overview
 from ..vrchat import get_all_friends, get_client
 from .utils import UserSessionId, handle_error, rule_enable
 
-matcher_lyric = on_command("歌词", aliases={"lrc", "lyric", "lyrics"})
-
-
 friend_list = on_command(
     "vrcfl",
     aliases={"vrc全部好友", "vrc好友列表"},
