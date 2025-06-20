@@ -4,6 +4,40 @@
 from tarina.lang.model import LangItem, LangModel
 
 
+class NbpVrcWords:
+    friend_list: LangItem = LangItem("nbp_vrc", "words.friend_list")
+    search_list: LangItem = LangItem("nbp_vrc", "words.search_list")
+    online: LangItem = LangItem("nbp_vrc", "words.online")
+    offline: LangItem = LangItem("nbp_vrc", "words.offline")
+    joinme: LangItem = LangItem("nbp_vrc", "words.joinme")
+    busy: LangItem = LangItem("nbp_vrc", "words.busy")
+    askme: LangItem = LangItem("nbp_vrc", "words.askme")
+    webonline: LangItem = LangItem("nbp_vrc", "words.webonline")
+    unknown: LangItem = LangItem("nbp_vrc", "words.unknown")
+    standalonewindows: LangItem = LangItem("nbp_vrc", "words.standalonewindows")
+    android: LangItem = LangItem("nbp_vrc", "words.android")
+    oculus: LangItem = LangItem("nbp_vrc", "words.oculus")
+    unkown_world: LangItem = LangItem("nbp_vrc", "words.unkown_world")
+    travel_world: LangItem = LangItem("nbp_vrc", "words.travel_world")
+    private_world: LangItem = LangItem("nbp_vrc", "words.private_world")
+    invite: LangItem = LangItem("nbp_vrc", "words.invite")
+    invite_plus: LangItem = LangItem("nbp_vrc", "words.invite_plus")
+    friends: LangItem = LangItem("nbp_vrc", "words.friends")
+    friends_plus: LangItem = LangItem("nbp_vrc", "words.friends_plus")
+    pub: LangItem = LangItem("nbp_vrc", "words.pub")
+    group: LangItem = LangItem("nbp_vrc", "words.group")
+    group_pub: LangItem = LangItem("nbp_vrc", "words.group_pub")
+
+
+class NbpVrcTime:
+    year: LangItem = LangItem("nbp_vrc", "time.year")
+    month: LangItem = LangItem("nbp_vrc", "time.month")
+    day: LangItem = LangItem("nbp_vrc", "time.day")
+    hour: LangItem = LangItem("nbp_vrc", "time.hour")
+    minute: LangItem = LangItem("nbp_vrc", "time.minute")
+    second: LangItem = LangItem("nbp_vrc", "time.second")
+
+
 class NbpVrcGeneral:
     help: LangItem = LangItem("nbp_vrc", "general.help")
     unknown_error: LangItem = LangItem("nbp_vrc", "general.unknown_error")
@@ -12,12 +46,10 @@ class NbpVrcGeneral:
     empty_search_keyword: LangItem = LangItem("nbp_vrc", "general.empty_search_keyword")
     empty_message: LangItem = LangItem("nbp_vrc", "general.empty_message")
     invalid_ordinal_format: LangItem = LangItem(
-        "nbp_vrc",
-        "general.invalid_ordinal_format",
+        "nbp_vrc", "general.invalid_ordinal_format"
     )
     invalid_ordinal_range: LangItem = LangItem(
-        "nbp_vrc",
-        "general.invalid_ordinal_range",
+        "nbp_vrc", "general.invalid_ordinal_range"
     )
 
 
@@ -69,6 +101,8 @@ class NbpVrcLocale:
 
 
 class NbpVrc:
+    words = NbpVrcWords
+    time = NbpVrcTime
     general = NbpVrcGeneral
     login = NbpVrcLogin
     friend = NbpVrcFriend

@@ -5,6 +5,42 @@
       "scope": "nbp_vrc",
       "types": [
         {
+          "subtype": "words",
+          "types": [
+            "friend_list",
+            "search_list",
+            "online",
+            "offline",
+            "joinme",
+            "busy",
+            "askme",
+            "webonline",
+            "unknown",
+            "standalonewindows",
+            "android",
+            "oculus",
+            "unkown_world",
+            "travel_world",
+            "private_world",
+            "invite",
+            "friends",
+            "pub",
+            "group",
+            "group_pub"
+          ]
+        },
+        {
+          "subtype": "time",
+          "types": [
+            "year",
+            "month",
+            "day",
+            "hour",
+            "minute",
+            "second"
+          ]
+        },
+        {
           "subtype": "general",
           "types": [
             "help",

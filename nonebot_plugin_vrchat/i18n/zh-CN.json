@@ -1,6 +1,38 @@
 {
   "$schema": "./.lang.schema.json",
   "nbp_vrc": {
+    "words": {
+      "friend_list": "好友列表",
+      "search_list": "搜索列表",
+      "online": "在线",
+      "offline": "离线",
+      "joinme": "邀请我",
+      "busy": "忙碌",
+      "askme": "询问我",
+      "webonline": "网页版在线",
+      "unknown": "未知",
+      "standalonewindows": "标准版Windows",
+      "android": "安卓",
+      "oculus": "Meta Quest",
+      "unkown_world": "未知世界",
+      "travel_world": "加载世界",
+      "private_world": "私有世界",
+      "invite": "邀",
+      "friends": "友",
+      "pub": "公",
+      "group": "组",
+      "group_pub": "公组"
+
+    },
+    "time": {
+      "year": "年",
+      "month": "月",
+      "day": "日",
+      "hour": "时",
+      "minute": "分",
+      "second": "秒"
+
+    },
     "general": {
       "help": "--------vrc指令--------\n1、【vrc登录】 | 登录vrc账户，建议私聊\n2、【vrc全部好友】 | 获取全部好友信息\n3、【vrc查询用户】【text】 | 查询玩家\n4、【vrc查询世界】【text】 | 查询世界\n5、【vrc切换语言】 | 切换插件语言",
       "unknown_error": "遇到未知错误，请检查后台输出",

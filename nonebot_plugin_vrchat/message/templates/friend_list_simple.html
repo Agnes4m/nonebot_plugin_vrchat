@@ -26,11 +26,11 @@
                 {% if friends %}
                     {% for friend in friends %}
                     <div class="friend-item">
-                    <img class="avatar"
-                        src="{{ friend.current_avatar_thumbnail_image_url }}"
-                        alt="{{ friend.display_name }}的头像"
-                        loading="lazy"
-                        onerror="this.onerror=null;this.src='default.png';">
+                        <img class="avatar"
+                             src="{% if friend.current_avatar_thumbnail_image_url == 'https://assets.vrchat.com/system/defaultAvatarThumbnail.png' %}default.png{% else %}default.png{% endif %}"
+                             alt="{{ friend.display_name }}的头像"
+                             loading="lazy"
+                             onerror="this.onerror=null;this.src='default.png';">
 
                         <div class="info">
                             <div class="index-name">{{ friend.index }}. {{ friend.display_name }}</div>

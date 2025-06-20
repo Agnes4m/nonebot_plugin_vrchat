@@ -2,7 +2,7 @@ import base64
 from datetime import timedelta
 from io import BytesIO
 from pathlib import Path
-from typing import Dict, Optional, Tuple, TypeVar
+from typing import Dict, List, Optional, Tuple, TypedDict, TypeVar
 from typing_extensions import ParamSpec
 
 import aiofiles
@@ -12,7 +12,14 @@ from httpx import AsyncClient
 from nonebot.log import logger
 from PIL import Image
 
-from ..vrchat import ApiClient, NormalizedStatusType, TrustType, get_world
+from ..i18n.model import Lang
+from ..vrchat import (
+    ApiClient,
+    LimitedUserModel,
+    NormalizedStatusType,
+    TrustType,
+    get_world,
+)
 
 T = TypeVar("T")
 P = ParamSpec("P")
@@ -36,33 +43,33 @@ TRUST_COLORS: Dict[TrustType, str] = {
     "moderator": "#b52626",
 }
 STATUS_DESC_MAP: Dict[NormalizedStatusType, str] = {
-    "online": "在线",
-    "joinme": "欢迎加入",
-    "busy": "请勿打扰",
-    "askme": "请先询问",
-    "webonline": "网页在线",
-    "offline": "离线",
-    "unknown": "未知",
+    "online": Lang.nbp_vrc.words.online(),
+    "joinme": Lang.nbp_vrc.words.joinme(),
+    "busy": Lang.nbp_vrc.words.busy(),
+    "askme": Lang.nbp_vrc.words.askme(),
+    "webonline": Lang.nbp_vrc.words.webonline(),
+    "offline": Lang.nbp_vrc.words.offline(),
+    "unknown": Lang.nbp_vrc.words.unknown(),
 }
 
 PLATFORM_DESC = {
-    "standalonewindows": "电脑windows",
-    "android": "安卓",
-    "oculus": "Oculus",
-    "unknownplatform": "未知设备",
+    "standalonewindows": Lang.nbp_vrc.words.standalonewindows(),
+    "android": Lang.nbp_vrc.words.android(),
+    "oculus": Lang.nbp_vrc.words.oculus(),
+    "unknownplatform": Lang.nbp_vrc.words.unknown(),
 }
 OFFLINE_STATUSES = ["offline", "unknown"]
-UNKNOWN_WORLD_TIP = "未知世界"
-LOCATION_TRAVELING_TIP = "加载世界中"
-LOCATION_PRIVATE_TIP = "私人世界"
-LOCATION_INVITE_PREFIX = "邀"
-LOCATION_INVITE_PLUS_PREFIX = "邀+"
-LOCATION_FRIENDS_PREFIX = "友"
-LOCATION_FRIENDS_PLUS_PREFIX = "友+"
-LOCATION_PUB_PREFIX = "公"
-LOCATION_GROUP_PREFIX = "群"
-LOCATION_GROUP_PLUS_PREFIX = "群+"
-LOCATION_GROUP_PUB_PREFIX = "群公"
+UNKNOWN_WORLD_TIP = Lang.nbp_vrc.words.unkown_world()
+LOCATION_TRAVELING_TIP = Lang.nbp_vrc.words.travel_world()
+LOCATION_PRIVATE_TIP = Lang.nbp_vrc.words.private_world()
+LOCATION_INVITE_PREFIX = Lang.nbp_vrc.words.invite()
+LOCATION_INVITE_PLUS_PREFIX = f"{LOCATION_INVITE_PREFIX}+"
+LOCATION_FRIENDS_PREFIX = Lang.nbp_vrc.words.friends()
+LOCATION_FRIENDS_PLUS_PREFIX = f"{LOCATION_FRIENDS_PREFIX}+"
+LOCATION_PUB_PREFIX = Lang.nbp_vrc.words.pub()
+LOCATION_GROUP_PREFIX = Lang.nbp_vrc.words.group()
+LOCATION_GROUP_PLUS_PREFIX = f"{LOCATION_GROUP_PREFIX}+"
+LOCATION_GROUP_PUB_PREFIX = Lang.nbp_vrc.words.group_pub()
 
 RES_IMG_PATH = Path(__file__).parent.parent / "img"
 DEFAULT_IMG_PATH = RES_IMG_PATH / "default_img.png"
@@ -208,21 +215,21 @@ async def format_location(client: Optional[ApiClient], location: Optional[str]):
             f"Failed to get info of world `{world_id}`: {type(e).__name__}: {e}",
         )
 
-    ret = f"{prefix}|"
+    ret = f"{prefix} |"
     if region:
-        ret = f"{ret}{region}|"
-    return f"{ret}{world_name}"
+        ret = f"{ret} {region}|"
+    return f"{ret} {world_name}"
 
 
 def td_format(td_object: timedelta):
     seconds = int(td_object.total_seconds())
     periods = [
-        ("年", 60 * 60 * 24 * 365),
-        ("月", 60 * 60 * 24 * 30),
-        ("日", 60 * 60 * 24),
-        ("小时", 60 * 60),
-        ("分钟", 60),
-        ("秒", 1),
+        (Lang.nbp_vrc.time.year(), 60 * 60 * 24 * 365),
+        (Lang.nbp_vrc.time.month(), 60 * 60 * 24 * 30),
+        (Lang.nbp_vrc.time.day(), 60 * 60 * 24),
+        (Lang.nbp_vrc.time.hour(), 60 * 60),
+        (Lang.nbp_vrc.time.minute(), 60),
+        (Lang.nbp_vrc.time.second(), 1),
     ]
 
     for period_name, period_seconds in periods:
@@ -293,5 +300,28 @@ async def get_url_bytes(
                 img.save(buf, format="PNG")
                 return buf.getvalue()
         return img_bytes
-        return img_bytes
-        return img_bytes
+
+
+def cols_get(cols: int):
+    if cols <= 6:
+        return 1
+    if cols <= 26:
+        return 2
+    if cols <= 125:
+        return 3
+    return 4
+
+
+class FriendListTemplateContext(TypedDict):
+    user_dict: Dict[str, List[LimitedUserModel]]
+    status_desc_map: NormalizedStatusType
+    status_colors: NormalizedStatusType
+    trust_colors: TrustType
+    title: str
+
+
+def get_avatar_url(url: str) -> str:
+    vrchat_prefix = "https://api.vrchat.cloud/api/1/image/"
+    if url and url.startswith(vrchat_prefix):
+        return url
+    return "default.png"
