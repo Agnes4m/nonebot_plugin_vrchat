@@ -2,49 +2,78 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>多用户界面</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VR好友列表</title>
     <link rel="stylesheet" href="friend_list.css">
-    <style>
-        .no-animation, .no-transition {
-            animation: none !important;
-            transition: none !important;
-        }
-    </style>
 </head>
-<body class="no-animation no-transition">
-    <div class="friend-list-card">
-        <h2>{{ title }}</h2>
-
+<body>
+    <div class="vr-container">
+        <div class="vr-header">
+            <h1 class="vr-title">{{ title or 'VR FRIEND SYSTEM' }}</h1>
+            <div class="vr-subtitle">VIRTUAL REALITY SOCIAL NETWORK</div>
+        </div>
+        
         {% for status, friends in user_dict.items() %}
-        <div class="friend-group">
-            <div class="group-title">
-                <span class="status-dot" style="background-color: {{ status_colors.get(status, '#ccc') }};"></span>
-                {{ status_desc_map.get(status, status) }} ({{ friends|length }})
+        <div class="friend-section">
+            <div class="section-header">
+                <div class="status-indicator">
+                    <span class="status-dot" style="background-color: {{ status_colors.get(status, '#666') }};"></span>
+                    <span class="status-label">{{ status_desc_map.get(status, status) }}</span>
+                    <span class="friend-counter">({{ friends|length }})</span>
+                </div>
             </div>
-
-            <div class="friend-list two-cols">
+            
+            <div class="friends-grid">
                 {% if friends %}
                     {% for friend in friends %}
-                    <div class="friend-item">
-                    <img class="avatar"
-                        src="{{ friend.current_avatar_thumbnail_image_url }}"
-                        alt="{{ friend.display_name }}的头像"
-                        loading="lazy"
-                        onerror="this.onerror=null;this.src='default.png';">
-
-                        <div class="info">
-                            <div class="index-name">{{ friend.index }}. {{ friend.display_name }}</div>
-                            <div class="status">{{ friend.status_description or status_desc_map.get(status, status) }}</div>
-                            <div class="location">{{ friend.location }}</div>
+                    <div class="friend-card" data-trust="{{ friend.trust }}">
+                        <div class="card-inner">
+                            <div class="avatar-section">
+                                <div class="avatar-frame" style="border-color: {{ trust_colors.get(friend.trust, '#0ff') }};">
+                                    <img class="avatar-img" 
+                                         src="{{ friend.current_avatar_thumbnail_image_url_base64 or 'default.png' }}"
+                                         alt="{{ friend.display_name }}的头像"
+                                         onerror="this.onerror=null;this.src='default.png';">
+                                    <div class="avatar-glow" style="box-shadow: 0 0 20px {{ trust_colors.get(friend.trust, '#0ff') }}40;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="info-section">
+                                <div class="user-id">
+                                    <span class="index-number">{{ friend.index }}.</span>
+                                    <span class="username">{{ friend.display_name }}</span>
+                                </div>
+                                
+                                <div class="status-line">
+                                    <span class="status-badge">{{ friend.status_description or status_desc_map.get(status, status) }}</span>
+                                </div>
+                                
+                                <div class="location-line">
+                                    <span class="location-icon">📍</span>
+                                    <span class="location-text">{{ friend.location }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     {% endfor %}
                 {% else %}
-                    <div style="color:#888;padding:12px;">暂无好友</div>
+                    <div class="empty-grid-item">
+                        <div class="empty-message">
+                            <div class="empty-icon">👥</div>
+                            <div class="empty-text">暂无好友</div>
+                        </div>
+                    </div>
                 {% endif %}
             </div>
         </div>
         {% endfor %}
+        
+        <div class="vr-footer">
+            <div class="system-status">
+                <span class="system-name">VR FRIEND SYSTEM</span>
+                <span class="system-indicator">● ONLINE</span>
+            </div>
+        </div>
     </div>
 </body>
 </html>

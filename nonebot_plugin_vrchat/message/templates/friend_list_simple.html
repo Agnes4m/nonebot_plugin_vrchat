@@ -1,50 +1,53 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+<style>
+    * {
+        box-sizing: border-box;
+        animation: none !important;
+        transition: none !important;
+    }
+</style>
+
 <head>
     <meta charset="UTF-8">
-    <title>多用户界面</title>
-    <link rel="stylesheet" href="friend_list.css">
-    <style>
-        .no-animation, .no-transition {
-            animation: none !important;
-            transition: none !important;
-        }
-    </style>
+    <title> 多用户界面 </title>
+    <link rel="stylesheet" href="friend_list_simple.css">
 </head>
-<body class="no-animation no-transition">
+
+<body>
     <div class="friend-list-card">
         <h2>{{ title }}</h2>
-
         {% for status, friends in user_dict.items() %}
         <div class="friend-group">
             <div class="group-title">
                 <span class="status-dot" style="background-color: {{ status_colors.get(status, '#ccc') }};"></span>
                 {{ status_desc_map.get(status, status) }} ({{ friends|length }})
             </div>
-
             <div class="friend-list two-cols">
                 {% if friends %}
-                    {% for friend in friends %}
-                    <div class="friend-item">
-                        <img class="avatar"
-                             src="{% if friend.current_avatar_thumbnail_image_url == 'https://assets.vrchat.com/system/defaultAvatarThumbnail.png' %}default.png{% else %}default.png{% endif %}"
-                             alt="{{ friend.display_name }}的头像"
-                             loading="lazy"
-                             onerror="this.onerror=null;this.src='default.png';">
+                {% for friend in friends %}
 
-                        <div class="info">
-                            <div class="index-name">{{ friend.index }}. {{ friend.display_name }}</div>
-                            <div class="status">{{ friend.status_description or status_desc_map.get(status, status) }}</div>
-                            <div class="location">{{ friend.location }}</div>
-                        </div>
+                <div class="friend-item">
+                    <div class="avatar-border" style="border-color: {{ trust_colors.get(friend.trust, '#ccc') }};">
+                        <img class="avatar" src="{{ friend.current_avatar_thumbnail_image_url_base64 }}"
+                            alt="{{ friend.display_name }}的头像" loading="lazy"
+                            data-original-url="{{ friend.current_avatar_thumbnail_image_url }}"
+                            onerror="this.onerror=null;this.src='default.png';">
                     </div>
-                    {% endfor %}
+                    <div class="info">
+                        <div class="index-name">{{ friend.index }}. {{ friend.display_name }}</div>
+                        <div class="status">{{ friend.status_description or status_desc_map.get(status, status) }}</div>
+                        <div class="location">{{ friend.location }}</div>
+                    </div>
+                </div>
+                {% endfor %}
                 {% else %}
-                    <div style="color:#888;padding:12px;">暂无好友</div>
+                <div style="color:#888;padding:12px;">暂无好友</div>
                 {% endif %}
             </div>
         </div>
         {% endfor %}
     </div>
 </body>
+
 </html>

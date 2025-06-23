@@ -1,3 +1,4 @@
+import asyncio
 import base64
 from datetime import timedelta
 from io import BytesIO
@@ -6,6 +7,7 @@ from typing import Dict, List, Optional, Tuple, TypedDict, TypeVar
 from typing_extensions import ParamSpec
 
 import aiofiles
+import aiohttp
 import httpx
 from async_lru import alru_cache
 from httpx import AsyncClient
@@ -268,7 +270,6 @@ async def get_image_or_default(
                 im.save(buf, format="PNG")
                 img = buf.getvalue()
 
-    # 转为base64字符串并加前缀
     return f"data:image/png;base64,{base64.b64encode(img).decode()}"
 
 
@@ -325,3 +326,68 @@ def get_avatar_url(url: str) -> str:
     if url and url.startswith(vrchat_prefix):
         return url
     return "default.png"
+
+
+async def url_to_base64(url: str) -> Optional[str]:
+    """将图片URL转换为Base64编码，添加请求头防止403错误"""
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Referer": "https://vrchat.com/",
+        "Accept": "image/webp,image/apng,image/*,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+    }
+
+    try:
+        timeout = aiohttp.ClientTimeout(total=10)
+        async with (
+            aiohttp.ClientSession(headers=headers) as session,
+            session.get(url, timeout=timeout) as response,
+        ):
+            if response.status == 403:
+                logger.warning(f"403 Forbidden: {url}")
+                return None
+
+            response.raise_for_status()
+
+            content_type = response.headers.get("Content-Type", "")
+            if not content_type.startswith("image/"):
+                logger.info(f"Invalid content type: {content_type}")
+                return None
+
+            image_data = await response.read()
+            return base64.b64encode(image_data).decode("utf-8")
+
+    except Exception as e:
+        print(f"Error converting URL to Base64: {url} - {e!s}")
+        return None
+
+
+async def convert_urls_to_base64(data: Dict) -> Dict:
+    """转换所有图片URL为Base64格式"""
+    result = {
+        status: [dict(entry) for entry in entries] for status, entries in data.items()
+    }
+
+    tasks = []
+    url_mapping = []
+
+    for status, entries in result.items():
+        for idx, entry in enumerate(entries):
+            url = entry.get("current_avatar_thumbnail_image_url")
+            if url and url != "default.png":
+                tasks.append(url_to_base64(url))
+                url_mapping.append((status, idx))
+
+    base64_results = await asyncio.gather(*tasks)
+
+    # 更新结果数据
+    for (status, idx), base64_data in zip(url_mapping, base64_results):
+        if base64_data:
+            result[status][idx][
+                "current_avatar_thumbnail_image_url_base64"
+            ] = f"data:image/png;base64,{base64_data}"
+        else:
+            result[status][idx]["current_avatar_thumbnail_image_url"] = "default.png"
+            result[status][idx].pop("current_avatar_thumbnail_image_url_base64", None)
+
+    return result

@@ -11,9 +11,11 @@ from .utils import PLATFORM_DESC as P_DESC
 from .utils import STATUS_COLORS as S_COLORS
 from .utils import STATUS_DESC_MAP as S_DESC
 from .utils import TRUST_COLORS as T_COLORS
-from .utils import FriendListTemplateContext, get_avatar_url
+from .utils import FriendListTemplateContext, convert_urls_to_base64, get_avatar_url
 from .utils import format_location as fmt_loc
 from .utils import td_format as td_fmt
+
+template_path = str(Path(__file__).parent / "templates")
 
 
 async def draw_user_card_overview(
@@ -21,7 +23,7 @@ async def draw_user_card_overview(
     group: bool = True,
     client: Optional[ApiClient] = None,
     title: str = "好友列表",
-) -> bytes:
+):
     time_now = datetime.now(timezone.utc)
     raw_user_dict: Dict[str, List[dict]] = {}
     logger.debug(f"用户数量: {len(users)}")
@@ -51,7 +53,7 @@ async def draw_user_card_overview(
                 "status_description": user.status_description,
                 "display_name": user.display_name,
                 "current_avatar_thumbnail_image_url": get_avatar_url(
-                    user.current_avatar_thumbnail_image_url
+                    user.current_avatar_thumbnail_image_url,
                 ),
                 "trust": user.trust,
             },
@@ -66,8 +68,8 @@ async def draw_user_card_overview(
     else:
         user_dict = {"unknown": [x for y in raw_user_dict.values() for x in y]}
 
+    user_dict = await convert_urls_to_base64(user_dict)
     # 渲染图片
-
     templates: FriendListTemplateContext = {
         "user_dict": user_dict,
         "status_desc_map": S_DESC,
@@ -75,10 +77,10 @@ async def draw_user_card_overview(
         "trust_colors": T_COLORS,
         "title": title,
     }
-    logger.debug(f"Draw user list card for {templates}")
+    # logger.debug(f"Draw user list card for {templates}")
     return await t2p(
         template_path=str(Path(__file__).parent / "templates"),
-        template_name="friend_list_simple.html",
+        template_name="friend_list.html",
         templates=templates,
         device_scale_factor=1,
         screenshot_timeout=60_000,
@@ -108,7 +110,7 @@ async def draw_user_profile_card(user: UserModel) -> bytes:
         "status_description": user.status_description,
         "display_name": user.display_name,
         "current_avatar_thumbnail_image_url": get_avatar_url(
-            user.current_avatar_thumbnail_image_url
+            user.current_avatar_thumbnail_image_url,
         ),
         "trust": user.trust,
         "last_platform": user.last_platform,

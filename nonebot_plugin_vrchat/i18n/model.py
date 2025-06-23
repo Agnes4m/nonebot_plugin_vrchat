@@ -46,10 +46,12 @@ class NbpVrcGeneral:
     empty_search_keyword: LangItem = LangItem("nbp_vrc", "general.empty_search_keyword")
     empty_message: LangItem = LangItem("nbp_vrc", "general.empty_message")
     invalid_ordinal_format: LangItem = LangItem(
-        "nbp_vrc", "general.invalid_ordinal_format"
+        "nbp_vrc",
+        "general.invalid_ordinal_format",
     )
     invalid_ordinal_range: LangItem = LangItem(
-        "nbp_vrc", "general.invalid_ordinal_range"
+        "nbp_vrc",
+        "general.invalid_ordinal_range",
     )
 
 
