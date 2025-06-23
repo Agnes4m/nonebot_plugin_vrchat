@@ -142,8 +142,11 @@ plugins = [
 
 ```base
 # vrchat 配置
-# default默认 | simple极速无头像
+# default默认 tec科技风格(不好看)
 vrchat_img = "default" 
+# 是否显示头像, 关闭大幅度减小加载速度
+vrchat_avatar = True
+
 ```
 
 

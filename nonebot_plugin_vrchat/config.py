@@ -47,6 +47,7 @@ class ConfigBaseModel(BaseModel):
 class EnvConfig(BaseModel):
     session_expire_timeout: timedelta
     vrchat_img: str = "default"
+    vrchat_avatar: bool = True
 
 
 env_config = EnvConfig.model_validate(dict(get_driver().config))

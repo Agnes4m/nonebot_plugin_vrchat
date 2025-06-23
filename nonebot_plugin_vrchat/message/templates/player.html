@@ -23,7 +23,7 @@
         <!-- 头像外环颜色由信任等级决定 -->
         <div class="avatar-wrap" style="border: 4px solid {{ trust_colors[user.trust]|default('#ccc') }};">
             <img class="avatar"
-                <img class="avatar" src="{{ user.current_avatar_thumbnail_image_url }}"
+                <img class="avatar" src="{{ user.current_avatar_thumbnail_image_url_base64 }}"
                 alt="{{ user.display_name }}的头像" onerror="this.onerror=null;this.src='default.png';">
         </div>
         <div class="main-info">

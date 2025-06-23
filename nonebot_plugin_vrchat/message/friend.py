@@ -58,9 +58,7 @@ async def draw_user_card_overview(
                 "original_status": user.original_status,
                 "status_description": user.status_description,
                 "display_name": user.display_name,
-                "current_avatar_thumbnail_image_url": get_avatar_url(
-                    user.current_avatar_thumbnail_image_url,
-                ),
+                "current_avatar_thumbnail_image_url": user.current_avatar_thumbnail_image_url,
                 "trust": user.trust,
             },
         )
@@ -115,7 +113,7 @@ async def draw_user_profile_card(user: UserModel) -> bytes:
         "original_status": user.status,
         "status_description": user.status_description,
         "display_name": user.display_name,
-        "current_avatar_thumbnail_image_url": get_avatar_url(
+        "current_avatar_thumbnail_image_url": await get_avatar_url(
             user.current_avatar_thumbnail_image_url,
         ),
         "trust": user.trust,
@@ -125,7 +123,6 @@ async def draw_user_profile_card(user: UserModel) -> bytes:
         "date_joined": user.date_joined.isoformat() if user.date_joined else "",
         "is_friend": user.is_friend,
     }
-
     logger.debug(f"Draw user profile card for {user_dict}")
     return await t2p(
         template_path=str(Path(__file__).parent / "templates"),

@@ -6,13 +6,14 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple, TypedDict, TypeVar
 from typing_extensions import ParamSpec
 
-import aiofiles
 import aiohttp
 import httpx
 from async_lru import alru_cache
 from httpx import AsyncClient
 from nonebot.log import logger
 from PIL import Image
+
+from nonebot_plugin_vrchat.config import env_config
 
 from ..i18n.model import Lang
 from ..vrchat import (
@@ -245,8 +246,8 @@ def td_format(td_object: timedelta):
 async def get_image_or_default(
     url: Optional[str],
     default_size: Optional[Tuple[int, int]] = None,
-    default_img_path: Optional[Path] = None,
-) -> str:
+    # default_img_path: Optional[Path] = None,
+):
     img = None
 
     if url:
@@ -258,19 +259,20 @@ async def get_image_or_default(
             )
 
     if not img:
-        img_path = default_img_path or DEFAULT_IMG_PATH
-        async with aiofiles.open(img_path, "rb") as f:
-            img = await f.read()
-        if default_size:
+        return None
+        # img_path = default_img_path or DEFAULT_IMG_PATH
+        # async with aiofiles.open(img_path, "rb") as f:
+        #     img = await f.read()
+        # if default_size:
 
-            with Image.open(BytesIO(img)) as im:
-                im = im.convert("RGBA")
-                im.thumbnail(default_size, Image.Resampling.LANCZOS)
-                buf = BytesIO()
-                im.save(buf, format="PNG")
-                img = buf.getvalue()
+        #     with Image.open(BytesIO(img)) as im:
+        #         im = im.convert("RGBA")
+        #         im.thumbnail(default_size, Image.Resampling.LANCZOS)
+        #         buf = BytesIO()
+        #         im.save(buf, format="PNG")
+        #         img = buf.getvalue()
 
-    return f"data:image/png;base64,{base64.b64encode(img).decode()}"
+    return f"{base64.b64encode(img).decode('utf-8')}"
 
 
 @alru_cache()
@@ -321,10 +323,15 @@ class FriendListTemplateContext(TypedDict):
     title: str
 
 
-def get_avatar_url(url: str) -> str:
+async def get_avatar_url(url: str) -> str:
+    if env_config.vrchat_avatar is False:
+        return "default.png"
     vrchat_prefix = "https://api.vrchat.cloud/api/1/image/"
     if url and url.startswith(vrchat_prefix):
-        return url
+        try:
+            return await url_to_base64(url)
+        except Exception:
+            return "default.png"
     return "default.png"
 
 
@@ -375,7 +382,8 @@ async def convert_urls_to_base64(data: Dict) -> Dict:
         for idx, entry in enumerate(entries):
             url = entry.get("current_avatar_thumbnail_image_url")
             if url and url != "default.png":
-                tasks.append(url_to_base64(url))
+                # tasks.append(url_to_base64(url))
+                tasks.append(get_image_or_default(url))
                 url_mapping.append((status, idx))
 
     base64_results = await asyncio.gather(*tasks)
@@ -394,6 +402,6 @@ async def convert_urls_to_base64(data: Dict) -> Dict:
 
 
 async def select_friend_html(tag: str):
-    if tag == "simple":
-        return "friend_list_simple.html"
+    if tag == "default":
+        return "friend_list_default.html"
     return "friend_list.html"
