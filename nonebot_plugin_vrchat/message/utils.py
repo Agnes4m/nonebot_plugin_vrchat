@@ -219,8 +219,8 @@ async def format_location(client: Optional[ApiClient], location: Optional[str]):
 
     ret = f"{prefix} |"
     if region:
-        ret = f"{ret} {region}|"
-    return f"{ret} {world_name}"
+        ret = f"{ret} {region} |"
+    return f"{ret}\n{world_name}"
 
 
 def td_format(td_object: timedelta):
@@ -391,3 +391,9 @@ async def convert_urls_to_base64(data: Dict) -> Dict:
             result[status][idx].pop("current_avatar_thumbnail_image_url_base64", None)
 
     return result
+
+
+async def select_friend_html(tag: str):
+    if tag == "simple":
+        return "friend_list_simple.html"
+    return "friend_list.html"

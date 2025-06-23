@@ -137,6 +137,16 @@ plugins = [
 - `lang switch en-US`： 切换语言为英文
 - `lang switch ja-JP`： 切换语言为日语
 
+
+## env.config配置
+
+```base
+# vrchat 配置
+# default默认 | simple极速无头像
+vrchat_img = "default" 
+```
+
+
 ## 截图展示
 
 ![截图](./img/test1.png)

@@ -212,15 +212,17 @@ body {
 .user-id {
     display: flex;
     align-items: center;
-    margin-bottom: 8px;
+    gap: 4px; /* 减少间距 */
+    margin-bottom: 6px; /* 添加底部间距 */
 }
 
 .index-number {
     font-size: 16px;
     color: var(--vr-cyan);
     font-weight: bold;
-    margin-right: 8px;
-    min-width: 30px;
+    margin-right: 4px; /* 减少右边距 */
+    min-width: auto; /* 移除固定宽度 */
+    flex-shrink: 0; /* 防止数字被压缩 */
 }
 
 .username {

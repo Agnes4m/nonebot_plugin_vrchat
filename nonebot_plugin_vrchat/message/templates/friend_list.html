@@ -1,79 +1,85 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VR好友列表</title>
     <link rel="stylesheet" href="friend_list.css">
 </head>
+
 <body>
     <div class="vr-container">
         <div class="vr-header">
-            <h1 class="vr-title">{{ title or 'VR FRIEND SYSTEM' }}</h1>
-            <div class="vr-subtitle">VIRTUAL REALITY SOCIAL NETWORK</div>
+            <h1 class="vr-title">VRChat {{ title }}</h1>
+            <!-- <div class="vr-subtitle"> or '好友查询' }}</div> -->
         </div>
-        
+
         {% for status, friends in user_dict.items() %}
         <div class="friend-section">
             <div class="section-header">
                 <div class="status-indicator">
                     <span class="status-dot" style="background-color: {{ status_colors.get(status, '#666') }};"></span>
                     <span class="status-label">{{ status_desc_map.get(status, status) }}</span>
-                    <span class="friend-counter">({{ friends|length }})</span>
+                    <span class="friend-counter">{{ friends|length }}</span>
                 </div>
             </div>
-            
+
             <div class="friends-grid">
                 {% if friends %}
-                    {% for friend in friends %}
-                    <div class="friend-card" data-trust="{{ friend.trust }}">
-                        <div class="card-inner">
-                            <div class="avatar-section">
-                                <div class="avatar-frame" style="border-color: {{ trust_colors.get(friend.trust, '#0ff') }};">
-                                    <img class="avatar-img" 
-                                         src="{{ friend.current_avatar_thumbnail_image_url_base64 or 'default.png' }}"
-                                         alt="{{ friend.display_name }}的头像"
-                                         onerror="this.onerror=null;this.src='default.png';">
-                                    <div class="avatar-glow" style="box-shadow: 0 0 20px {{ trust_colors.get(friend.trust, '#0ff') }}40;"></div>
-                                </div>
+                {% for friend in friends %}
+                <div class="friend-card" data-trust="{{ friend.trust }}">
+                    <div class="card-inner">
+                        <div class="avatar-section">
+                            <div class="avatar-frame"
+                                style="border-color: {{ trust_colors.get(friend.trust, '#0ff') }};">
+                                <img class="avatar-img"
+                                    src="{{ friend.current_avatar_thumbnail_image_url_base64 or 'default.png' }}"
+                                    alt="{{ friend.display_name }}的头像"
+                                    onerror="this.onerror=null;this.src='default.png';">
+                                <div class="avatar-glow"
+                                    style="box-shadow: 0 0 20px {{ trust_colors.get(friend.trust, '#0ff') }}40;"></div>
                             </div>
-                            
-                            <div class="info-section">
-                                <div class="user-id">
-                                    <span class="index-number">{{ friend.index }}.</span>
-                                    <span class="username">{{ friend.display_name }}</span>
-                                </div>
-                                
-                                <div class="status-line">
-                                    <span class="status-badge">{{ friend.status_description or status_desc_map.get(status, status) }}</span>
-                                </div>
-                                
-                                <div class="location-line">
-                                    <span class="location-icon">📍</span>
-                                    <span class="location-text">{{ friend.location }}</span>
-                                </div>
+                        </div>
+
+                        <div class="info-section">
+                            <div class="user-id">
+                                <span class="index-number">{{ friend.index }}.</span>
+                                <span class="username">{{ friend.display_name }}</span>
+                            </div>
+
+                            <div class="status-line">
+                                <span class="status-badge">{{ friend.status_description or status_desc_map.get(status,
+                                    status) }}</span>
+                            </div>
+
+                            <div class="location-line">
+                                <span class="location-icon">📍</span>
+                                <span class="location-text">{{ friend.location }}</span>
                             </div>
                         </div>
                     </div>
-                    {% endfor %}
+                </div>
+                {% endfor %}
                 {% else %}
-                    <div class="empty-grid-item">
-                        <div class="empty-message">
-                            <div class="empty-icon">👥</div>
-                            <div class="empty-text">暂无好友</div>
-                        </div>
+                <div class="empty-grid-item">
+                    <div class="empty-message">
+                        <div class="empty-icon">👥</div>
+                        <div class="empty-text">暂无好友</div>
                     </div>
+                </div>
                 {% endif %}
             </div>
         </div>
         {% endfor %}
-        
+
         <div class="vr-footer">
             <div class="system-status">
-                <span class="system-name">VR FRIEND SYSTEM</span>
-                <span class="system-indicator">● ONLINE</span>
+                <span class="system-name">From VRChat API & Nonebot2</span>
+                <span class="system-indicator">@Agnes Digital</span>
             </div>
         </div>
     </div>
 </body>
+
 </html>

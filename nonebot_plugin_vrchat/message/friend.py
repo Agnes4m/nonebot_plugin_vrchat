@@ -5,13 +5,19 @@ from typing import Dict, List, Optional
 from nonebot import logger
 from nonebot_plugin_htmlrender import template_to_pic as t2p
 
+from ..config import env_config
 from ..vrchat import ApiClient, LimitedUserModel, UserModel
 from .utils import OFFLINE_STATUSES as OFFLINE
 from .utils import PLATFORM_DESC as P_DESC
 from .utils import STATUS_COLORS as S_COLORS
 from .utils import STATUS_DESC_MAP as S_DESC
 from .utils import TRUST_COLORS as T_COLORS
-from .utils import FriendListTemplateContext, convert_urls_to_base64, get_avatar_url
+from .utils import (
+    FriendListTemplateContext,
+    convert_urls_to_base64,
+    get_avatar_url,
+    select_friend_html,
+)
 from .utils import format_location as fmt_loc
 from .utils import td_format as td_fmt
 
@@ -80,7 +86,7 @@ async def draw_user_card_overview(
     # logger.debug(f"Draw user list card for {templates}")
     return await t2p(
         template_path=str(Path(__file__).parent / "templates"),
-        template_name="friend_list.html",
+        template_name=await select_friend_html(env_config.vrchat_img),
         templates=templates,
         device_scale_factor=1,
         screenshot_timeout=60_000,
