@@ -13,8 +13,7 @@ from httpx import AsyncClient
 from nonebot.log import logger
 from PIL import Image
 
-from nonebot_plugin_vrchat.config import env_config
-
+from ..config import env_config
 from ..i18n.model import Lang
 from ..vrchat import (
     ApiClient,

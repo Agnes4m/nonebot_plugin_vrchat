@@ -190,7 +190,7 @@ class UserModel(BaseModel):
     age_verified: bool
     """年龄验证状态"""
     allow_avatar_copying: bool = True
-    """允许复制头像"""
+    """允许复制模型"""
     badges: Optional[List[Badge]] = None
     bio: str
     """用户简介"""

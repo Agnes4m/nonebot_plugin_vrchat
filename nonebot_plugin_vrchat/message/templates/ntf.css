@@ -1,0 +1,538 @@
+/* ... existing code ... */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+}
+
+:root {
+    --bg-dark: #0a0e17;
+    --bg-card: #121a29;
+    --primary: #00c8ff;
+    --accent: #8a2be2;
+    --success: #28a745;
+    --warning: #ffb400;
+    --danger: #dc3545;
+    --friend: #4A90E2;
+    --invite: #9c27b0;
+    --message: #ff9800;
+    --votetokick: #f44336;
+    --text-light: #f0f6fc;
+    --text-gray: #8b949e;
+    --border-radius: 12px;
+    --transition: all 0.3s ease;
+    --glow-primary: 0 0 15px rgba(0, 200, 255, 0.5);
+    --glow-success: 0 0 15px rgba(40, 167, 69, 0.4);
+}
+
+body {
+    background: var(--bg-dark);
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(40, 40, 80, 0.1) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(60, 10, 80, 0.1) 0%, transparent 20%);
+    color: var(--text-light);
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+.vr-container {
+    max-width: 1000px;
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.vr-header {
+    text-align: center;
+    padding: 20px 0;
+    position: relative;
+}
+
+.vr-title {
+    font-size: 2.5rem;
+    background: linear-gradient(to right, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+    position: relative;
+    display: inline-block;
+}
+
+.vr-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 3px;
+    background: linear-gradient(to right, var(--primary), var(--accent));
+    border-radius: 2px;
+}
+
+.vr-subtitle {
+    color: var(--text-gray);
+    font-size: 1.1rem;
+    margin-top: 20px;
+}
+
+.notification-stats {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.stat-card {
+    background: rgba(20, 30, 48, 0.7);
+    border-radius: var(--border-radius);
+    padding: 15px 25px;
+    text-align: center;
+    min-width: 140px;
+    backdrop-filter: blur(5px);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+}
+
+.stat-card.friend::before {
+    background: var(--friend);
+}
+
+.stat-card.invite::before {
+    background: var(--invite);
+}
+
+.stat-card.message::before {
+    background: var(--message);
+}
+
+.stat-card.votetokick::before {
+    background: var(--votetokick);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.stat-value {
+    font-size: 2.2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stat-card.friend .stat-value {
+    color: var(--friend);
+}
+
+.stat-card.invite .stat-value {
+    color: var(--invite);
+}
+
+.stat-card.message .stat-value {
+    color: var(--message);
+}
+
+.stat-card.votetokick .stat-value {
+    color: var(--votetokick);
+}
+
+.stat-label {
+    color: var(--text-gray);
+    font-size: 0.95rem;
+}
+
+.notification-section {
+    background: rgba(18, 26, 41, 0.8);
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(0, 200, 255, 0.1);
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.section-header {
+    background: rgba(10, 20, 35, 0.9);
+    padding: 15px 25px;
+    border-bottom: 1px solid rgba(0, 200, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.status-label {
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.notification-counter {
+    background: rgba(0, 200, 255, 0.2);
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.filter-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: var(--text-gray);
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.9rem;
+}
+
+.filter-btn.active, .filter-btn:hover {
+    background: var(--primary);
+    color: var(--bg-dark);
+}
+
+.notifications-grid {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+    gap: 20px;
+}
+
+.notification-card {
+    background: var(--bg-card);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.notification-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+}
+
+.notification-card.friendRequest::before {
+    background: var(--friend);
+}
+
+.notification-card.invite::before,
+.notification-card.requestInvite::before {
+    background: var(--invite);
+}
+
+.notification-card.message::before {
+    background: var(--message);
+}
+
+.notification-card.votetokick::before {
+    background: var(--votetokick);
+}
+
+.notification-card.inviteResponse::before,
+.notification-card.requestInviteResponse::before {
+    background: var(--success);
+}
+
+.notification-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.notification-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.notification-title i {
+    font-size: 1.3rem;
+}
+
+.friendRequest .notification-title i {
+    color: var(--friend);
+}
+
+.invite .notification-title i,
+.requestInvite .notification-title i {
+    color: var(--invite);
+}
+
+.inviteResponse .notification-title i,
+.requestInviteResponse .notification-title i {
+    color: var(--success);
+}
+
+.message .notification-title i {
+    color: var(--message);
+}
+
+.votetokick .notification-title i {
+    color: var(--votetokick);
+}
+
+.notification-time {
+    color: var(--text-gray);
+    font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 3px 10px;
+    border-radius: 20px;
+}
+
+.notification-content {
+    margin-bottom: 20px;
+}
+
+.sender-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.avatar-frame {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--primary);
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.avatar-frame::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    box-shadow: 0 0 15px var(--primary);
+    opacity: 0.7;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.sender-details {
+    flex-grow: 1;
+}
+
+.sender-name {
+    font-weight: 500;
+    color: var(--primary);
+    display: block;
+    margin-bottom: 3px;
+}
+
+.sender-id {
+    font-size: 0.8rem;
+    color: var(--text-gray);
+}
+
+.notification-message {
+    margin: 15px 0;
+    line-height: 1.7;
+    padding: 15px;
+    background: rgba(10, 20, 35, 0.6);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+}
+
+.notification-details {
+    margin-top: 15px;
+}
+
+.detail-item {
+    display: flex;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.detail-label {
+    width: 100px;
+    color: var(--text-gray);
+    flex-shrink: 0;
+}
+
+.detail-value {
+    color: var(--text-light);
+}
+
+.actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 8px 20px;
+    border-radius: 30px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    min-width: 120px;
+    justify-content: center;
+}
+
+.btn-accept {
+    background: linear-gradient(to right, var(--success), #1d8a3d);
+    color: white;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.btn-accept:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.5);
+}
+
+.btn-reject {
+    background: linear-gradient(to right, var(--danger), #b02a37);
+    color: white;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+.btn-reject:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.5);
+}
+
+.btn-view {
+    background: linear-gradient(to right, var(--accent), #6a1b9a);
+    color: white;
+    box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
+}
+
+.btn-view:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(138, 43, 226, 0.5);
+}
+
+.btn-ignore {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-gray);
+}
+
+.btn-ignore:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.empty-notifications {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--text-gray);
+    font-style: italic;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    opacity: 0.3;
+}
+
+.empty-text {
+    font-size: 1.2rem;
+}
+
+.vr-footer {
+    text-align: center;
+    padding: 25px 0;
+    color: var(--text-gray);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 20px;
+    font-size: 0.9rem;
+}
+
+.system-status {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .notifications-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .notification-stats {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .vr-title {
+        font-size: 2rem;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .filter-controls {
+        width: 100%;
+        justify-content: center;
+    }
+}

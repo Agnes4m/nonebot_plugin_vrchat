@@ -30,15 +30,15 @@ async def _(matcher: Matcher, session_id: UserSessionId, arg: Message = CommandA
         num = int(tag)
         if 0 < num <= 100:
             n = tag
-        else:
-            await matcher.finish("数字应为0-100")
     try:
         client = await get_client(session_id)
         resp = await get_notifications(client, n=n)
     except Exception as e:
         await handle_error(matcher, e)
     logger.debug(resp)
-    pic = await draw_notification_card(resp, client=client)
+    if len(resp) == 0:
+        await UniMessage.text("当前没用未读的通知").finish()
+    pic = await draw_notification_card(resp)
     if pic:
         logger.info("通知列表成功")
 
