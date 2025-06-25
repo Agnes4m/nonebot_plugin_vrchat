@@ -32,7 +32,7 @@ async def draw_notification_card(
             },
         )
     # 渲染图片
-    logger.debug(templates)
+    logger.info(templates)
     return await t2p(
         template_path=str(Path(__file__).parent / "templates"),
         template_name="ntf.html",

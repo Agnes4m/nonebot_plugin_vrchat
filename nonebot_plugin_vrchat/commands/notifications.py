@@ -10,8 +10,6 @@ from nonebot.typing import T_State
 from nonebot_plugin_alconna.uniseg import UniMessage
 from vrchatapi import Notification
 
-from nonebot_plugin_vrchat.vrchat.notifications import delete_notification
-
 from ..message import draw_notification_card
 from ..vrchat import (
     accept_friend_request,
@@ -19,6 +17,7 @@ from ..vrchat import (
     get_notifications,
     mark_notification_as_read,
 )
+from ..vrchat.notifications import delete_notification
 from .utils import UserSessionId, handle_error, rule_enable, split_chinese_digits
 
 logger.info(rule_enable)
@@ -50,7 +49,7 @@ async def _(
         resp = await get_notifications(client, n=n)
     except Exception as e:
         await handle_error(matcher, e)
-    logger.debug(resp)
+    logger.info(resp)
     if len(resp) == 0:
         await UniMessage.text("当前没用未读的通知").finish()
     state["notifications"] = resp
@@ -78,7 +77,7 @@ async def _(state: T_State, arg: Message = CommandArg()):
         await UniMessage.text("退出交互").finish()
     index, tag = await split_chinese_digits(args)
     logger.debug(f"收到参数: {index!r} |{tag}")
-    ntf = resp[int(index - 1)]
+    ntf = resp[int(index) - 1]
     if ntf.type == "friendRequest":
         if tag == "接受":
             await accept_friend_request(state["client"], ntf.id)
