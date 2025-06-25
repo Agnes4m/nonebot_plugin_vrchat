@@ -55,3 +55,16 @@ async def mark_notification_as_read(
         Awaitable[Success],
         run_sync(api.mark_notification_as_read)(notification_id=notification_id),
     )
+
+
+async def delete_notification(
+    client: ApiClient,
+    notification_id: str,
+):
+    """删除通知"""
+
+    api = NotificationsApi(client)
+    return await cast(
+        Awaitable[Success],
+        run_sync(api.delete_notification)(notification_id=notification_id),
+    )

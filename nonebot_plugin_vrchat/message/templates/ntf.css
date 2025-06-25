@@ -436,23 +436,21 @@ body {
 .btn-accept {
     background: linear-gradient(to right, var(--success), #1d8a3d);
     color: white;
-    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
 }
 
-.btn-accept:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.5);
-}
 
 .btn-reject {
     background: linear-gradient(to right, var(--danger), #b02a37);
     color: white;
-    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
 }
 
-.btn-reject:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.5);
+
+.btn-ignore{
+    background: linear-gradient(to right, var(--warning), #abb616);
+    color: white;
+    box-shadow: 0 4px 10px rgba(165, 167, 40, 0.3);
 }
 
 .btn-view {
@@ -466,14 +464,6 @@ body {
     box-shadow: 0 6px 20px rgba(138, 43, 226, 0.5);
 }
 
-.btn-ignore {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-gray);
-}
-
-.btn-ignore:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
 
 .empty-notifications {
     grid-column: 1 / -1;

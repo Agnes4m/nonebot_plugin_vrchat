@@ -127,3 +127,23 @@ async def parse_index(arg: str, resp: List[LimitedUserModel], matcher: Matcher):
     if index < 0 or index >= len(resp):
         await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_range())
     return index
+
+
+async def split_chinese_digits(s):
+    """数字和文字分离"""
+    if not s:
+        return "", ""
+
+    is_digit_start = s[0].isdigit()
+
+    split_index = None
+    for i in range(1, len(s)):
+        if s[i].isdigit() != is_digit_start:
+            split_index = i
+            break
+
+    if split_index is None:
+        return (s, "") if is_digit_start else ("", s)
+    part1 = s[:split_index]
+    part2 = s[split_index:]
+    return (part1, part2) if is_digit_start else (part2, part1)

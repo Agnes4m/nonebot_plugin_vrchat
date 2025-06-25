@@ -42,7 +42,7 @@
                         <div class="avatar-frame">
                             <img class="avatar-img" src="{{ notification.avatar }}" alt="用户头像">
                         </div>
-                        <span class="sender-name">{{ notification.name }} d94e</span>
+                        <span class="sender-name">{{ notification.sender_username }}</span>
                     </div>
                     <div class="notification-message">
                         <p>请求添加您为好友</p>
@@ -57,8 +57,11 @@
                         <button class="btn btn-accept">
                             <i class="fas fa-check"></i> 接受{{ notification.index }}
                         </button>
+                        <button class="btn btn-ignore">
+                            <i class="fas fa-times"></i> 忽略{{ notification.index }}
+                        </button>
                         <button class="btn btn-reject">
-                            <i class="fas fa-times"></i> 拒绝{{ notification.index }}
+                            <i class="fas fa-times"></i> 删除{{ notification.index }}
                         </button>
                     </div>
                 </div>
