@@ -14,7 +14,7 @@ from .config import EnvConfig  # noqa: E402
 load_builtin_plugin("lang")
 load_commands()
 
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 __plugin_meta__ = PluginMetadata(
     name="VRChat查询",
     description="使用第三方 API SDK 实现 VRChat 相关操作，例如查询好友状态",

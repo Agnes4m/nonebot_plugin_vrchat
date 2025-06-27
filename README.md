@@ -139,13 +139,13 @@ plugins = [
 - `lang switch ja-JP`： 切换语言为日语
 
 
-## env.config配置
+## env.config配置(全部可选)
 
 ```base
 # vrchat 配置
 # default默认 tec科技风格(不好看)
 vrchat_img = "default" 
-# 是否显示头像, 关闭大幅度减小加载速度
+# 是否显示头像, 关闭大幅提高出图速度
 vrchat_avatar = True
 
 ```
@@ -154,12 +154,14 @@ vrchat_avatar = True
 ## 截图展示
 
 ![截图](./img/test1.png)
+![截图](./img/test3.png)
+
 
 ## to do
 
 - [ ] 搜索世界指令返回图片
-- [ ] 返回个人通知信息
-- [ ] 同意好友申请信息
+- [x] 返回个人通知信息
+- [x] 同意好友申请信息
 - [ ] 上传头像信息
 - [ ] 群组相关api(工作量超级大)
 - [ ] 创建实例(可能是模拟进入世界？未知api效果)
