@@ -21,9 +21,7 @@ class NbpVrcWords:
     travel_world: LangItem = LangItem("nbp_vrc", "words.travel_world")
     private_world: LangItem = LangItem("nbp_vrc", "words.private_world")
     invite: LangItem = LangItem("nbp_vrc", "words.invite")
-    invite_plus: LangItem = LangItem("nbp_vrc", "words.invite_plus")
     friends: LangItem = LangItem("nbp_vrc", "words.friends")
-    friends_plus: LangItem = LangItem("nbp_vrc", "words.friends_plus")
     pub: LangItem = LangItem("nbp_vrc", "words.pub")
     group: LangItem = LangItem("nbp_vrc", "words.group")
     group_pub: LangItem = LangItem("nbp_vrc", "words.group_pub")
@@ -102,6 +100,20 @@ class NbpVrcLocale:
     locale_changed: LangItem = LangItem("nbp_vrc", "locale.locale_changed")
 
 
+class NbpVrcNotif:
+    all_notif_resp: LangItem = LangItem("nbp_vrc", "notif.all_notif_resp")
+    accept: LangItem = LangItem("nbp_vrc", "notif.accept")
+    accept_resp: LangItem = LangItem("nbp_vrc", "notif.accept_resp")
+    ignore: LangItem = LangItem("nbp_vrc", "notif.ignore")
+    ignore_resp: LangItem = LangItem("nbp_vrc", "notif.ignore_resp")
+    deny: LangItem = LangItem("nbp_vrc", "notif.deny")
+    deny_resp: LangItem = LangItem("nbp_vrc", "notif.deny_resp")
+    processed: LangItem = LangItem("nbp_vrc", "notif.processed")
+    error_handle: LangItem = LangItem("nbp_vrc", "notif.error_handle")
+    no_request: LangItem = LangItem("nbp_vrc", "notif.no_request")
+    reply_notif: LangItem = LangItem("nbp_vrc", "notif.reply_notif")
+
+
 class NbpVrc:
     words = NbpVrcWords
     time = NbpVrcTime
@@ -111,6 +123,7 @@ class NbpVrc:
     user = NbpVrcUser
     world = NbpVrcWorld
     locale = NbpVrcLocale
+    notif = NbpVrcNotif
 
 
 class Lang(LangModel):

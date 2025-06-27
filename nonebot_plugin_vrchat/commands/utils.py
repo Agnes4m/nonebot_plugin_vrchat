@@ -1,21 +1,15 @@
 from pathlib import Path
 from typing import Callable, List, NoReturn, Type, Union
-
-import aiofiles
-
-try:
-    import ujson as json
-except ImportError:
-    import json
-
 from typing_extensions import Annotated
 
+import aiofiles
 from nonebot.adapters import Message
 from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, EventMessage
+from nonebot_plugin_alconna import UniMessage
 from nonebot_plugin_session import SessionId, SessionIdType
-from vrchatapi import LimitedUser
+from vrchatapi import ApiClient, LimitedUser, Notification
 
 from ..config import session_config
 from ..i18n import Lang
@@ -25,6 +19,16 @@ from ..vrchat import (
     NotLoggedInError,
     UnauthorizedException,
 )
+from ..vrchat.notifications import (
+    accept_friend_request,
+    delete_notification,
+    mark_notification_as_read,
+)
+
+try:
+    import ujson as json
+except ImportError:
+    import json
 
 UserSessionId = Annotated[str, SessionId(SessionIdType.USER, include_bot_id=False)]
 GroupSessionId = Annotated[str, SessionId(SessionIdType.GROUP, include_bot_id=False)]
@@ -40,6 +44,7 @@ KEY_VERIFY_FUNC = "verify_func"
 KEY_VERIFY_CODE = "verify_code"
 KEY_CURRENT_USER = "current_user"
 KEY_SEARCH_RESP = "search_resp"
+KEY_NOTIF_RESP = "notif_resp"
 
 
 async def rule_enable(group_id: GroupSessionId, user_id: UserSessionId) -> bool:
@@ -147,3 +152,20 @@ async def split_chinese_digits(s):
     part1 = s[:split_index]
     part2 = s[split_index:]
     return (part1, part2) if is_digit_start else (part2, part1)
+
+
+async def process_notification(client: ApiClient, ntf: Notification, tag: str):
+    if ntf.type == "friendRequest":
+        if tag == Lang.nbp_vrc.notif.accept:
+            await accept_friend_request(client, ntf.id)
+            await UniMessage.text(Lang.nbp_vrc.notif.accept_resp).finish()
+        elif tag == Lang.nbp_vrc.notif.ignore:
+            await mark_notification_as_read(client, ntf.id)
+            await UniMessage.text(Lang.nbp_vrc.notif.ignore_resp).finish()
+        elif tag == Lang.nbp_vrc.notif.deny:
+            await delete_notification(client, ntf.id)
+            await UniMessage.text(Lang.nbp_vrc.notif.deny_resp).finish()
+        else:
+            await UniMessage.text(Lang.nbp_vrc.notif.error_handle).finish()
+    else:
+        await UniMessage.text(Lang.nbp_vrc.notif.error_handle).finish()

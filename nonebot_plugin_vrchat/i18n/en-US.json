@@ -1,8 +1,38 @@
 {
   "$schema": ".lang.schema.json",
   "nbp_vrc": {
+    "words": {
+      "friend_list": "Friend List",
+      "search_list": "Search List",
+      "online": "Online",
+      "offline": "Offline",
+      "joinme": "Join Me",
+      "busy": "Busy",
+      "askme": "Ask Me",
+      "webonline": "Web Online",
+      "unknown": "Unknown",
+      "standalonewindows": "Standalone Windows",
+      "android": "Android",
+      "oculus": "Meta Quest",
+      "unkown_world": "Unknown World",
+      "travel_world": "Travel World",
+      "private_world": "Private World",
+      "invite": "Invite",
+      "friends": "Friends",
+      "pub": "Public",
+      "group": "Group",
+      "group_pub": "Public Group"
+    },
+    "time": {
+      "year": "Year",
+      "month": "Month",
+      "day": "Day",
+      "hour": "Hour",
+      "minute": "Minute",
+      "second": "Second"
+    },
     "general": {
-      "help": "--------VRC Commands--------\n1. [vrc login] | Login to your VRC account (recommended in private chat)\n2. [vrc all friends] | Get all friends' information\n3. [vrc search user] [text] | Search for a player\n4. [vrc search world] [text] | Search for a world\n5. [vrc switch language] | Switch plugin language",
+      "help": "--------VRC Commands--------\n1. [vrc login] | Log in to your VRC account (recommended in private chat)\n2. [vrc all friends] | Get all friends' information\n3. [vrc search user] [text] | Search for a player\n4. [vrc search world] [text] | Search for a world\n5. [vrc switch language] | Switch plugin language",
       "unknown_error": "An unknown error occurred, please check the backend output.",
       "server_error": "Server returned an exception: [{status}] {reason}",
       "discard_select": "Selection canceled.",
@@ -47,6 +77,18 @@
       "no_world_found": "No worlds found.",
       "searched_world_tip": "Found the following {count} worlds",
       "searched_world_info": "{index}. {name}\nAuthor: {author}\nCreated at: {created_at}"
+    },
+    "notif": {
+      "all_notif_resp": "Input the button label in the image to continue, or 0 to exit interaction",
+      "accept": "Accept",
+      "accept_resp": "Friend request accepted",
+      "ignore": "Ignore",
+      "ignore_resp": "Friend request ignored",
+      "deny": "Deny",
+      "deny_resp": "Friend request denied",
+      "error_handle": "Invalid friend request operation",
+      "no_request": "No friend requests",
+      "processed": "This request has been processed."
     }
   }
 }

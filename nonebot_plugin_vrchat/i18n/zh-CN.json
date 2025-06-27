@@ -79,6 +79,20 @@
       "no_world_found": "没搜到任何地图捏",
       "searched_world_tip": "搜索到以下 {count} 个世界",
       "searched_world_info": "{index}. {name}\n作者: {author}\n创建时间: {created_at}"
+    },
+    "notif": {
+      "all_notif_resp": "输入图中标签按钮可以继续执行,0退出交互",
+      "accept": "接受",
+      "accept_resp": "已接受好友申请",
+      "ignore": "忽略",
+      "ignore_resp": "已忽略好友申请",
+      "deny": "拒绝",
+      "deny_resp": "已拒绝好友申请",
+      "error_handle": "无效操作好友申请",
+      "no_request": "没有好友申请",
+      "processed": "该请求已被处理啦",
+
+
     }
   }
 }

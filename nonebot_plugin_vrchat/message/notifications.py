@@ -37,6 +37,4 @@ async def draw_notification_card(
         template_path=str(Path(__file__).parent / "templates"),
         template_name="ntf.html",
         templates={"notifications": templates},
-        device_scale_factor=1,
-        screenshot_timeout=60000,
     )

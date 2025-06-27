@@ -4,197 +4,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VR通知中心</title>
+    <title>VRChat通知信息</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="ntf.css">
 </head>
 
 <body>
     <div class="vr-container">
-
         <div class="vr-header">
             <h1 class="vr-title">VRChat</h1>
             <div class="vr-subtitle">个人通知</div>
         </div>
-    </div>
 
-    <div class="notification-section">
-        {% for notification in notifications %}
-        <div class="section-header">
-            <div class="status-indicator">
-                <span class="status-dot friend"></span>
-                <span class="status-label">通知列表</span>
+        <div class="notification-section">
+            <div class="section-header">
+                <div class="status-indicator">
+                    <span class="status-dot friend"></span>
+                    <span class="status-label">通知列表</span>
+                </div>
+                <div class="notification-counter">{{ notifications | length }} 条通知</div>
             </div>
-            <div class="notification-counter">{{ notifications | length }} 条通知</div>
+
+            <div class="notifications-grid">
+                {% for notification in notifications %}
+                    {% if notification.type == 'friendRequest' %}
+                    <div class="notification-card friend-request">
+                        <div class="notification-header">
+                            <div class="notification-title">
+                                <i class="fas fa-user-friends"></i> 好友请求
+                            </div>
+                            <div class="notification-time">{{ notification.td }}</div>
+                        </div>
+                        <div class="notification-content">
+                            <div class="sender-info">
+                                <div class="avatar-frame">
+                                    <img class="avatar-img" src="{{ notification.avatar }}" alt="用户头像">
+                                </div>
+                                <span class="sender-name">{{ notification.sender_username }}</span>
+                            </div>
+                            <div class="notification-message">
+                                <p>请求添加您为好友</p>
+                                {% if notification.message %}
+                                <p class="notification-details">
+                                    <span class="detail-title">附言：</span>
+                                    {{ notification.message }}
+                                </p>
+                                {% endif %}
+                            </div>
+                            <div class="actions">
+                                <button class="btn btn-accept">
+                                    <i class="fas fa-check"></i> 接受{{ notification.index }}
+                                </button>
+                                <button class="btn btn-ignore">
+                                    <i class="fas fa-times"></i> 忽略{{ notification.index }}
+                                </button>
+                                <button class="btn btn-reject">
+                                    <i class="fas fa-times"></i> 删除{{ notification.index }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% elif notification.type == 'invite' %}
+                    <div class="notification-card invite">
+                        <div class="notification-header">
+                            <div class="notification-title">
+                                <i class="fas fa-ticket-alt"></i> 世界邀请
+                            </div>
+                            <div class="notification-time">{{ notification.td }}</div>
+                        </div>
+                        <div class="notification-content">
+                            <div class="sender-info">
+                                <div class="avatar-frame">
+                                    <img class="avatar-img" src="{{ notification.avatar }}" alt="用户头像">
+                                </div>
+                                <div class="sender-details">
+                                    <span class="sender-name">{{ notification.name }}</span>
+                                </div>
+                            </div>
+                            <div class="notification-message">
+                                "邀请您加入我的世界！"
+                            </div>
+                        </div>
+                    </div>
+
+                    {% elif notification.type == 'votetokick' %}
+                    <div class="notification-card votetokick">
+                        <div class="notification-header">
+                            <div class="notification-title">
+                                <i class="fas fa-user-times"></i> 投票踢人
+                            </div>
+                            <div class="notification-time">{{ notification.td }}</div>
+                        </div>
+                        <div class="notification-content">
+                            <div class="sender-info">
+                                <div class="avatar-frame">
+                                    <img class="avatar-img" src="{{ notification.avatar }}" alt="用户头像">
+                                </div>
+                                <div class="sender-details">
+                                    <span class="sender-name">社区管理员</span>
+                                    <span class="sender-id">usr_admin_001</span>
+                                </div>
+                            </div>
+                            {% if notification.message %}
+                            <div class="notification-message">
+                                {{ notification.message }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% elif notification.type == 'message' %}
+                    <div class="notification-card message">
+                        <div class="notification-header">
+                            <div class="notification-title">
+                                <i class="fas fa-comment-dots"></i> 新消息
+                            </div>
+                            <div class="notification-time">{{ notification.td }}</div>
+                        </div>
+                        <div class="notification-content">
+                            <div class="sender-info">
+                                <div class="avatar-frame">
+                                    <img class="avatar-img" src="{{ notification.avatar }}" alt="用户头像">
+                                </div>
+                                <div class="sender-details">
+                                    <span class="sender-name">{{ notification.name }}</span>
+                                </div>
+                            </div>
+                            {% if notification.message %}
+                            <div class="notification-message">
+                                {{ notification.message }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% elif notification.type == 'inviteResponse' %}
+                    <div class="notification-card inviteResponse">
+                        <div class="notification-header">
+                            <div class="notification-title">
+                                <i class="fas fa-reply"></i> 邀请已接受
+                            </div>
+                            <div class="notification-time">{{ notification.td }}</div>
+                        </div>
+                        <div class="notification-content">
+                            <div class="sender-info">
+                                <div class="avatar-frame">
+                                    <img class="avatar-img" src="{{ notification.avatar }}" alt="用户头像">
+                                </div>
+                                <div class="sender-details">
+                                    <span class="sender-name">{{ notification.name }}</span>
+                                </div>
+                            </div>
+                            {% if notification.message %}
+                            <div class="notification-message">
+                                {{ notification.message }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% elif notification.type == 'requestInvite' %}
+                    <div class="notification-card requestInvite">
+                        <div class="notification-header">
+                            <div class="notification-title">
+                                <i class="fas fa-hand-point-up"></i> 邀请请求
+                            </div>
+                            <div class="notification-time">2025-06-21 16:40</div>
+                        </div>
+                        <div class="notification-content">
+                            <div class="sender-info">
+                                <div class="avatar-frame">
+                                    <img class="avatar-img" src="{{ notification.avatar }}" alt="用户头像">
+                                </div>
+                                <div class="sender-details">
+                                    <span class="sender-name">{{ notification.name }}</span>
+                                </div>
+                            </div>
+                            {% if notification.message %}
+                            <div class="notification-message">
+                                {{ notification.message }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
         </div>
 
-        <div class="notifications-grid">
-            {% if notification.type == 'friendRequest' %}
-            <div class="notification-card friend-request">
-                <div class="notification-header">
-                    <div class="notification-title">
-                        <i class="fas fa-user-friends"></i> 好友请求
-                    </div>
-                    <div class="notification-time">{{ notification.td }}</div>
-                </div>
-                <div class="notification-content">
-                    <div class="sender-info">
-                        <div class="avatar-frame">
-                            <img class="avatar-img" src="{{ notification.avatar }}" alt="用户头像">
-                        </div>
-                        <span class="sender-name">{{ notification.sender_username }}</span>
-                    </div>
-                    <div class="notification-message">
-                        <p>请求添加您为好友</p>
-                        {% if notification.message %}
-                        <p class="notification-details">
-                            <span class="detail-title">附言：</span>
-                            {{ notification.message }}
-                        </p>
-                        {% endif %}
-                    </div>
-                    <div class="actions">
-                        <button class="btn btn-accept">
-                            <i class="fas fa-check"></i> 接受{{ notification.index }}
-                        </button>
-                        <button class="btn btn-ignore">
-                            <i class="fas fa-times"></i> 忽略{{ notification.index }}
-                        </button>
-                        <button class="btn btn-reject">
-                            <i class="fas fa-times"></i> 删除{{ notification.index }}
-                        </button>
-                    </div>
-                </div>
+        <div class="vr-footer">
+            <div class="system-status">
+                <span class="system-name">From VRChat API & Nonebot2</span>
+                <span class="system-indicator">@Agnes Digital</span>
             </div>
-            {% elif notification.type == 'invite' %}
-            <div class="notification-card invite">
-                <div class="notification-header">
-                    <div class="notification-title">
-                        <i class="fas fa-ticket-alt"></i> 世界邀请
-                    </div>
-                    <div class="notification-time">{{ notification.td }}</div>
-                </div>
-                <div class="notification-content">
-                    <div class="sender-info">
-                        <div class="avatar-frame">
-                            <img class="avatar-img" src="{{ notification.avatar }}" alt="用户头像">
-                        </div>
-                        <div class="sender-details">
-                            <span class="sender-name">{{ notification.name }}</span>
-                        </div>
-                    </div>
-                    <div class="notification-message">
-                        "邀请您加入我的世界！"
-                    </div>
-                </div>
-            </div>
-            {% elif notification.type == 'votetokick' %}
-            <div class="notification-card votetokick">
-                <div class="notification-header">
-                    <div class="notification-title">
-                        <i class="fas fa-user-times"></i> 投票踢人
-                    </div>
-                    <div class="notification-time">{{ notification.td }}</div>
-                </div>
-                <div class="notification-content">
-                    <div class="sender-info">
-                        <div class="avatar-frame">
-                            <img class="avatar-img" src="{{ notification.avatar }}" alt="用户头像">
-                        </div>
-                        <div class="sender-details">
-                            <span class="sender-name">社区管理员</span>
-                            <span class="sender-id">usr_admin_001</span>
-                        </div>
-                    </div>
-                    {% if notification.message %}
-                    <div class="notification-message">
-                        {{ notification.message }}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% elif notification.type == 'message' %}
-            <div class="notification-card message">
-                <div class="notification-header">
-                    <div class="notification-title">
-                        <i class="fas fa-comment-dots"></i> 新消息
-                    </div>
-                    <div class="notification-time">{{ notification.td }}</div>
-                </div>
-                <div class="notification-content">
-                    <div class="sender-info">
-                        <div class="avatar-frame">
-                            <img class="avatar-img" src="{{ notification.avatar }}" alt="用户头像">
-                        </div>
-                        <div class="sender-details">
-                            <span class="sender-name">{{ notification.name }}</span>
-                        </div>
-                    </div>
-                    {% if notification.message %}
-                    <div class="notification-message">
-                        {{ notification.message }}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% elif notification.type == 'inviteResponse' %}
-            <div class="notification-card inviteResponse">
-                <div class="notification-header">
-                    <div class="notification-title">
-                        <i class="fas fa-reply"></i> 邀请已接受
-                    </div>
-                    <div class="notification-time">{{ notification.td }}</div>
-                </div>
-                <div class="notification-content">
-                    <div class="sender-info">
-                        <div class="avatar-frame">
-                            <img class="avatar-img" src="{{ notification.avatar }}" alt="用户头像">
-                        </div>
-                        <div class="sender-details">
-                            <span class="sender-name">{{ notification.name }}</span>
-                        </div>
-                    </div>
-                    {% if notification.message %}
-                    <div class="notification-message">
-                        {{ notification.message }}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% elif notification.type == 'requestInvite' %}
-            <div class="notification-card requestInvite">
-                <div class="notification-header">
-                    <div class="notification-title">
-                        <i class="fas fa-hand-point-up"></i> 邀请请求
-                    </div>
-                    <div class="notification-time">2025-06-21 16:40</div>
-                </div>
-                <div class="notification-content">
-                    <div class="sender-info">
-                        <div class="avatar-frame">
-                            <img class="avatar-img" src="{{ notification.avatar }}" alt="用户头像">
-                        </div>
-                        <div class="sender-details">
-                            <span class="sender-name">{{ notification.name }}</span>
-                        </div>
-                    </div>
-                    {% if notification.message %}
-                    <div class="notification-message">
-                        {{ notification.message }}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
         </div>
-        {% endfor %}
-    </div>
-
-    <div class="vr-footer">
-        <div class="system-status">
-            <span class="system-name">From VRChat API & Nonebot2</span>
-            <span class="system-indicator">@Agnes Digital</span>
-        </div>
-    </div>
     </div>
 </body>
+</html>

@@ -5,11 +5,13 @@ from loguru import logger
 from nonebot import on_command
 from nonebot.adapters import Message
 from nonebot.matcher import Matcher
-from nonebot.params import CommandArg
+from nonebot.params import CommandArg, EventMessage
 from nonebot.typing import T_State
 from nonebot_plugin_alconna.uniseg import UniMessage
-from vrchatapi import Notification
+from vrchatapi import ApiClient, Notification
+from vrchatapi.exceptions import NotFoundException
 
+from ..i18n.model import Lang
 from ..message import draw_notification_card
 from ..vrchat import (
     accept_friend_request,
@@ -18,7 +20,14 @@ from ..vrchat import (
     mark_notification_as_read,
 )
 from ..vrchat.notifications import delete_notification
-from .utils import UserSessionId, handle_error, rule_enable, split_chinese_digits
+from .utils import (
+    KEY_CLIENT,
+    KEY_NOTIF_RESP,
+    UserSessionId,
+    handle_error,
+    rule_enable,
+    split_chinese_digits,
+)
 
 logger.info(rule_enable)
 show_notic = on_command(
@@ -49,11 +58,11 @@ async def _(
         resp = await get_notifications(client, n=n)
     except Exception as e:
         await handle_error(matcher, e)
-    logger.info(resp)
+    logger.debug(resp)
     if len(resp) == 0:
-        await UniMessage.text("当前没用未读的通知").finish()
-    state["notifications"] = resp
-    state["client"] = client
+        await UniMessage.text(Lang.nbp_vrc.notif.no_request).finish()
+    state[KEY_NOTIF_RESP] = resp
+    state[KEY_CLIENT] = client
     pic = await draw_notification_card(resp)
     if pic:
         logger.info("通知列表成功")
@@ -62,31 +71,39 @@ async def _(
     logger.debug(f"通知 执行用时: {end_time - start_time:.3f} 秒")
 
     await (
-        UniMessage.image(raw=pic)
-        + UniMessage.text("输入图中标签按钮可以继续执行,0退出交互")
+        UniMessage.image(raw=pic) + UniMessage.text(Lang.nbp_vrc.notif.reply_notif)
     ).send()
     await matcher.pause()
 
 
 @show_notic.handle()
-async def _(state: T_State, arg: Message = CommandArg()):
+async def _(matcher: Matcher, state: T_State, message: Message = EventMessage()):
+    client: ApiClient = state[KEY_CLIENT]
+    resp: List[Notification] = state[KEY_NOTIF_RESP]
+    arg = message.extract_plain_text().strip()
+
     logger.debug(f"收到参数: {arg!r}")
-    resp: List[Notification] = state["notifications"]
-    args = arg.extract_plain_text().strip()
-    if args == "0":
+
+    index, tag = await split_chinese_digits(arg)
+    if index == "0":
         await UniMessage.text("退出交互").finish()
-    index, tag = await split_chinese_digits(args)
     logger.debug(f"收到参数: {index!r} |{tag}")
     ntf = resp[int(index) - 1]
-    if ntf.type == "friendRequest":
-        if tag == "接受":
-            await accept_friend_request(state["client"], ntf.id)
-            await UniMessage.text("已接受好友申请").finish()
-        elif tag == "忽略":
-            await mark_notification_as_read(state["client"], ntf.id)
-            await UniMessage.text("已忽略好友申请").finish()
-        elif tag == "拒绝":
-            await delete_notification(state["client"], ntf.id)
-            await UniMessage.text("已拒绝好友申请").finish()
+    try:
+        if ntf.type == "friendRequest":
+            if tag == Lang.nbp_vrc.notif.accept:
+                await accept_friend_request(client, ntf.id)
+                await UniMessage.text(Lang.nbp_vrc.notif.accept_resp).finish()
+            elif tag == Lang.nbp_vrc.notif.ignore:
+                await mark_notification_as_read(client, ntf.id)
+                await UniMessage.text(Lang.nbp_vrc.notif.ignore_resp).finish()
+            elif tag == Lang.nbp_vrc.notif.deny:
+                await delete_notification(client, ntf.id)
+                await UniMessage.text(Lang.nbp_vrc.notif.deny_resp).finish()
+            else:
+                await UniMessage.text(Lang.nbp_vrc.notif.error_handle).finish()
+    except NotFoundException as e:
+        if e.status == 404:
+            await UniMessage.text(Lang.nbp_vrc.notif.processed).finish()
         else:
-            await UniMessage.text("无效操作好友申请").finish()
+            await handle_error(matcher, e)

@@ -109,6 +109,22 @@
             "select_locale_tip",
             "locale_changed"
           ]
+        },
+        {
+          "subtype": "notif",
+          "types": [
+            "all_notif_resp",
+            "accept",
+            "accept_resp",
+            "ignore",
+            "ignore_resp",
+            "deny",
+            "deny_resp",
+            "processed",
+            "error_handle",
+            "no_request",
+            "reply_notif"
+          ]
         }
       ]
     }
