@@ -90,9 +90,7 @@
       "deny_resp": "已拒绝好友申请",
       "error_handle": "无效操作好友申请",
       "no_request": "没有好友申请",
-      "processed": "该请求已被处理啦",
-
-
+      "processed": "该请求已被处理啦"
     }
   }
 }
