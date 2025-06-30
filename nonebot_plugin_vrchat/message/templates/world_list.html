@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="world_list.css">
+    <title>世界列表</title>
+</head>
+
+<body>
+    <h1>VRChat世界列表</h1>
+    <div class="world-list-container">
+        {% for world in worlds %}
+        <div class="world-card">
+            <div class="world-header">
+                <img src="{{ world.thumbnail_image_url }}" alt="{{ world.name }}" class="world-thumbnail">
+                <h2>{{ loop.index }}. {{ world.name }}</h2>
+            </div>
+            
+            <div class="world-details">
+                <div class="detail-row">
+                    <span class="detail-label">作者:</span>
+                    <span class="detail-value">{{ world.author_name }}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">创建时间:</span>
+                    <span class="detail-value">{{ world.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">更新于:</span>
+                    <span class="detail-value">{{ world.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">容量:</span>
+                    <span class="detail-value">{{ world.capacity }}人</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">当前人数:</span>
+                    <span class="detail-value">{{ world.occupants }}人</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">收藏数:</span>
+                    <span class="detail-value">{{ world.favorites }}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">标签:</span>
+                    <span class="detail-value tags">
+                        {% for tag in world.tags %}
+                            {% if not tag.startswith('system_') and not tag.startswith('admin_') %}
+                                <span class="tag">{{ tag.replace('author_tag_', '') }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">支持平台:</span>
+                    <span class="detail-value platforms">
+                        {% set platforms = [] %}
+                        {% for package in world.unity_packages %}
+                            {% if package.platform not in platforms %}
+                                {% set _ = platforms.append(package.platform) %}
+                                <span class="platform">{{ package.platform }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% if loop.index % 2 == 0 %}
+        <div class="world-divider"></div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    <div class="total-results">
+        总计: {{ worlds|length }} 个世界
+    </div>
+</body>
+
+</html>

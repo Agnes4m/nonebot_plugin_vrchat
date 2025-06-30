@@ -1,12 +1,17 @@
 from nonebot import on_command
+from nonebot.adapters import Message
 from nonebot.matcher import Matcher
-from nonebot.params import ArgPlainText
+from nonebot.params import ArgPlainText, EventMessage, T_State
 from nonebot_plugin_alconna import UniMessage
+from vrchatapi import ApiClient
 
 from ..i18n import Lang
-from ..vrchat import get_or_random_client, search_worlds
+from ..message.world import draw_world_card_overview
+from ..vrchat import LimitedWorldModel, get_or_random_client, get_world, search_worlds
 from .utils import (
     KEY_ARG,
+    KEY_CLIENT,
+    KEY_WORLD_RESP,
     UserSessionId,
     handle_error,
     register_arg_got_handlers,
@@ -31,6 +36,7 @@ register_arg_got_handlers(
 async def _(
     matcher: Matcher,
     session_id: UserSessionId,
+    state: T_State,
     arg: str = ArgPlainText(KEY_ARG),
 ):
     arg = arg.strip()
@@ -45,20 +51,29 @@ async def _(
 
     if not worlds:
         await matcher.finish(Lang.nbp_vrc.world.no_world_found())
+    state[KEY_WORLD_RESP] = worlds
+    state[KEY_CLIENT] = client
+    msg = await draw_world_card_overview(worlds)
+    await UniMessage.image(raw=msg).send()
+    await matcher.pause("发送[1]查看第一个世界\n发送[喜好 1]添加到喜好\n发送[0]取消")
 
-    len_worlds = len(worlds)
-    msg_factory = UniMessage.text(
-        Lang.nbp_vrc.world.searched_world_tip(count=len_worlds),
-    )
-    for i, wld in enumerate(worlds, 1):
-        msg_factory += UniMessage.image(wld.thumbnail_image_url)
-        msg_factory += Lang.nbp_vrc.world.searched_world_info(
-            index=i,
-            name=wld.name,
-            author=wld.author_name,
-            created_at=wld.created_at,
-        )
-        if i != len_worlds:
-            msg_factory += "\n-\n"
 
-    await msg_factory.finish()
+@search_world.handle()
+async def _(matcher: Matcher, state: T_State, message: Message = EventMessage()):
+    arg = message.extract_plain_text().strip()
+    if arg == "0":
+        await matcher.finish(Lang.nbp_vrc.general.discard_select())
+    client: ApiClient = state[KEY_CLIENT]
+    resp: list[LimitedWorldModel] = state[KEY_WORLD_RESP]
+
+    # 查询详情部分
+    if arg.isdigit():
+        world = resp[int(arg) - 1]
+        print(type(world))
+        worlds = await get_world(client, resp[int(arg) - 1].world_id)
+        print(worlds)
+    if arg.startswith("喜好"):
+        index = int(arg.split(" ", 1)[1])
+        world = resp[index - 1]
+        worlds = await get_world(client, resp[index - 1].world_id)
+        print(worlds)

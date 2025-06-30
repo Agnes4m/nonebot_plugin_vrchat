@@ -45,6 +45,7 @@ KEY_VERIFY_CODE = "verify_code"
 KEY_CURRENT_USER = "current_user"
 KEY_SEARCH_RESP = "search_resp"
 KEY_NOTIF_RESP = "notif_resp"
+KEY_WORLD_RESP = "world_resp"
 
 
 async def rule_enable(group_id: GroupSessionId, user_id: UserSessionId) -> bool:
