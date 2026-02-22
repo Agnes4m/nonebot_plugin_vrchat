@@ -170,14 +170,14 @@ class LimitedUserModel(BaseModel):
 class Badge(BaseModel):
     """徽章"""
 
-    assigned_at: datetime
+    assigned_at: Optional[datetime] = None
     badge_description: str
     badge_id: str
     badge_image_url: str
     badge_name: str
-    hidden: bool
+    hidden: Optional[bool] = None
     showcased: bool
-    updated_at: datetime
+    updated_at: Optional[datetime] = None
 
 
 class UserModel(BaseModel):
