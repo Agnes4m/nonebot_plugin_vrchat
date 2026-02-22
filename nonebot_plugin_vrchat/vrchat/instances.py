@@ -1,9 +1,7 @@
-from typing import Awaitable, cast, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Awaitable, Optional, cast
 
 from nonebot.utils import run_sync
 from vrchatapi import ApiClient, InstancesApi
-
-from .utils import user_agent
 
 if TYPE_CHECKING:
     from vrchatapi.models import Instance

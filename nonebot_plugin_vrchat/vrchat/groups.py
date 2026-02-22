@@ -57,7 +57,11 @@ async def get_group(client: ApiClient, group_id: str) -> GroupModel:
         "Awaitable[dict]",
         run_sync(api.get_group)(group_id=group_id),
     )
-    return GroupModel(**result) if isinstance(result, dict) else GroupModel.model_validate({})
+    return (
+        GroupModel(**result)
+        if isinstance(result, dict)
+        else GroupModel.model_validate({})
+    )
 
 
 async def create_group(
@@ -82,7 +86,11 @@ async def create_group(
             create_group_request=CreateGroupRequest(**create_group_request),
         ),
     )
-    return GroupModel(**result) if isinstance(result, dict) else GroupModel.model_validate({})
+    return (
+        GroupModel(**result)
+        if isinstance(result, dict)
+        else GroupModel.model_validate({})
+    )
 
 
 async def update_group(
@@ -110,7 +118,11 @@ async def update_group(
             update_group_request=UpdateGroupRequest(**update_group_request),
         ),
     )
-    return GroupModel(**result) if isinstance(result, dict) else GroupModel.model_validate({})
+    return (
+        GroupModel(**result)
+        if isinstance(result, dict)
+        else GroupModel.model_validate({})
+    )
 
 
 async def delete_group(client: ApiClient, group_id: str) -> bool:

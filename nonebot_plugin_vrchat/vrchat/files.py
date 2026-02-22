@@ -4,7 +4,6 @@ from nonebot.utils import run_sync
 from vrchatapi import ApiClient, FilesApi
 
 from .types import FileModel, FileVersionModel
-from .utils import user_agent
 
 
 async def create_file(
@@ -29,7 +28,11 @@ async def create_file(
             create_file_request=CreateFileRequest(**create_file_request),
         ),
     )
-    return FileModel(**result) if isinstance(result, dict) else FileModel.model_validate({})
+    return (
+        FileModel(**result)
+        if isinstance(result, dict)
+        else FileModel.model_validate({})
+    )
 
 
 async def create_file_version(
@@ -59,7 +62,11 @@ async def create_file_version(
             ),
         ),
     )
-    return FileVersionModel(**result) if isinstance(result, dict) else FileVersionModel.model_validate({})
+    return (
+        FileVersionModel(**result)
+        if isinstance(result, dict)
+        else FileVersionModel.model_validate({})
+    )
 
 
 async def get_file(client: ApiClient, file_id: str) -> FileModel:
@@ -77,7 +84,11 @@ async def get_file(client: ApiClient, file_id: str) -> FileModel:
         "Awaitable[dict]",
         run_sync(api.get_file)(file_id=file_id),
     )
-    return FileModel(**result) if isinstance(result, dict) else FileModel.model_validate({})
+    return (
+        FileModel(**result)
+        if isinstance(result, dict)
+        else FileModel.model_validate({})
+    )
 
 
 async def get_files(
@@ -275,7 +286,11 @@ async def finish_file_data_upload(
             ),
         ),
     )
-    return FileModel(**result) if isinstance(result, dict) else FileModel.model_validate({})
+    return (
+        FileModel(**result)
+        if isinstance(result, dict)
+        else FileModel.model_validate({})
+    )
 
 
 async def get_file_data_upload_status(
@@ -330,7 +345,11 @@ async def upload_image(
             tag=tag,
         ),
     )
-    return FileModel(**result) if isinstance(result, dict) else FileModel.model_validate({})
+    return (
+        FileModel(**result)
+        if isinstance(result, dict)
+        else FileModel.model_validate({})
+    )
 
 
 async def upload_icon(
@@ -356,7 +375,11 @@ async def upload_icon(
             file=file_data,
         ),
     )
-    return FileModel(**result) if isinstance(result, dict) else FileModel.model_validate({})
+    return (
+        FileModel(**result)
+        if isinstance(result, dict)
+        else FileModel.model_validate({})
+    )
 
 
 async def upload_gallery_image(
@@ -385,7 +408,11 @@ async def upload_gallery_image(
             file=file_data,
         ),
     )
-    return FileModel(**result) if isinstance(result, dict) else FileModel.model_validate({})
+    return (
+        FileModel(**result)
+        if isinstance(result, dict)
+        else FileModel.model_validate({})
+    )
 
 
 async def get_content_agreement_status(client: ApiClient) -> dict:

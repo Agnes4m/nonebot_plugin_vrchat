@@ -1,10 +1,9 @@
 from collections.abc import AsyncIterable, Awaitable
-from typing import cast
+from typing import TYPE_CHECKING, cast
 from typing_extensions import Unpack
 
 from nonebot.utils import run_sync
 from vrchatapi import ApiClient, NotificationsApi, Success
-from vrchatapi.models import Notification
 
 from .types import NotificationModel
 from .utils import (
@@ -12,6 +11,9 @@ from .utils import (
     auto_parse_iterator_return,
     iter_pagination_func,
 )
+
+if TYPE_CHECKING:
+    from vrchatapi.models import Notification
 
 
 def get_notifications(

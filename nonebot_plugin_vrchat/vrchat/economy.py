@@ -141,7 +141,9 @@ async def get_product_listings(
     api = EconomyApi(client)
     result = await cast(
         "Awaitable[list]",
-        run_sync(api.get_product_listings)(user_id=user_id,type=product_listing_type, n=n, offset=offset),
+        run_sync(api.get_product_listings)(
+            user_id=user_id, type=product_listing_type, n=n, offset=offset
+        ),
     )
     return result if isinstance(result, list) else []
 
@@ -274,7 +276,9 @@ async def get_token_bundles(client: ApiClient) -> List[dict]:
     return result if isinstance(result, list) else []
 
 
-async def get_user_credits_eligible(client: ApiClient, user_id: str, subscription_id:str) -> dict:
+async def get_user_credits_eligible(
+    client: ApiClient, user_id: str, subscription_id: str
+) -> dict:
     """获取用户信用额度资格信息
 
     Args:
@@ -287,7 +291,9 @@ async def get_user_credits_eligible(client: ApiClient, user_id: str, subscriptio
     api = EconomyApi(client)
     result = await cast(
         "Awaitable[dict]",
-        run_sync(api.get_user_credits_eligible)(user_id=user_id, subscription_id=subscription_id),
+        run_sync(api.get_user_credits_eligible)(
+            user_id=user_id, subscription_id=subscription_id
+        ),
     )
     return result if isinstance(result, dict) else {}
 

@@ -1,10 +1,9 @@
-from typing import Awaitable, List, Optional, cast
+from typing import Awaitable, List, cast
 
 from nonebot.utils import run_sync
 from vrchatapi import ApiClient, InventoryApi
 
 from .types import InventoryItemModel, InventoryModel, InventoryTemplateModel
-from .utils import user_agent
 
 
 async def get_inventory(client: ApiClient) -> InventoryModel:
@@ -21,7 +20,11 @@ async def get_inventory(client: ApiClient) -> InventoryModel:
         "Awaitable[dict]",
         run_sync(api.get_inventory)(),
     )
-    return InventoryModel(**result) if isinstance(result, dict) else InventoryModel.model_validate({})
+    return (
+        InventoryModel(**result)
+        if isinstance(result, dict)
+        else InventoryModel.model_validate({})
+    )
 
 
 async def get_own_inventory_item(
@@ -42,7 +45,11 @@ async def get_own_inventory_item(
         "Awaitable[dict]",
         run_sync(api.get_own_inventory_item)(inventory_item_id=item_id),
     )
-    return InventoryItemModel(**result) if isinstance(result, dict) else InventoryItemModel.model_validate({})
+    return (
+        InventoryItemModel(**result)
+        if isinstance(result, dict)
+        else InventoryItemModel.model_validate({})
+    )
 
 
 async def get_user_inventory_item(
@@ -68,7 +75,11 @@ async def get_user_inventory_item(
             inventory_item_id=item_id,
         ),
     )
-    return InventoryItemModel(**result) if isinstance(result, dict) else InventoryItemModel.model_validate({})
+    return (
+        InventoryItemModel(**result)
+        if isinstance(result, dict)
+        else InventoryItemModel.model_validate({})
+    )
 
 
 async def update_own_inventory_item(
@@ -94,11 +105,15 @@ async def update_own_inventory_item(
         run_sync(api.update_own_inventory_item)(
             inventory_item_id=item_id,
             update_inventory_item_request=UpdateInventoryItemRequest(
-                **update_inventory_item_request
+                **update_inventory_item_request,
             ),
         ),
     )
-    return InventoryItemModel(**result) if isinstance(result, dict) else InventoryItemModel.model_validate({})
+    return (
+        InventoryItemModel(**result)
+        if isinstance(result, dict)
+        else InventoryItemModel.model_validate({})
+    )
 
 
 async def delete_own_inventory_item(client: ApiClient, item_id: str) -> bool:
@@ -137,7 +152,7 @@ async def equip_own_inventory_item(
     await run_sync(api.equip_own_inventory_item)(
         inventory_item_id=item_id,
         equip_inventory_item_request=EquipInventoryItemRequest(
-            **equip_inventory_item_request
+            **equip_inventory_item_request,
         ),
     )
     return True
@@ -197,7 +212,11 @@ async def get_inventory_template(
         "Awaitable[dict]",
         run_sync(api.get_inventory_template)(inventory_template_id=template_id),
     )
-    return InventoryTemplateModel(**result) if isinstance(result, dict) else InventoryTemplateModel.model_validate({})
+    return (
+        InventoryTemplateModel(**result)
+        if isinstance(result, dict)
+        else InventoryTemplateModel.model_validate({})
+    )
 
 
 async def get_inventory_collections(
