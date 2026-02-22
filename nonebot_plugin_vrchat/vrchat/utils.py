@@ -1,16 +1,12 @@
 import asyncio
+from collections.abc import AsyncIterable, Awaitable
 from functools import wraps
 from typing import (
     Any,
-    AsyncIterable,
-    Awaitable,
     Callable,
-    Dict,
     Generic,
-    List,
     Optional,
     Protocol,
-    Type,
     TypedDict,
     TypeVar,
 )
@@ -29,14 +25,14 @@ class HasToDictProtocol(Protocol):
 
 
 class PaginationCallable(Protocol, Generic[T]):
-    async def __call__(self, page_size: int, offset: int) -> Optional[List[T]]: ...
+    async def __call__(self, page_size: int, offset: int) -> Optional[list[T]]: ...
 
 
 class ApiModelClass(Protocol):
     """代表 `vrchatapi` 中调用 API 返回的数据结构"""
 
-    openapi_types: Dict[str, str]
-    attribute_map: Dict[str, str]
+    openapi_types: dict[str, str]
+    attribute_map: dict[str, str]
     __init__: Callable[..., None]
 
 
@@ -101,7 +97,7 @@ def iter_pagination_func(**kwargs: Unpack[IterPFKwargs]):
     return decorator
 
 
-def auto_parse_iterator_return(model: Type[TM]):
+def auto_parse_iterator_return(model: type[TM]):
     """
     用于装饰返回 `HasToDictProtocol` 异步迭代器的函数，
     对此函数返回的迭代器每次迭代返回的值调用 `.to_dict()` 后使用指定的 `BaseModel` 解析并返回
@@ -123,7 +119,7 @@ def auto_parse_iterator_return(model: Type[TM]):
     return decorator
 
 
-def auto_parse_return(model: Type[TM]):
+def auto_parse_return(model: type[TM]):
     """
     用于装饰返回 `HasToDictProtocol` 的异步函数，
     对此函数返回的值调用 `.to_dict()` 后使用指定的 `BaseModel` 解析并返回
@@ -146,7 +142,7 @@ def auto_parse_return(model: Type[TM]):
 
 
 def patch_api_model_append_attr(
-    cls: Type[TModelClass],
+    cls: type[TModelClass],
     attr: str,
     real_attr: str,
     attr_type: str,

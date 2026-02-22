@@ -1,5 +1,5 @@
 import time
-from typing import List
+from typing import TYPE_CHECKING, List
 
 from loguru import logger
 from nonebot import on_command
@@ -8,7 +8,6 @@ from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, EventMessage
 from nonebot.typing import T_State
 from nonebot_plugin_alconna.uniseg import UniMessage
-from vrchatapi import ApiClient, Notification
 from vrchatapi.exceptions import NotFoundException
 
 from ..i18n.model import Lang
@@ -28,6 +27,9 @@ from .utils import (
     rule_enable,
     split_chinese_digits,
 )
+
+if TYPE_CHECKING:
+    from vrchatapi import ApiClient, Notification
 
 logger.info(rule_enable)
 show_notic = on_command(

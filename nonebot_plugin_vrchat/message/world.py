@@ -11,7 +11,6 @@ async def draw_world_card_overview(
     users: List[LimitedUserModel],
     # client: Optional[ApiClient] = None,
 ) -> bytes:
-
     templates = users
     logger.info(templates)
     return await t2p(
@@ -25,7 +24,6 @@ async def draw_world_card(
     user: LimitedUserModel,
     # client: Optional[ApiClient] = None,
 ) -> bytes:
-
     templates = user
     logger.info(templates)
     return await t2p(

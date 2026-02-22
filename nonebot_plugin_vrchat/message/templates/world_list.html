@@ -16,38 +16,38 @@
                 <img src="{{ world.thumbnail_image_url }}" alt="{{ world.name }}" class="world-thumbnail">
                 <h2>{{ loop.index }}. {{ world.name }}</h2>
             </div>
-            
+
             <div class="world-details">
                 <div class="detail-row">
                     <span class="detail-label">作者:</span>
                     <span class="detail-value">{{ world.author_name }}</span>
                 </div>
-                
+
                 <div class="detail-row">
                     <span class="detail-label">创建时间:</span>
                     <span class="detail-value">{{ world.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
                 </div>
-                
+
                 <div class="detail-row">
                     <span class="detail-label">更新于:</span>
                     <span class="detail-value">{{ world.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
                 </div>
-                
+
                 <div class="detail-row">
                     <span class="detail-label">容量:</span>
                     <span class="detail-value">{{ world.capacity }}人</span>
                 </div>
-                
+
                 <div class="detail-row">
                     <span class="detail-label">当前人数:</span>
                     <span class="detail-value">{{ world.occupants }}人</span>
                 </div>
-                
+
                 <div class="detail-row">
                     <span class="detail-label">收藏数:</span>
                     <span class="detail-value">{{ world.favorites }}</span>
                 </div>
-                
+
                 <div class="detail-row">
                     <span class="detail-label">标签:</span>
                     <span class="detail-value tags">
@@ -58,7 +58,7 @@
                         {% endfor %}
                     </span>
                 </div>
-                
+
                 <div class="detail-row">
                     <span class="detail-label">支持平台:</span>
                     <span class="detail-value platforms">

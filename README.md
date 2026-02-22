@@ -144,7 +144,7 @@ plugins = [
 ```base
 # vrchat 配置
 # default默认 tec科技风格(不好看)
-vrchat_img = "default" 
+vrchat_img = "default"
 # 是否显示头像, 关闭大幅提高出图速度
 vrchat_avatar = True
 
@@ -179,6 +179,7 @@ vrchat_avatar = True
 
 - 插件报错或建议：发iss或者 [q 群](https://qm.qq.com/q/qK3156ysN2) 或者邮箱
 - [爱发电](https://afdian.tv/a/agnes_digital) 感谢大家的赞助！你们的赞助将是我继续创作的动力！
+- `playwright._impl._errors.Error: Page.wait_for_timeout: wait_timeout: expected float, got undefined`错误，手动注销掉`nonebot_plugin_htmlrender\data_source.py`中的`await page.wait_for_timeout(wait)`可暂时解决
 
 ## 📝 更新日志
 

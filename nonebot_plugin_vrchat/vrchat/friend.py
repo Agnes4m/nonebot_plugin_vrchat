@@ -1,31 +1,38 @@
-from typing import AsyncIterable, Awaitable, List, cast
+from collections.abc import AsyncIterable, Awaitable
+from typing import TYPE_CHECKING, Optional, cast
 from typing_extensions import Unpack
 
 from nonebot.utils import run_sync
 from vrchatapi import ApiClient, FriendsApi
-from vrchatapi.models import FriendStatus, LimitedUser, Notification, Success
 
 from .types import LimitedUserModel
-from .utils import IterPFKwargs, auto_parse_iterator_return, iter_pagination_func
+from .utils import (
+    IterPFKwargs,
+    auto_parse_iterator_return,
+    iter_pagination_func,
+)
+
+if TYPE_CHECKING:
+    from vrchatapi.models import FriendStatus, Notification, Success
 
 
 async def delete_friend_request(
     client: ApiClient,
     user_id: str,
-):
+) -> "Success":
     """
     删除指定用户的好友请求。
 
     参数:
-    - client (ApiClient): API客户端实例，用于与VRChat交互。
-    - user_id (str): 要删除好友请求的目标用户的唯一标识符。
+        client (ApiClient): API 客户端实例，用于与 VRChat 交互。
+        user_id (str): 要删除好友请求的目标用户的唯一标识符。
 
     返回值:
-    - Success: 如果操作成功，则返回一个Success对象。
+        Success: 如果操作成功，则返回一个 Success 对象。
     """
     api = FriendsApi(client)
     return await cast(
-        Awaitable[Success],
+        "Awaitable[Success]",
         run_sync(api.delete_friend_request)(user_id=user_id),
     )
 
@@ -46,20 +53,20 @@ def get_friends(
     Returns:
         获取好友列表的异步迭代器
     """
-
     api = FriendsApi(client)
 
     @auto_parse_iterator_return(LimitedUserModel)
     @iter_pagination_func(**pf_kwargs)
-    async def iterator(page_size: int, offset: int) -> List[LimitedUser]:
-        return await cast(
-            Awaitable[List[LimitedUser]],
+    async def iterator(page_size: int, offset: int):
+        result = await cast(
+            "Awaitable[list]",
             run_sync(api.get_friends)(
                 offset=offset,
                 n=page_size,
                 offline=str(offline).lower(),
             ),
         )
+        return result or []
 
     return iterator()
 
@@ -78,7 +85,6 @@ async def get_all_friends(
     Returns:
         获取好友列表的异步迭代器
     """
-
     async for x in get_friends(client, offline=False, **pf_kwargs):
         yield x
     async for x in get_friends(client, offline=True, **pf_kwargs):
@@ -88,20 +94,20 @@ async def get_all_friends(
 async def get_friend_status(
     client: ApiClient,
     user_id: str,
-) -> FriendStatus:
+) -> "FriendStatus":
     """
     获取是否是给定用户的好友，是否有传出的好友请求，以及是否有传入的好友请求信息。
 
     参数:
-    client (ApiClient): API客户端实例，用于发起API请求
-    user_id (str): 要查询的好友用户ID
+        client (ApiClient): API 客户端实例，用于发起 API 请求
+        user_id (str): 要查询的好友用户 ID
 
     返回:
-    FriendStatus: 好友状态对象，包含好友关系的状态信息
+        FriendStatus: 好友状态对象，包含好友关系的状态信息
     """
     api = FriendsApi(client)
     return await cast(
-        Awaitable[FriendStatus],
+        "Awaitable[FriendStatus]",
         run_sync(api.get_friend_status)(user_id=user_id),
     )
 
@@ -109,21 +115,20 @@ async def get_friend_status(
 async def friend(
     client: ApiClient,
     user_id: str,
-):
+) -> "Notification":
     """
-    异步函数，用于发送好友请求。
+    发送好友请求。
 
     参数:
-    client (ApiClient): API客户端实例。
-    user_id (str): 用户ID。
+        client (ApiClient): API 客户端实例。
+        user_id (str): 用户 ID。
 
     返回值:
-    Notification: 返回一个Notification对象。
+        Notification: 返回一个 Notification 对象。
     """
-
     api = FriendsApi(client)
     return await cast(
-        Awaitable[Notification],
+        "Awaitable[Notification]",
         run_sync(api.friend)(user_id=user_id),
     )
 
@@ -131,19 +136,43 @@ async def friend(
 async def unfriend(
     client: ApiClient,
     user_id: str,
-):
+) -> "Success":
     """
     取消好友关系。
 
     参数:
-        client (ApiClient): API客户端实例。
-        user_id (str): 要取消的好友的用户ID。
+        client (ApiClient): API 客户端实例。
+        user_id (str): 要取消的好友的用户 ID。
 
     返回值:
         Success: 表示操作成功的类型。
     """
     api = FriendsApi(client)
     return await cast(
-        Awaitable[Success],
+        "Awaitable[Success]",
         run_sync(api.unfriend)(user_id=user_id),
     )
+
+
+async def boop(
+    client: ApiClient,
+    user_id: str,
+    boop_request: Optional[dict] = None,
+) -> bool:
+    """
+    向好友发送 Boop（戳一戳）。
+
+    参数:
+        client (ApiClient): API 客户端实例。
+        user_id (str): 要发送 Boop 的用户 ID。
+        boop_request: Boop 请求对象，可选。
+
+    返回值:
+        bool: 是否发送成功。
+    """
+    from vrchatapi.models import BoopRequest
+
+    api = FriendsApi(client)
+    req = BoopRequest(**boop_request) if boop_request else BoopRequest()
+    await run_sync(api.boop)(user_id=user_id, boop_request=req)
+    return True

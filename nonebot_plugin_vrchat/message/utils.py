@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import time
 from datetime import timedelta
 from io import BytesIO
 from pathlib import Path
@@ -242,34 +243,51 @@ def td_format(td_object: timedelta):
     return "很久没上线"
 
 
+async def get_image_or_default_with_timeout(
+    url: str,
+    timeout: int = 3,
+) -> Optional[str]:
+    """带超时的图片下载函数"""
+    try:
+        return await asyncio.wait_for(get_image_or_default(url), timeout=timeout)
+    except asyncio.TimeoutError:
+        logger.debug(f"图片下载超时: {url}")
+        return None
+    except Exception as e:
+        logger.debug(f"图片下载失败: {url}, 错误: {e}")
+        return None
+
+
 async def get_image_or_default(
     url: Optional[str],
-    default_size: Optional[Tuple[int, int]] = None,
+    # default_size: Optional[Tuple[int, int]] = None,
     # default_img_path: Optional[Path] = None,
 ):
+    """获取图片，单次请求，失败返回默认图片"""
     img = None
 
     if url:
         try:
-            img = await get_url_bytes(url, default_size=default_size)
+            # 单次请求，设置较短的超时时间
+            async with (
+                aiohttp.ClientSession(
+                    timeout=aiohttp.ClientTimeout(total=3),
+                ) as session,
+                session.get(url) as response,
+            ):
+                if response.status == 200:
+                    img = await response.read()
+                else:
+                    logger.debug(
+                        f"图片请求失败，状态码: {response.status}, URL: {url}",
+                    )
+        except asyncio.TimeoutError:
+            logger.debug(f"图片请求超时: {url}")
         except Exception as e:
-            logger.warning(
-                f"Failed to get image, url `{url}`: {type(e).__name__}: {e}",
-            )
+            logger.debug(f"图片请求异常: {url}, 错误: {type(e).__name__}: {e}")
 
     if not img:
         return None
-        # img_path = default_img_path or DEFAULT_IMG_PATH
-        # async with aiofiles.open(img_path, "rb") as f:
-        #     img = await f.read()
-        # if default_size:
-
-        #     with Image.open(BytesIO(img)) as im:
-        #         im = im.convert("RGBA")
-        #         im.thumbnail(default_size, Image.Resampling.LANCZOS)
-        #         buf = BytesIO()
-        #         im.save(buf, format="PNG")
-        #         img = buf.getvalue()
 
     return f"{base64.b64encode(img).decode('utf-8')}"
 
@@ -370,6 +388,11 @@ async def url_to_base64(url: str) -> Optional[str]:
 
 async def convert_urls_to_base64(data: Dict) -> Dict:
     """转换所有图片URL为Base64格式"""
+    logger.debug(
+        f"开始转换图片URL为Base64，用户数量: {sum(len(entries) for entries in data.values())}",
+    )
+    start_time = time.perf_counter()
+
     result = {
         status: [dict(entry) for entry in entries] for status, entries in data.items()
     }
@@ -381,21 +404,43 @@ async def convert_urls_to_base64(data: Dict) -> Dict:
         for idx, entry in enumerate(entries):
             url = entry.get("current_avatar_thumbnail_image_url")
             if url and url != "default.png":
-                # tasks.append(url_to_base64(url))
-                tasks.append(get_image_or_default(url))
+                # 添加超时和错误处理
+                task = asyncio.create_task(get_image_or_default_with_timeout(url))
+                tasks.append(task)
                 url_mapping.append((status, idx))
 
-    base64_results = await asyncio.gather(*tasks)
+    # 分批处理，避免同时发起太多请求
+    batch_size = 5  # 每次最多同时处理5个图片
+    base64_results = []
+
+    for i in range(0, len(tasks), batch_size):
+        batch_tasks = tasks[i : i + batch_size]
+        batch_mapping = url_mapping[i : i + batch_size]
+
+        logger.debug(
+            f"处理图片批次 {i // batch_size + 1}/{(len(tasks) + batch_size - 1) // batch_size}",
+        )
+        batch_results = await asyncio.gather(*batch_tasks, return_exceptions=True)
+
+        for (_, _), result_data in zip(batch_mapping, batch_results):
+            if isinstance(result_data, Exception):
+                logger.warning(f"图片下载失败: {result_data}")
+                base64_results.append(None)
+            else:
+                base64_results.append(result_data)
 
     # 更新结果数据
     for (status, idx), base64_data in zip(url_mapping, base64_results):
         if base64_data:
-            result[status][idx][
-                "current_avatar_thumbnail_image_url_base64"
-            ] = f"data:image/png;base64,{base64_data}"
+            result[status][idx]["current_avatar_thumbnail_image_url_base64"] = (
+                f"data:image/png;base64,{base64_data}"
+            )
         else:
             result[status][idx]["current_avatar_thumbnail_image_url"] = "default.png"
             result[status][idx].pop("current_avatar_thumbnail_image_url_base64", None)
+
+    end_time = time.perf_counter()
+    logger.debug(f"图片转换完成，用时: {end_time - start_time:.3f} 秒")
 
     return result
 

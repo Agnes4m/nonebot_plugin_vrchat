@@ -28,7 +28,7 @@
 
 body {
     background: var(--bg-dark);
-    background-image: 
+    background-image:
         radial-gradient(circle at 10% 20%, rgba(40, 40, 80, 0.1) 0%, transparent 20%),
         radial-gradient(circle at 90% 80%, rgba(60, 10, 80, 0.1) 0%, transparent 20%);
     color: var(--text-light);
@@ -506,21 +506,21 @@ body {
     .notifications-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .notification-stats {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .vr-title {
         font-size: 2rem;
     }
-    
+
     .section-header {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .filter-controls {
         width: 100%;
         justify-content: center;

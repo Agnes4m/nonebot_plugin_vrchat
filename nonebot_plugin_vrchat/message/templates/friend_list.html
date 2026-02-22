@@ -28,14 +28,14 @@
             <div class="friends-grid">
                 {% if friends %}
                 {% for friend in friends %}
-                <div class="friend-card" data-trust="{{ friend.trust }}">
+                <div class="friend-card" data-trust="{{ friend.trust or 'visitor' }}">
                     <div class="card-inner">
                         <div class="avatar-section">
                             <div class="avatar-frame"
                                 style="border-color: {{ trust_colors.get(friend.trust, '#0ff') }};">
                                 <img class="avatar-img"
                                     src="{{ friend.current_avatar_thumbnail_image_url_base64 or 'default.png' }}"
-                                    alt="{{ friend.display_name }}的头像"
+                                    alt="{{ friend.display_name or '未知用户' }}的头像"
                                     onerror="this.onerror=null;this.src='default.png';">
                                 <div class="avatar-glow"
                                     style="box-shadow: 0 0 20px {{ trust_colors.get(friend.trust, '#0ff') }}40;"></div>
@@ -44,18 +44,17 @@
 
                         <div class="info-section">
                             <div class="user-id">
-                                <span class="index-number">{{ friend.index }}.</span>
-                                <span class="username">{{ friend.display_name }}</span>
+                                <span class="index-number">{{ friend.index or 0 }}.</span>
+                                <span class="username">{{ friend.display_name or '未知用户' }}</span>
                             </div>
 
                             <div class="status-line">
-                                <span class="status-badge">{{ friend.status_description or status_desc_map.get(status,
-                                    status) }}</span>
+                                <span class="status-badge">{{ friend.status_description or status_desc_map.get(status, status) or '未知状态' }}</span>
                             </div>
 
                             <div class="location-line">
                                 <span class="location-icon">🌐</span>
-                                <span class="location-text">{{ friend.location }}</span>
+                                <span class="location-text">{{ friend.location or '未知位置' }}</span>
                             </div>
                         </div>
                     </div>

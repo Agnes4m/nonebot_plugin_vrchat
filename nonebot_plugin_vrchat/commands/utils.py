@@ -9,7 +9,7 @@ from nonebot.matcher import Matcher
 from nonebot.params import CommandArg, EventMessage
 from nonebot_plugin_alconna import UniMessage
 from nonebot_plugin_session import SessionId, SessionIdType
-from vrchatapi import ApiClient, LimitedUser, Notification
+from vrchatapi import ApiClient, Notification
 
 from ..config import session_config
 from ..i18n import Lang
@@ -94,7 +94,7 @@ def register_arg_got_handlers(
 
 async def save_to_file(
     msg_id: str,
-    msg: Union[LimitedUser, list[LimitedUser], dict, list],
+    msg: Union[LimitedUserModel, list[LimitedUserModel], dict, list],
     name: str = "msg_id",
 ):
     msg_path = Path(f"data/vrchat/{name}/") / f"{msg_id}.json"
@@ -115,7 +115,6 @@ async def save_to_file(
 
 
 async def read_to_file(msg_id: Union[str, int]) -> Union[dict, list, None]:
-
     msg_path = Path("data/vrchat/msg_id/") / f"{msg_id}.json"
     logger.debug(f"Reading message from {msg_path}")
     if not msg_path.exists():

@@ -95,7 +95,10 @@ class NbpVrcWorld:
 
 
 class NbpVrcLocale:
-    available_locales_tip: LangItem = LangItem("nbp_vrc", "locale.available_locales_tip")
+    available_locales_tip: LangItem = LangItem(
+        "nbp_vrc",
+        "locale.available_locales_tip",
+    )
     select_locale_tip: LangItem = LangItem("nbp_vrc", "locale.select_locale_tip")
     locale_changed: LangItem = LangItem("nbp_vrc", "locale.locale_changed")
 

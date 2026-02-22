@@ -7,19 +7,33 @@ from nonebot_plugin_htmlrender import template_to_pic as t2p
 
 from ..config import env_config
 from ..vrchat import ApiClient, LimitedUserModel, UserModel
-from .utils import OFFLINE_STATUSES as OFFLINE
-from .utils import PLATFORM_DESC as P_DESC
-from .utils import STATUS_COLORS as S_COLORS
-from .utils import STATUS_DESC_MAP as S_DESC
-from .utils import TRUST_COLORS as T_COLORS
+from .utils import (
+    OFFLINE_STATUSES as OFFLINE,
+)
+from .utils import (
+    PLATFORM_DESC as P_DESC,
+)
+from .utils import (
+    STATUS_COLORS as S_COLORS,
+)
+from .utils import (
+    STATUS_DESC_MAP as S_DESC,
+)
+from .utils import (
+    TRUST_COLORS as T_COLORS,
+)
 from .utils import (
     FriendListTemplateContext,
     convert_urls_to_base64,
     get_avatar_url,
     select_friend_html,
 )
-from .utils import format_location as fmt_loc
-from .utils import td_format as td_fmt
+from .utils import (
+    format_location as fmt_loc,
+)
+from .utils import (
+    td_format as td_fmt,
+)
 
 template_path = str(Path(__file__).parent / "templates")
 
@@ -30,9 +44,13 @@ async def draw_user_card_overview(
     client: Optional[ApiClient] = None,
     title: str = "好友列表",
 ):
+    logger.debug(f"开始绘制好友列表卡片，用户数量: {len(users)}")
+
     time_now = datetime.now(timezone.utc)
     raw_user_dict: Dict[str, List[dict]] = {}
-    logger.debug(f"用户数量: {len(users)}")
+
+    logger.debug("开始处理每个用户信息")
+    # user_processing_start = time.perf_counter()
     for idx, user in enumerate(users):
         # 计算location_content
         if user.status in OFFLINE:
@@ -72,7 +90,9 @@ async def draw_user_card_overview(
     else:
         user_dict = {"unknown": [x for y in raw_user_dict.values() for x in y]}
 
-    user_dict = await convert_urls_to_base64(user_dict)
+    user_dict: Dict[str, List[LimitedUserModel]] = await convert_urls_to_base64(
+        user_dict,
+    )
     # 渲染图片
     templates: FriendListTemplateContext = {
         "user_dict": user_dict,
@@ -81,13 +101,16 @@ async def draw_user_card_overview(
         "trust_colors": T_COLORS,
         "title": title,
     }
-    # logger.debug(f"Draw user list card for {templates}")
+    # logger.debug(f"{templates}")
+    template_name = await select_friend_html(env_config.vrchat_img)
+    template_name = "friend_list.html"
+    logger.debug(f"使用模板: {template_name}")
     return await t2p(
         template_path=str(Path(__file__).parent / "templates"),
-        template_name=await select_friend_html(env_config.vrchat_img),
-        templates=templates,
-        device_scale_factor=1,
-        screenshot_timeout=60_000,
+        template_name=template_name,
+        templates=templates,  # pyright: ignore[reportArgumentType]
+        pages={"base_url": f"file://{template_path}"},
+        wait=2,
     )
 
 
@@ -134,5 +157,6 @@ async def draw_user_profile_card(user: UserModel) -> bytes:
             "last_platform": P_DESC,
             "status_desc_map": S_DESC,
         },
+        wait=0,
         screenshot_timeout=60_000,
     )
