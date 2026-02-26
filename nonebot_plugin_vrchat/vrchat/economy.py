@@ -1,9 +1,31 @@
 from typing import Awaitable, List, cast
 
 from nonebot.utils import run_sync
-from vrchatapi import ApiClient, EconomyApi
+from vrchatapi import ApiClient, AuthenticationApi, EconomyApi
 
 from .types import BalanceModel
+
+
+async def get_current_user_id(client: ApiClient) -> str:
+    """获取当前登录用户的 ID
+
+    Args:
+        client: ApiClient 实例
+
+    Returns:
+        当前用户 ID
+    """
+    api = AuthenticationApi(client)
+    current_user = await cast(
+        "Awaitable[object]",
+        run_sync(api.get_current_user)(),
+    )
+    # 使用 to_dict() 方法获取用户 ID
+    if hasattr(current_user, "to_dict"):
+        return current_user.to_dict().get("id", "")
+    if hasattr(current_user, "id"):
+        return current_user.id
+    return ""
 
 
 async def get_balance(client: ApiClient, user_id: str) -> BalanceModel:
@@ -11,16 +33,25 @@ async def get_balance(client: ApiClient, user_id: str) -> BalanceModel:
 
     Args:
         client: ApiClient 实例
+        user_id: 用户 ID
 
     Returns:
         余额信息
     """
     api = EconomyApi(client)
     result = await cast(
-        "Awaitable[dict]",
+        "Awaitable[object]",
         run_sync(api.get_balance)(user_id=user_id),
     )
-    return BalanceModel(**result.to_dict())
+    # 转换为 dict 后再创建 BalanceModel
+    if hasattr(result, "to_dict"):
+        data = result.to_dict()
+        return BalanceModel(
+            balance=data.get("balance", 0),
+            pending=data.get("noTransactions", 0),
+            last_payout=data.get("lastPayout"),
+        )
+    return BalanceModel()
 
 
 async def get_balance_earnings(client: ApiClient, user_id: str) -> dict:
@@ -28,16 +59,17 @@ async def get_balance_earnings(client: ApiClient, user_id: str) -> dict:
 
     Args:
         client: ApiClient 实例
+        user_id: 用户 ID
 
     Returns:
         收益信息
     """
     api = EconomyApi(client)
     result = await cast(
-        "Awaitable[dict]",
+        "Awaitable[object]",
         run_sync(api.get_balance_earnings)(user_id=user_id),
     )
-    return result.to_dict() if result else {}
+    return result.to_dict() if hasattr(result, "to_dict") else {}
 
 
 async def get_economy_account(client: ApiClient, user_id: str) -> dict:
@@ -45,16 +77,17 @@ async def get_economy_account(client: ApiClient, user_id: str) -> dict:
 
     Args:
         client: ApiClient 实例
+        user_id: 用户 ID
 
     Returns:
         经济账户信息
     """
     api = EconomyApi(client)
     result = await cast(
-        "Awaitable[dict]",
+        "Awaitable[object]",
         run_sync(api.get_economy_account)(user_id=user_id),
     )
-    return result if result else {}
+    return result.to_dict() if hasattr(result, "to_dict") else {}
 
 
 async def get_active_licenses(
@@ -77,7 +110,11 @@ async def get_active_licenses(
         "Awaitable[list]",
         run_sync(api.get_active_licenses)(n=n, offset=offset),
     )
-    return result if isinstance(result, list) else []
+    return (
+        [item.to_dict() if hasattr(item, "to_dict") else item for item in result]
+        if isinstance(result, list)
+        else []
+    )
 
 
 async def get_license_group(client: ApiClient, license_group_id: str) -> dict:
@@ -92,10 +129,10 @@ async def get_license_group(client: ApiClient, license_group_id: str) -> dict:
     """
     api = EconomyApi(client)
     result = await cast(
-        "Awaitable[dict]",
+        "Awaitable[object]",
         run_sync(api.get_license_group)(license_group_id=license_group_id),
     )
-    return result if isinstance(result, dict) else {}
+    return result.to_dict() if hasattr(result, "to_dict") else {}
 
 
 async def get_product_listing(
@@ -113,10 +150,10 @@ async def get_product_listing(
     """
     api = EconomyApi(client)
     result = await cast(
-        "Awaitable[dict]",
+        "Awaitable[object]",
         run_sync(api.get_product_listing)(product_id=product_listing_id),
     )
-    return result if isinstance(result, dict) else {}
+    return result.to_dict() if hasattr(result, "to_dict") else {}
 
 
 async def get_product_listings(
@@ -142,10 +179,17 @@ async def get_product_listings(
     result = await cast(
         "Awaitable[list]",
         run_sync(api.get_product_listings)(
-            user_id=user_id, type=product_listing_type, n=n, offset=offset
+            user_id=user_id,
+            type=product_listing_type,
+            n=n,
+            offset=offset,
         ),
     )
-    return result if isinstance(result, list) else []
+    return (
+        [item.to_dict() if hasattr(item, "to_dict") else item for item in result]
+        if isinstance(result, list)
+        else []
+    )
 
 
 async def get_store(client: ApiClient, store_id: str) -> dict:
@@ -160,10 +204,10 @@ async def get_store(client: ApiClient, store_id: str) -> dict:
     """
     api = EconomyApi(client)
     result = await cast(
-        "Awaitable[dict]",
+        "Awaitable[object]",
         run_sync(api.get_store)(store_id=store_id),
     )
-    return result if isinstance(result, dict) else {}
+    return result.to_dict() if hasattr(result, "to_dict") else {}
 
 
 async def get_store_shelves(client: ApiClient, store_id: str) -> List[dict]:
@@ -181,7 +225,11 @@ async def get_store_shelves(client: ApiClient, store_id: str) -> List[dict]:
         "Awaitable[list]",
         run_sync(api.get_store_shelves)(store_id=store_id),
     )
-    return result if isinstance(result, list) else []
+    return (
+        [item.to_dict() if hasattr(item, "to_dict") else item for item in result]
+        if isinstance(result, list)
+        else []
+    )
 
 
 async def get_current_subscriptions(client: ApiClient) -> dict:
@@ -195,23 +243,17 @@ async def get_current_subscriptions(client: ApiClient) -> dict:
     """
     api = EconomyApi(client)
     result = await cast(
-        "Awaitable[dict]",
+        "Awaitable[object]",
         run_sync(api.get_current_subscriptions)(),
     )
-    return result if isinstance(result, dict) else {}
+    return result.to_dict() if hasattr(result, "to_dict") else {}
 
 
-async def get_subscriptions(
-    client: ApiClient,
-    n: int = 20,
-    offset: int = 0,
-) -> List[dict]:
-    """获取订阅列表
+async def get_subscriptions(client: ApiClient) -> List[dict]:
+    """获取当前订阅信息
 
     Args:
         client: ApiClient 实例
-        n: 返回数量
-        offset: 偏移量
 
     Returns:
         订阅列表
@@ -219,9 +261,13 @@ async def get_subscriptions(
     api = EconomyApi(client)
     result = await cast(
         "Awaitable[list]",
-        run_sync(api.get_subscriptions)(n=n, offset=offset),
+        run_sync(api.get_current_subscriptions)(),
     )
-    return result if isinstance(result, list) else []
+    return (
+        [item.to_dict() if hasattr(item, "to_dict") else item for item in result]
+        if isinstance(result, list)
+        else []
+    )
 
 
 async def get_tilia_status(client: ApiClient) -> dict:
@@ -235,10 +281,10 @@ async def get_tilia_status(client: ApiClient) -> dict:
     """
     api = EconomyApi(client)
     result = await cast(
-        "Awaitable[dict]",
+        "Awaitable[object]",
         run_sync(api.get_tilia_status)(),
     )
-    return result if isinstance(result, dict) else {}
+    return result.to_dict() if hasattr(result, "to_dict") else {}
 
 
 async def get_tilia_tos(client: ApiClient, user_id: str) -> dict:
@@ -253,10 +299,10 @@ async def get_tilia_tos(client: ApiClient, user_id: str) -> dict:
     """
     api = EconomyApi(client)
     result = await cast(
-        "Awaitable[dict]",
+        "Awaitable[object]",
         run_sync(api.get_tilia_tos)(user_id=user_id),
     )
-    return result if isinstance(result, dict) else {}
+    return result.to_dict() if hasattr(result, "to_dict") else {}
 
 
 async def get_token_bundles(client: ApiClient) -> List[dict]:
@@ -273,11 +319,17 @@ async def get_token_bundles(client: ApiClient) -> List[dict]:
         "Awaitable[list]",
         run_sync(api.get_token_bundles)(),
     )
-    return result if isinstance(result, list) else []
+    return (
+        [item.to_dict() if hasattr(item, "to_dict") else item for item in result]
+        if isinstance(result, list)
+        else []
+    )
 
 
 async def get_user_credits_eligible(
-    client: ApiClient, user_id: str, subscription_id: str
+    client: ApiClient,
+    user_id: str,
+    subscription_id: str,
 ) -> dict:
     """获取用户信用额度资格信息
 
@@ -290,12 +342,13 @@ async def get_user_credits_eligible(
     """
     api = EconomyApi(client)
     result = await cast(
-        "Awaitable[dict]",
+        "Awaitable[object]",
         run_sync(api.get_user_credits_eligible)(
-            user_id=user_id, subscription_id=subscription_id
+            user_id=user_id,
+            subscription_id=subscription_id,
         ),
     )
-    return result if isinstance(result, dict) else {}
+    return result.to_dict() if hasattr(result, "to_dict") else {}
 
 
 async def get_user_subscription_eligible(client: ApiClient, user_id: str) -> dict:
@@ -310,7 +363,7 @@ async def get_user_subscription_eligible(client: ApiClient, user_id: str) -> dic
     """
     api = EconomyApi(client)
     result = await cast(
-        "Awaitable[dict]",
+        "Awaitable[object]",
         run_sync(api.get_user_subscription_eligible)(user_id=user_id),
     )
-    return result if isinstance(result, dict) else {}
+    return result.to_dict() if hasattr(result, "to_dict") else {}

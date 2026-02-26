@@ -57,10 +57,10 @@ async def _(
             n = tag
     try:
         client = await get_client(session_id)
-        resp = await get_notifications(client, n=n)
+        resp = get_notifications(client, n=n)
     except Exception as e:
         await handle_error(matcher, e)
-    logger.debug(resp)
+    logger.debug(str(resp))
     if len(resp) == 0:
         await UniMessage.text(Lang.nbp_vrc.notif.no_request).finish()
     state[KEY_NOTIF_RESP] = resp

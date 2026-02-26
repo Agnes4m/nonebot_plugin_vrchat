@@ -117,6 +117,16 @@ class NbpVrcNotif:
     reply_notif: LangItem = LangItem("nbp_vrc", "notif.reply_notif")
 
 
+class NbpVrcEconomy:
+    balance_info: LangItem = LangItem("nbp_vrc", "economy.balance_info")
+    account_info: LangItem = LangItem("nbp_vrc", "economy.account_info")
+    subscriptions_info: LangItem = LangItem("nbp_vrc", "economy.subscriptions_info")
+    tilia_status_info: LangItem = LangItem("nbp_vrc", "economy.tilia_status_info")
+    no_earnings_info: LangItem = LangItem("nbp_vrc", "economy.no_earnings_info")
+    earnings_info: LangItem = LangItem("nbp_vrc", "economy.earnings_info")
+    help: LangItem = LangItem("nbp_vrc", "economy.help")
+
+
 class NbpVrc:
     words = NbpVrcWords
     time = NbpVrcTime
@@ -127,6 +137,7 @@ class NbpVrc:
     world = NbpVrcWorld
     locale = NbpVrcLocale
     notif = NbpVrcNotif
+    economy = NbpVrcEconomy
 
 
 class Lang(LangModel):

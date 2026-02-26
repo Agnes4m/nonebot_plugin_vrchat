@@ -2,9 +2,9 @@
     "$schema": ".lang.schema.json",
     "nbp_vrc": {
         "general": {
-            "help": "--------VRCコマンド--------\n1.【vrcログイン】 | VRCアカウントにログイン（プライベートチャット推奨）\n2.【vrc全フレンド】 | すべてのフレンド情報を取得\n3.【vrcユーザー検索】【テキスト】 | プレイヤーを検索\n4.【vrcワールド検索】【テキスト】 | ワールドを検索\n5.【vrc言語切替】 | プラグインの言語を切り替え",
+            "help": "--------VRC コマンド--------\n1.【vrc ログイン】 | VRC アカウントにログイン（プライベートチャット推奨）\n2.【vrc 全フレンド】 | すべてのフレンド情報を取得\n3.【vrc ユーザー検索】【テキスト】 | プレイヤーを検索\n4.【vrc ワールド検索】【テキスト】 | ワールドを検索\n5.【vrc 言語切替】 | プラグインの言語を切り替え",
             "unknown_error": "不明なエラーが発生しました。バックエンド出力を確認してください。",
-            "server_error": "サーバーから例外が返されました: [{status}] {reason}",
+            "server_error": "サーバーから例外が返されました：[{status}] {reason}",
             "discard_select": "選択をキャンセルしました。",
             "empty_search_keyword": "検索キーワードは空にできません。再送信してください。",
             "empty_message": "メッセージは空にできません。再送信してください。",
@@ -12,14 +12,14 @@
             "invalid_ordinal_range": "番号が範囲外です。再送信してください。"
         },
         "login": {
-            "not_logged_in": "まだログインしていないか、ログイン情報が失効しました。プライベートチャットで【vrcログイン】を送信して再度ログインしてください。",
+            "not_logged_in": "まだログインしていないか、ログイン情報が失効しました。プライベートチャットで【vrc ログイン】を送信して再度ログインしてください。",
             "login_expired": "ログインの有効期限が切れました。再度ログインしてください。",
             "overwrite_login_info": "キャッシュされたログイン情報が検出されました。今回のログインが成功すると、古い情報は上書きされます。",
-            "send_login_info": "アカウントとパスワードをスペースで区切って送信してください。0を送信するとログインをキャンセルします。\nヒント：ボットはあなたのログイン状態を保存します。信頼できる場合のみログインしてください。",
-            "send_2fa_code": "{second}秒以内に受信したメール認証コードまたは2FAコードを送信してください。",
+            "send_login_info": "アカウントとパスワードをスペースで区切って送信してください。0 を送信するとログインをキャンセルします。\nヒント：ボットはあなたのログイン状態を保存します。信頼できる場合のみログインしてください。",
+            "send_2fa_code": "{second}秒以内に受信したメール認証コードまたは 2FA コードを送信してください。",
             "use_cached_login_info": "キャッシュされたログイン情報が検出されました。再度ログインを試みます。",
             "discard_login": "ログインをキャンセルしました。",
-            "invalid_account": "ユーザー名またはパスワードが間違っています。再送信してください。アカウント情報が100%正しい場合は、新しいデバイス認証メールが届いているか確認してください。",
+            "invalid_account": "ユーザー名またはパスワードが間違っています。再送信してください。アカウント情報が 100% 正しい場合は、新しいデバイス認証メールが届いているか確認してください。",
             "invalid_info_format": "メッセージの形式が正しくありません。アカウントとパスワードをスペースで区切って再送信してください。",
             "invalid_2fa_format": "認証コードの形式が正しくありません。",
             "invalid_2fa_code": "認証コードが間違っています。再送信してください。",
@@ -39,14 +39,25 @@
             "send_user_name": "検索したいプレイヤー名を送信してください。",
             "no_user_found": "プレイヤーが見つかりませんでした。",
             "searched_user_tip": "以下の{count}人のプレイヤーが見つかりました",
-            "reply_index": "表示したいプレイヤーの番号を送信してください。0を入力するとキャンセルします。",
-            "reply_index_add": "【追加 1】と送信すると1番目のプレイヤーをフレンド追加します"
+            "reply_index": "表示したいプレイヤーの番号を送信してください。0 を入力するとキャンセルします。",
+            "reply_index_add": "【追加 1】と送信すると 1 番目のプレイヤーをフレンド追加します"
         },
         "world": {
             "send_world_name": "検索したいワールド名を送信してください。",
             "no_world_found": "ワールドが見つかりませんでした。",
             "searched_world_tip": "以下の{count}件のワールドが見つかりました",
-            "searched_world_info": "{index}. {name}\n作者: {author}\n作成日: {created_at}"
+            "searched_world_info": "{index}. {name}\n作者：{author}\n作成日：{created_at}"
+        },
+        "economy": {
+            "send_user_id": "照会するユーザー ID を送信してください",
+            "balance_info": "💰 残高情報\n残高：{balance}\n保留中：{pending}\n最終支払い：{last_payout}",
+            "account_info": "📊 経済アカウント\nアカウント ID: {account_id}\nステータス：{status}\n作成日：{created_at}\n更新日：{updated_at}",
+            "subscriptions_info": "📋 サブスクリプション情報\n現在のサブスクリプション数：{current_count}\n総サブスクリプション数：{total_count}",
+            "tilia_status_info": "🔐 Tilia ステータス\nユーザー ID: {user_id}\nステータス：{status}\n作成日：{created_at}\n更新日：{updated_at}",
+            "token_bundles_info": "🪙 トークンバンドル\n{bundles}",
+            "earnings_info": "💵 収益情報\n{earnings}",
+            "no_token_bundles": "利用可能なトークンバンドルはありません",
+            "help": "--------VRC 経済コマンド--------\n1. 【vrcbalance】【ユーザー ID】- ユーザー残高を照会\n2. 【vrceconomy】【ユーザー ID】- 経済アカウントを照会\n3. 【vrcsubs】- サブスクリプションを照会\n4. 【vrctilia】- Tilia ステータスを照会\n5. 【vrctoken】- トークンバンドルを照会\n6. 【vrcearnings】【ユーザー ID】- 収益を照会"
         }
     }
 }

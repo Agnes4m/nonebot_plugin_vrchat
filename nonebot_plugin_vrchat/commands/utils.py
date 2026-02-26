@@ -15,6 +15,7 @@ from ..config import session_config
 from ..i18n import Lang
 from ..vrchat import (
     ApiException,
+    LimitedGroupModel,
     LimitedUserModel,
     NotLoggedInError,
     UnauthorizedException,
@@ -123,8 +124,47 @@ async def read_to_file(msg_id: Union[str, int]) -> Union[dict, list, None]:
         return json.loads(await f.read())
 
 
-async def parse_index(arg: str, resp: List[LimitedUserModel], matcher: Matcher):
-    """解析用户输入的序号，返回索引，异常时自动 reject."""
+async def parse_index(arg: str, resp: List[LimitedUserModel], matcher: Matcher) -> int:
+    """解析用户输入的序号，返回索引，异常时自动 reject.
+
+    Args:
+        arg: 用户输入的字符串
+        resp: LimitedUserModel 列表
+        matcher: Matcher 对象
+
+    Returns:
+        索引值 (0-based)
+
+    Raises:
+        异常时通过 matcher.reject 抛出
+    """
+    arg = arg.strip()
+    if not arg.isdigit():
+        await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_format())
+    index = int(arg) - 1
+    if index < 0 or index >= len(resp):
+        await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_range())
+    return index
+
+
+async def parse_group_index(
+    arg: str,
+    resp: List[LimitedGroupModel],
+    matcher: Matcher,
+) -> int:
+    """解析用户输入的序号，返回索引，异常时自动 reject.
+
+    Args:
+        arg: 用户输入的字符串
+        resp: LimitedGroupModel 列表
+        matcher: Matcher 对象
+
+    Returns:
+        索引值 (0-based)
+
+    Raises:
+        异常时通过 matcher.reject 抛出
+    """
     arg = arg.strip()
     if not arg.isdigit():
         await matcher.reject(Lang.nbp_vrc.general.invalid_ordinal_format())

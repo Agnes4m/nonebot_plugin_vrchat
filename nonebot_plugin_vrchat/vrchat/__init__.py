@@ -29,6 +29,7 @@ from vrchatapi.exceptions import (
     UnauthorizedException as UnauthorizedException,
 )
 
+# from vrchatapi.models.current_user import CurrentUser
 from .avatars import *
 from .client import *
 from .economy import *

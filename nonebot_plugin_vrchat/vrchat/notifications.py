@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 def get_notifications(
     client: ApiClient,
-    # n: int = 60,
+    n: int = 60,
     **pf_kwargs: Unpack[IterPFKwargs],
 ) -> AsyncIterable[NotificationModel]:
     """获取通知列表
@@ -34,7 +34,7 @@ def get_notifications(
     api = NotificationsApi(client)
 
     @auto_parse_iterator_return(NotificationModel)
-    @iter_pagination_func(**pf_kwargs)
+    @iter_pagination_func(max_size=n, **pf_kwargs)
     async def iterator(page_size: int, offset: int):
         result = await cast(
             "Awaitable[list]",

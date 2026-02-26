@@ -89,6 +89,17 @@
       "error_handle": "Invalid friend request operation",
       "no_request": "No friend requests",
       "processed": "This request has been processed."
+    },
+    "economy": {
+      "send_user_id": "Please send the user ID to query",
+      "balance_info": "💰 Balance Info\nBalance: {balance}\nPending: {pending}\nLast Payout: {last_payout}",
+      "account_info": "📊 Economy Account\nAccount ID: {account_id}\nStatus: {status}\nCreated: {created_at}\nUpdated: {updated_at}",
+      "subscriptions_info": "📋 Subscriptions Info\nCurrent Subscriptions: {current_count}\nTotal Subscriptions: {total_count}",
+      "tilia_status_info": "🔐 Tilia Status\nUser ID: {user_id}\nStatus: {status}\nCreated: {created_at}\nUpdated: {updated_at}",
+      "token_bundles_info": "🪙 Token Bundles\n{bundles}",
+      "earnings_info": "💵 Earnings Info\n{earnings}",
+      "no_token_bundles": "No token bundles available",
+      "help": "--------VRC Economy Commands--------\n1. [vrcbalance][user_id] - Query user balance\n2. [vrceconomy][user_id] - Query economy account\n3. [vrcsubs] - Query subscriptions\n4. [vrctilia] - Query Tilia status\n5. [vrctoken] - Query token bundles\n6. [vrcearnings][user_id] - Query earnings"
     }
   }
 }

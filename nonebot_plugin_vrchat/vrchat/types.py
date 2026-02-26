@@ -265,27 +265,33 @@ class GroupGalleryModel(BaseModel):
 
 
 class GroupMyMemberModel(BaseModel):
-    """信任群组信息"""
+    """我的群组成员信息"""
 
     my_member_id: str = Field(alias="id")
     group_id: str
     user_id: str
     role_ids: List[str]
+    m_role_ids: List[str]
     manager_notes: str
     membership_status: str
     visibility: str
     joined_at: "datetime"
+    created_at: "datetime"
     permissions: List[str]
 
+    accepted_by_id: Optional[str] = None
+    accepted_by_display_name: Optional[str] = None
     is_subscribed_to_announcements: bool = True
+    is_subscribed_to_event_announcements: bool = False
     is_representing: bool = False
     has2_fa: bool = False
-
+    has_joined_from_purchase: bool = False
+    last_post_read_at: Optional["datetime"] = None
     banned_at: Optional[str] = None
 
 
 class GroupRoleModel(BaseModel):
-    """群组规则信息"""
+    """群组角色信息"""
 
     role_id: str = Field(alias="id")
     group_id: str
@@ -294,10 +300,10 @@ class GroupRoleModel(BaseModel):
     permissions: List[str]
     order: int
     created_at: "datetime"
-    updated_at: "datetime"
+    updated_at: Optional["datetime"] = None
 
     is_self_assignable: bool = False
-    is_management_role: bool = False
+    is_management_role: bool = True
     requires_two_factor: bool = False
     requires_purchase: bool = False
 
@@ -318,6 +324,7 @@ class GroupModel(BaseModel):
     tags: List[str]
     galleries: List[GroupGalleryModel]
     created_at: "datetime"
+    updated_at: "datetime"
     online_member_count: int
     my_member: GroupMyMemberModel
     roles: List[GroupRoleModel]
@@ -332,6 +339,24 @@ class GroupModel(BaseModel):
     rules: Optional[str] = None
     icon_id: Optional[str] = None
     banner_id: Optional[str] = None
+    last_post_created_at: Optional["datetime"] = None
+    transfer_target_id: Optional[str] = None
+    age_verification_beta_code: Optional[str] = None
+    age_verification_beta_slots: Optional[int] = None
+    age_verification_slots_available: Optional[int] = None
+    allow_group_join_prompt: Optional[str] = None
+    badges: Optional[List[dict]] = None
+
+
+class GroupPermissionModel(BaseModel):
+    """群组权限信息"""
+
+    group_id: str = Field(alias="id")
+    allowed_to_add: bool = False
+    display_name: str
+    help: str
+    is_management_permission: bool = False
+    name: str
 
 
 class LimitedUnityPackage(BaseModel):
@@ -533,11 +558,27 @@ class LimitedGroupModel(BaseModel):
     tags: List[str]
     created_at: "datetime"
 
-    privacy: GroupPrivacyType = "default"
-    is_verified: bool = False
-    join_state: GroupJoinStateType = "open"
+    owner_id: Optional[str] = None
+    icon_id: Optional[str] = None
     icon_url: Optional[str] = None
+    banner_id: Optional[str] = None
     banner_url: Optional[str] = None
+    rules: Optional[str] = None
+    galleries: Optional[List[dict]] = None
+    is_searchable: Optional[bool] = None
+    membership_status: Optional[str] = None
+
+
+class GroupMemberLimitedUserModel(BaseModel):
+    """群组成员中的用户信息"""
+
+    member_id: str = Field(alias="id")
+    current_avatar_tags: list[str] = []
+    current_avatar_thumbnail_image_url: str
+    display_name: str
+    icon_url: str = ""
+    profile_pic_override: str = ""
+    thumbnail_url: str
 
 
 class GroupMemberModel(BaseModel):
@@ -546,29 +587,38 @@ class GroupMemberModel(BaseModel):
     member_id: str = Field(alias="id")
     group_id: str
     user_id: str
-    role_ids: List[str]
-    manager_notes: str
-    membership_status: str
-    visibility: str
-    joined_at: "datetime"
-    permissions: List[str]
+    role_ids: List[str] = []
+    m_role_ids: List[str] = []
+    manager_notes: Optional[str] = None
+    membership_status: Optional[str] = None
+    visibility: Optional[str] = None
+    joined_at: Optional["datetime"] = None
+    created_at: Optional["datetime"] = None
 
-    is_subscribed_to_announcements: bool = True
+    accepted_by_id: Optional[str] = None
+    accepted_by_display_name: Optional[str] = None
+    is_subscribed_to_announcements: bool = False
+    is_subscribed_to_event_announcements: Optional[bool] = None
     is_representing: bool = False
-    has2_fa: bool = False
+    has_joined_from_purchase: Optional[bool] = None
+    last_post_read_at: Optional["datetime"] = None
     banned_at: Optional[str] = None
+    user: GroupMemberLimitedUserModel
 
 
 class GroupAnnouncementModel(BaseModel):
     """群组公告信息"""
 
-    announcement_id: str = Field(alias="id")
-    group_id: str
-    author_id: str
-    title: str
-    content: str
-    created_at: "datetime"
-    updated_at: "datetime"
+    announcement_id: Optional[str] = Field(None, alias="id")
+    group_id: Optional[str] = None
+    author_id: Optional[str] = None
+    title: Optional[str] = None
+    text: Optional[str] = None
+
+    image_id: Optional[str] = None
+    image_url: Optional[str] = None
+    created_at: Optional["datetime"] = None
+    updated_at: Optional["datetime"] = None
 
 
 class GroupPostModel(BaseModel):
@@ -578,8 +628,12 @@ class GroupPostModel(BaseModel):
     group_id: str
     author_id: str
     title: str
-    content: str
+    text: str
     visibility: str
+    image_id: Optional[str] = None
+    image_url: Optional[str] = None
+    role_id: Optional[str] = None
+    editor_id: Optional[str] = None
     created_at: "datetime"
     updated_at: "datetime"
 
@@ -588,19 +642,21 @@ class GroupInstanceModel(BaseModel):
     """群组实例信息"""
 
     instance_id: str = Field(alias="id")
-    group_id: str
-    world_id: str
-    name: str
-    type: str
-    capacity: int
-    created_at: "datetime"
+    location: str
+    member_count: int
+    world: dict
 
-    active: bool = True
-    closed: bool = False
-    full: bool = False
-    n_users: int = 0
-    occupants: int = 0
-    region: str = ""
+    group_id: Optional[str] = None
+    name: Optional[str] = None
+    type: Optional[str] = None
+    capacity: Optional[int] = None
+    created_at: Optional["datetime"] = None
+    active: Optional[bool] = None
+    closed: Optional[bool] = None
+    full: Optional[bool] = None
+    n_users: Optional[int] = None
+    occupants: Optional[int] = None
+    region: Optional[str] = None
 
 
 class GroupAuditLogEntryModel(BaseModel):

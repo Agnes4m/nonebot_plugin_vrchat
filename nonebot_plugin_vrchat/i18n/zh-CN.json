@@ -34,7 +34,7 @@
 
     },
     "general": {
-      "help": "--------vrc指令--------\n1、【vrc登录】 | 登录vrc账户，建议私聊\n2、【vrc全部好友】 | 获取全部好友信息\n3、【vrc查询用户】【text】 | 查询玩家\n4、【vrc查询世界】【text】 | 查询世界\n5、【vrc切换语言】 | 切换插件语言",
+      "help": "--------vrc指令--------\n1、【vrc登录】 | 登录vrc账户，建议私聊\n2、【vrc全部好友】 | 获取全部好友信息\n3、【vrc搜索用户】【text】 | 查询玩家\n4、【vrc查询世界】【text】 | 查询世界\n5、【vrc切换语言】 | 切换插件语言\n6、【vrc经济帮助】 | 查看经济指令\n7、【vrc群组帮助】| 查看群组指令",
       "unknown_error": "遇到未知错误，请检查后台输出",
       "server_error": "服务器返回异常：[{status}] {reason}",
       "discard_select": "已取消选择",
@@ -91,6 +91,15 @@
       "error_handle": "无效操作好友申请",
       "no_request": "没有好友申请",
       "processed": "该请求已被处理啦"
+    },
+    "economy": {
+      "balance_info": "💰 余额信息\n余额：{balance}\n待处理：{pending}\n上次结算：{last_payout}",
+      "account_info": "📊 经济账户\n账户 ID: {account_id}\n状态：{status}\n创建时间：{created_at}\n更新时间：{updated_at}",
+      "subscriptions_info": "📋 订阅信息\n当前订阅数：{current_count}\n总订阅数：{total_count}",
+      "tilia_status_info": "🔐 Tilia 状态\n用户 ID: {user_id}\n状态：{status}\n创建时间：{created_at}\n更新时间：{updated_at}",
+      "no_earnings_info": "💵 收益信息\n账号从未有过收益操作",
+      "earnings_info": "💵 收益信息\n当前收益: {balance}\n交易记录: {no_transactions}\n可以结算: {tilia_response}",
+      "help": "--------vrc 经济指令--------\n1、【vrc余额】| 查询本人余额\n2、【vrc账户】| 查询本人经济账户\n3、【vrc订阅】| 查询本人订阅\n4、【vrctilia状态】| 查询 Tilia 状态\n5、【vrc代币】| 查询代币包信息\n6、【vrc收益】| 查询本人收益"
     }
   }
 }

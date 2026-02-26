@@ -3,9 +3,17 @@ from typing import Awaitable, List, cast
 from typing_extensions import Unpack
 
 from nonebot.utils import run_sync
-from vrchatapi import ApiClient, GroupsApi
+from vrchatapi import ApiClient, GroupsApi, JoinGroupRequest
 
-from .types import GroupModel, LimitedGroupModel
+from .types import (
+    GroupAnnouncementModel,
+    GroupInstanceModel,
+    GroupMemberModel,
+    GroupModel,
+    GroupPermissionModel,
+    GroupRoleModel,
+    LimitedGroupModel,
+)
 from .utils import (
     IterPFKwargs,
     auto_parse_iterator_return,
@@ -35,7 +43,7 @@ def search_groups(
     async def iterator(page_size: int, offset: int):
         result = await cast(
             "Awaitable[list]",
-            run_sync(api.search_groups)(search=keyword, n=page_size, offset=offset),
+            run_sync(api.search_groups)(query=keyword, offset=offset, n=page_size),
         )
         return result or []
 
@@ -145,7 +153,7 @@ async def get_group_members(
     group_id: str,
     n: int = 20,
     offset: int = 0,
-) -> List[dict]:
+) -> List[GroupMemberModel]:
     """获取群组成员列表
 
     Args:
@@ -166,15 +174,17 @@ async def get_group_members(
             offset=offset,
         ),
     )
-    return result if isinstance(result, list) else []
+    return (
+        [item.to_dict() if hasattr(item, "to_dict") else item for item in result]
+        if isinstance(result, list)
+        else []
+    )
 
 
 async def get_group_roles(
     client: ApiClient,
     group_id: str,
-    n: int = 20,
-    offset: int = 0,
-) -> List[dict]:
+) -> List[GroupRoleModel]:
     """获取群组角色列表
 
     Args:
@@ -191,40 +201,36 @@ async def get_group_roles(
         "Awaitable[list]",
         run_sync(api.get_group_roles)(
             group_id=group_id,
-            n=n,
-            offset=offset,
         ),
     )
-    return result if isinstance(result, list) else []
+    return (
+        [item.to_dict() if hasattr(item, "to_dict") else item for item in result]
+        if isinstance(result, list)
+        else []
+    )
 
 
 async def get_group_announcements(
     client: ApiClient,
     group_id: str,
-    n: int = 20,
-    offset: int = 0,
-) -> List[dict]:
-    """获取群组公告列表
+) -> GroupAnnouncementModel:
+    """获取群组公告
 
     Args:
         client: ApiClient 实例
         group_id: 群组 ID
-        n: 返回数量
-        offset: 偏移量
 
     Returns:
-        公告列表
+        公告信息（字典格式）
     """
     api = GroupsApi(client)
     result = await cast(
-        "Awaitable[list]",
+        "Awaitable[dict]",
         run_sync(api.get_group_announcements)(
             group_id=group_id,
-            n=n,
-            offset=offset,
         ),
     )
-    return result if isinstance(result, list) else []
+    return result.to_dict() if hasattr(result, "to_dict") else {}
 
 
 async def join_group(client: ApiClient, group_id: str) -> bool:
@@ -238,7 +244,11 @@ async def join_group(client: ApiClient, group_id: str) -> bool:
         是否加入成功
     """
     api = GroupsApi(client)
-    await run_sync(api.join_group)(group_id=group_id)
+    await run_sync(api.join_group)(
+        group_id=group_id,
+        confirm_override_block=True,
+        join_group_request=JoinGroupRequest(),
+    )
     return True
 
 
@@ -262,7 +272,7 @@ async def get_group_invites(
     group_id: str,
     n: int = 20,
     offset: int = 0,
-) -> List[dict]:
+) -> List[GroupMemberModel]:
     """获取群组邀请列表
 
     Args:
@@ -283,7 +293,11 @@ async def get_group_invites(
             offset=offset,
         ),
     )
-    return result if isinstance(result, list) else []
+    return (
+        [item.to_dict() if hasattr(item, "to_dict") else item for item in result]
+        if isinstance(result, list)
+        else []
+    )
 
 
 async def get_group_requests(
@@ -291,7 +305,7 @@ async def get_group_requests(
     group_id: str,
     n: int = 20,
     offset: int = 0,
-) -> List[dict]:
+) -> List[GroupMemberModel]:
     """获取群组请求列表
 
     Args:
@@ -312,15 +326,17 @@ async def get_group_requests(
             offset=offset,
         ),
     )
-    return result if isinstance(result, list) else []
+    return (
+        [item.to_dict() if hasattr(item, "to_dict") else item for item in result]
+        if isinstance(result, list)
+        else []
+    )
 
 
 async def get_group_instances(
     client: ApiClient,
     group_id: str,
-    n: int = 20,
-    offset: int = 0,
-) -> List[dict]:
+) -> List[GroupInstanceModel]:
     """获取群组实例列表
 
     Args:
@@ -337,14 +353,19 @@ async def get_group_instances(
         "Awaitable[list]",
         run_sync(api.get_group_instances)(
             group_id=group_id,
-            n=n,
-            offset=offset,
         ),
     )
-    return result if isinstance(result, list) else []
+    return (
+        [item.to_dict() if hasattr(item, "to_dict") else item for item in result]
+        if isinstance(result, list)
+        else []
+    )
 
 
-async def get_group_permissions(client: ApiClient, group_id: str) -> dict:
+async def get_group_permissions(
+    client: ApiClient,
+    group_id: str,
+) -> GroupPermissionModel:
     """获取群组权限信息
 
     Args:
