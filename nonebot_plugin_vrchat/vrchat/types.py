@@ -254,10 +254,10 @@ class GroupGalleryModel(BaseModel):
     gallery_id: str = Field(alias="id")
     name: str
     description: str
-    role_ids_to_view: List[str]
-    role_ids_to_submit: List[str]
-    role_ids_to_auto_approve: List[str]
-    role_ids_to_manage: List[str]
+    role_ids_to_view: Optional[List[str]] = None
+    role_ids_to_submit: Optional[List[str]] = None
+    role_ids_to_auto_approve: Optional[List[str]] = None
+    role_ids_to_manage: Optional[List[str]] = None
     created_at: "datetime"
     updated_at: "datetime"
 
@@ -272,17 +272,17 @@ class GroupMyMemberModel(BaseModel):
     user_id: str
     role_ids: List[str]
     m_role_ids: List[str]
-    manager_notes: str
-    membership_status: str
-    visibility: str
-    joined_at: "datetime"
-    created_at: "datetime"
+    manager_notes: Optional[str] = None
+    membership_status: Optional[str] = None
+    visibility: Optional[str] = None
+    joined_at: Optional["datetime"] = None
+    created_at: Optional["datetime"] = None
     permissions: List[str]
 
     accepted_by_id: Optional[str] = None
     accepted_by_display_name: Optional[str] = None
     is_subscribed_to_announcements: bool = True
-    is_subscribed_to_event_announcements: bool = False
+    is_subscribed_to_event_announcements: Optional[bool] = None
     is_representing: bool = False
     has2_fa: bool = False
     has_joined_from_purchase: bool = False
@@ -324,10 +324,10 @@ class GroupModel(BaseModel):
     tags: List[str]
     galleries: List[GroupGalleryModel]
     created_at: "datetime"
-    updated_at: "datetime"
+    updated_at: Optional["datetime"] = None
     online_member_count: int
     my_member: GroupMyMemberModel
-    roles: List[GroupRoleModel]
+    roles: Optional[List[GroupRoleModel]] = None
 
     privacy: GroupPrivacyType = "default"
     is_verified: bool = False

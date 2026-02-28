@@ -65,11 +65,7 @@ async def get_group(client: ApiClient, group_id: str) -> GroupModel:
         "Awaitable[dict]",
         run_sync(api.get_group)(group_id=group_id),
     )
-    return (
-        GroupModel(**result)
-        if isinstance(result, dict)
-        else GroupModel.model_validate({})
-    )
+    return GroupModel(**result.to_dict())
 
 
 async def create_group(
