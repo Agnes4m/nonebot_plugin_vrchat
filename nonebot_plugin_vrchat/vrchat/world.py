@@ -21,17 +21,7 @@ def search_worlds(
     keyword: str,
     **pf_kwargs: Unpack[IterPFKwargs],
 ) -> AsyncIterable[LimitedWorldModel]:
-    """
-    搜索世界
-
-    Args:
-        client: ApiClient 实例
-        keyword: 搜索关键词
-        pf_kwargs: 分页查询相关参数
-
-    Returns:
-        获取搜索到世界的异步迭代器
-    """
+    """搜索世界"""
     client.user_agent = user_agent
     api = WorldsApi(client)
 
@@ -49,16 +39,7 @@ def search_worlds(
 
 @auto_parse_return(WorldModel)
 async def get_world(client: ApiClient, world_id: str) -> World:
-    """
-    通过世界 ID 获取世界信息
-
-    Args:
-        client: ApiClient 实例
-        world_id: 世界 ID
-
-    Returns:
-        世界信息
-    """
+    """通过世界 ID 获取世界信息"""
     client.user_agent = user_agent
     api = WorldsApi(client)
     return await cast(
@@ -72,16 +53,7 @@ async def create_world(
     client: ApiClient,
     create_world_request: dict,
 ) -> World:
-    """
-    创建新世界
-
-    Args:
-        client: ApiClient 实例
-        create_world_request: 创建世界请求对象
-
-    Returns:
-        创建的世界信息
-    """
+    """创建新世界"""
     from vrchatapi.models import CreateWorldRequest
 
     client.user_agent = user_agent
@@ -100,17 +72,7 @@ async def update_world(
     world_id: str,
     update_world_request: dict,
 ) -> World:
-    """
-    更新世界信息
-
-    Args:
-        client: ApiClient 实例
-        world_id: 世界 ID
-        update_world_request: 更新世界请求对象
-
-    Returns:
-        更新后的世界信息
-    """
+    """更新世界信息"""
     from vrchatapi.models import UpdateWorldRequest
 
     client.user_agent = user_agent
@@ -125,16 +87,7 @@ async def update_world(
 
 
 async def delete_world(client: ApiClient, world_id: str) -> bool:
-    """
-    删除世界
-
-    Args:
-        client: ApiClient 实例
-        world_id: 世界 ID
-
-    Returns:
-        是否删除成功
-    """
+    """删除世界"""
     client.user_agent = user_agent
     api = WorldsApi(client)
     await run_sync(api.delete_world)(world_id=world_id)
@@ -146,17 +99,7 @@ async def publish_world(
     world_id: str,
     version: int = 1,
 ) -> bool:
-    """
-    发布世界
-
-    Args:
-        client: ApiClient 实例
-        world_id: 世界 ID
-        version: 版本号
-
-    Returns:
-        是否发布成功
-    """
+    """发布世界"""
     client.user_agent = user_agent
     api = WorldsApi(client)
     await run_sync(api.publish_world)(world_id=world_id, version=version)
@@ -164,16 +107,7 @@ async def publish_world(
 
 
 async def unpublish_world(client: ApiClient, world_id: str) -> bool:
-    """
-    取消发布世界
-
-    Args:
-        client: ApiClient 实例
-        world_id: 世界 ID
-
-    Returns:
-        是否取消发布成功
-    """
+    """取消发布世界"""
     client.user_agent = user_agent
     api = WorldsApi(client)
     await run_sync(api.unpublish_world)(world_id=world_id)
@@ -185,17 +119,7 @@ async def get_world_instance(
     world_id: str,
     instance_id: str,
 ) -> dict:
-    """
-    获取世界实例信息
-
-    Args:
-        client: ApiClient 实例
-        world_id: 世界 ID
-        instance_id: 实例 ID
-
-    Returns:
-        世界实例信息
-    """
+    """获取世界实例信息"""
     client.user_agent = user_agent
     api = WorldsApi(client)
     result = await cast(
@@ -212,16 +136,7 @@ async def get_world_publish_status(
     client: ApiClient,
     world_id: str,
 ) -> dict:
-    """
-    获取世界发布状态
-
-    Args:
-        client: ApiClient 实例
-        world_id: 世界 ID
-
-    Returns:
-        世界发布状态
-    """
+    """获取世界发布状态"""
     client.user_agent = user_agent
     api = WorldsApi(client)
     result = await cast(
@@ -235,16 +150,7 @@ async def get_world_metadata(
     client: ApiClient,
     world_id: str,
 ) -> WorldModel:
-    """
-    获取世界元数据
-
-    Args:
-        client: ApiClient 实例
-        world_id: 世界 ID
-
-    Returns:
-        世界元数据
-    """
+    """获取世界元数据"""
     client.user_agent = user_agent
     api = WorldsApi(client)
     world = await cast(
@@ -263,17 +169,7 @@ async def check_user_persistence_exists(
     world_id: str,
     user_id: str,
 ) -> bool:
-    """
-    检查用户持久化数据是否存在
-
-    Args:
-        client: ApiClient 实例
-        world_id: 世界 ID
-        user_id: 用户 ID
-
-    Returns:
-        是否存在
-    """
+    """检查用户持久化数据是否存在"""
     client.user_agent = user_agent
     api = WorldsApi(client)
     return await cast(
@@ -290,17 +186,7 @@ async def delete_user_persistence(
     world_id: str,
     user_id: str,
 ) -> bool:
-    """
-    删除用户持久化数据
-
-    Args:
-        client: ApiClient 实例
-        world_id: 世界 ID
-        user_id: 用户 ID
-
-    Returns:
-        是否删除成功
-    """
+    """删除用户持久化数据"""
     client.user_agent = user_agent
     api = WorldsApi(client)
     await run_sync(api.delete_user_persistence)(
@@ -314,16 +200,7 @@ async def delete_all_user_persistence_data(
     client: ApiClient,
     user_id: str,
 ) -> bool:
-    """
-    删除所有用户持久化数据
-
-    Args:
-        client: ApiClient 实例
-        user_id: 世界 ID
-
-    Returns:
-        是否删除成功
-    """
+    """删除所有用户持久化数据"""
     client.user_agent = user_agent
     api = WorldsApi(client)
     await run_sync(api.delete_all_user_persistence_data)(user_id=user_id)

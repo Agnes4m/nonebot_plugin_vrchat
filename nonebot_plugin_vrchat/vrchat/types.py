@@ -1,127 +1,34 @@
 from datetime import date, datetime
-from typing import TYPE_CHECKING, Dict, List, Literal, Optional, Tuple, TypeVar
+from typing import TYPE_CHECKING, List, Literal, Optional, Tuple, TypeVar
 
 from pydantic import BaseModel, Field
 from vrchatapi.models import LimitedUserSearch
 
-from .utils import patch_api_model_append_attr
+from .utils import (
+    DeveloperType,
+    NormalizedStatusType,
+    StatusType,
+    TrustType,
+    extract_trust_level,
+    normalize_status,
+    patch_api_model_append_attr,
+)
 
 if TYPE_CHECKING:
     pass
 
 TM = TypeVar("TM", bound=BaseModel)
 
-DeveloperType = Literal["none", "trusted", "internal", "moderator"]
-"""用户开发等级"""
-StatusType = Literal["active", "join me", "ask me", "busy", "offline"]
-StateType = Literal["offline", "active", "online"]
 GroupPrivacyType = Literal["default", "private"]
 GroupJoinStateType = Literal["closed", "invite", "request", "open"]
 GroupMemberStatusType = Literal["inactive", "member", "requested", "invited"]
 ReleaseStatusType = Literal["public", "private", "hidden", "all"]
 PlatfoemType = Literal
 
-NormalizedStatusType = Literal[
-    "online",
-    "webonline",
-    "joinme",
-    "busy",
-    "askme",
-    "offline",
-    "unknown",
-]
-TrustType = Literal[
-    "visitor",
-    "new",
-    "user",
-    "known",
-    "trusted",
-    "friend",
-    "developer",
-    "moderator",
-]
+StateType = Literal["offline", "active", "online"]
 LOCATION_PRIVACY = Literal["private", "public", "group_public"]
-
-NORMALIZE_STATUS_MAP: Dict[StatusType, NormalizedStatusType] = {
-    "active": "online",
-    "join me": "joinme",
-    "busy": "busy",
-    "ask me": "askme",
-}
-NORMALIZE_TRUST_TAG_MAP: Dict[str, TrustType] = {
-    "veteran": "trusted",
-    "trusted": "known",
-    "known": "user",
-}
-DEVELOPER_TRUST_TYPE_MAP: Dict[str, TrustType] = {
-    "internal": "developer",
-    "moderator": "moderator",
-}
-TRUST_TAG_PREFIX = "system_trust_"
-
-
-def normalize_status(
-    status: StatusType,
-    location: Optional[str],
-) -> NormalizedStatusType:
-    """
-    将 `StatusType` 转为 `NormalizedStatusType`
-
-    Args:
-        status: user.status
-        location: user.location
-
-    Returns:
-        转换后的 `NormalizedStatusType`
-    """
-
-    if location == "offline":
-        if status == "active":
-            return "webonline"
-        return "offline"
-    return NORMALIZE_STATUS_MAP.get(status, "unknown")
-
-
-def extract_trust_level(tags: List[str], developer_type: Optional[str]) -> TrustType:
-    """
-    从用户的 Tag 中提取用户的信任等级
-
-    Args:
-        tags: user.tags
-            "system_no_captcha",  # 无验证
-            "system_avatar_access",  # 头像接口
-            "system_world_access",  # 世界接口
-            "system_feedback_access",  # 反馈接口
-            "system_trust_basic",  # 蓝名
-            "system_trust_trusted",  # 绿名
-            "system_trust_veteran",  # 橙名
-            "system_trust_known",  # 紫名
-            "show_social_rank",  # 排行榜
-            # 语言
-            "language_zho",  # 中文
-            "language_yue",  # 粤语
-            "language_jpn",  # 日语
-            "language_eng",  # 英语
-            "language_kor",  # 韩语
-            "language_fra",  # 法语
-            "language_vie",  # 越南语
-            "language_rus",  # 俄语
-        developer_type: user.developer_type
-
-    Returns:
-        用户的信任等级
-    """
-
-    if developer_type in DEVELOPER_TRUST_TYPE_MAP:
-        return DEVELOPER_TRUST_TYPE_MAP[developer_type]
-
-    for suffix in NORMALIZE_TRUST_TAG_MAP:
-        if f"{TRUST_TAG_PREFIX}{suffix}" in tags:
-            return NORMALIZE_TRUST_TAG_MAP[suffix]
-
-    return "visitor"
-
-
+FavoriteGroupVisibilityType = Literal["friends", "private", "public"]
+FavoriteType = Literal["avatar", "world", "friend"]
 # region patches
 patch_api_model_append_attr(LimitedUserSearch, "last_login", "last_login", "datetime")
 # endregion patches
@@ -140,11 +47,7 @@ class LimitedUserModel(BaseModel):
     """姓名"""
     is_friend: bool
     last_platform: str
-    """
-    - standalonewindows : 桌面端
-    - android : 安卓
-    - 其他 unity 版本：2019.3.1p2-845-Release
-    """
+    """- standalonewindows : 桌面端"""
     original_status: StatusType = Field(alias="status")
     status_description: str
     tags: List[str]
@@ -217,11 +120,7 @@ class UserModel(BaseModel):
     last_login: str
     last_mobile: Optional[str] = None
     last_platform: str
-    """
-    - standalonewindows : 桌面端
-    - android : 安卓
-    - 其他 unity 版本：2019.3.1p2-845-Release
-    """
+    """- standalonewindows : 桌面端"""
     location: Optional[str] = "offline"
     note: Optional[str] = None
     platform: Optional[str] = "offline"
@@ -236,7 +135,6 @@ class UserModel(BaseModel):
     traveling_to_location: Optional[str] = None
     traveling_to_world: Optional[str] = None
     user_icon: str
-    # username: str 弃用
     world_id: str = "offline"
 
     @property
@@ -443,7 +341,7 @@ class WorldModel(BaseModel):
     preview_youtube_id: Optional[str] = None
 
 
-# region Avatar Models
+# region 头像 Models
 
 
 class LimitedAvatarModel(BaseModel):
@@ -510,7 +408,7 @@ class AvatarStyleModel(BaseModel):
 # endregion
 
 
-# region Instance Models
+# region 实例 Models
 
 
 class InstanceModel(BaseModel):
@@ -543,7 +441,7 @@ class InstanceModel(BaseModel):
 # endregion
 
 
-# region Group Extended Models
+# region 群组 Models
 
 
 class LimitedGroupModel(BaseModel):
@@ -675,7 +573,7 @@ class GroupAuditLogEntryModel(BaseModel):
 # endregion
 
 
-# region Notification Models
+# region 通知 Models
 
 
 class NotificationModel(BaseModel):
@@ -710,20 +608,16 @@ class NotificationV2Model(BaseModel):
 # endregion
 
 
-# region Favorite Models
+# region 收藏 Models
 
 
 class FavoriteModel(BaseModel):
     """收藏信息"""
 
-    favorite_id: str = Field(alias="id")
-    type: str
-    favorite_id_ref: str
+    favorite_id: str
+    type: FavoriteType
     tags: List[str]
-    created_at: "datetime"
-    updated_at: "datetime"
 
-    group: str = ""
     id: Optional[str] = None
 
 
@@ -733,25 +627,34 @@ class FavoriteGroupModel(BaseModel):
     owner_id: str
     name: str
     display_name: str
-    type: str
-    created_at: "datetime"
-    updated_at: "datetime"
-
+    type: FavoriteType
     index: int = 0
+
     id: Optional[str] = None
+    tags: List[str] = []
+    visibility: Optional[FavoriteGroupVisibilityType] = None
+
+
+class FavoriteGroupLimitsModel(BaseModel):
+    avatar: int
+    friend: int
+    vrc_plus_world: int
+    world: int
 
 
 class FavoriteLimitsModel(BaseModel):
     """收藏限制信息"""
 
-    total: int = 0
-    groups: int = 0
+    default_max_favorite_groups: int = 0
+    default_max_favorites_per_group: int = 0
+    max_favorite_groups: FavoriteGroupLimitsModel
+    max_favorites_per_group: FavoriteGroupLimitsModel
 
 
 # endregion
 
 
-# region File Models
+# region 文件 Models
 
 
 class FileModel(BaseModel):
@@ -788,7 +691,7 @@ class FileVersionModel(BaseModel):
 # endregion
 
 
-# region Economy Models
+# region 经济 Models
 
 
 class BalanceModel(BaseModel):
@@ -904,7 +807,7 @@ class TokenBundleModel(BaseModel):
 # endregion
 
 
-# region Inventory Models
+# region 库存 Models
 
 
 class InventoryModel(BaseModel):
@@ -959,7 +862,7 @@ class InventoryDropModel(BaseModel):
 # endregion
 
 
-# region User Note Models
+# region 用户笔记 Models
 
 
 class UserNoteModel(BaseModel):

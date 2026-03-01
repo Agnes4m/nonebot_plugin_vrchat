@@ -31,17 +31,7 @@ def search_users(
     keyword: str,
     **pf_kwargs: Unpack[IterPFKwargs],
 ) -> AsyncIterable[LimitedUserModel]:
-    """
-    搜索用户
-
-    Args:
-        client: ApiClient 实例
-        keyword: 搜索关键词
-        pf_kwargs: 分页查询相关参数
-
-    Returns:
-        获取搜索到用户的异步迭代器
-    """
+    """搜索用户"""
     client.user_agent = user_agent
     api = UsersApi(client)
 
@@ -59,16 +49,7 @@ def search_users(
 
 @auto_parse_return(UserModel)
 async def get_user(client: ApiClient, user_id: str) -> User:
-    """
-    通过用户 ID 获取用户信息
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-
-    Returns:
-        用户信息
-    """
+    """通过用户 ID 获取用户信息"""
     client.user_agent = user_agent
     api = UsersApi(client)
     return await cast(
@@ -79,16 +60,7 @@ async def get_user(client: ApiClient, user_id: str) -> User:
 
 @auto_parse_return(UserModel)
 async def get_user_by_name(client: ApiClient, username: str) -> User:
-    """
-    通过用户名获取用户信息
-
-    Args:
-        client: ApiClient 实例
-        username: 用户名
-
-    Returns:
-        用户信息
-    """
+    """通过用户名获取用户信息"""
     client.user_agent = user_agent
     api = UsersApi(client)
     return await cast(
@@ -103,17 +75,7 @@ async def update_user(
     user_id: str,
     update_user_request: dict,
 ) -> User:
-    """
-    更新用户信息
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-        update_user_request: 更新用户请求对象
-
-    Returns:
-        更新后的用户信息
-    """
+    """更新用户信息"""
     from vrchatapi.models import UpdateUserRequest
 
     client.user_agent = user_agent
@@ -132,17 +94,7 @@ async def add_tags(
     user_id: str,
     tags: list[str],
 ) -> bool:
-    """
-    添加用户标签
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-        tags: 要添加的标签列表
-
-    Returns:
-        是否添加成功
-    """
+    """添加用户标签"""
     from vrchatapi.models import ChangeUserTagsRequest
 
     client.user_agent = user_agent
@@ -159,17 +111,7 @@ async def remove_tags(
     user_id: str,
     tags: list[str],
 ) -> bool:
-    """
-    移除用户标签
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-        tags: 要移除的标签列表
-
-    Returns:
-        是否移除成功
-    """
+    """移除用户标签"""
     from vrchatapi.models import ChangeUserTagsRequest
 
     client.user_agent = user_agent
@@ -185,17 +127,7 @@ async def get_user_note(
     client: ApiClient,
     note_user_id: str,
 ) -> UserNoteModel:
-    """
-    获取用户笔记
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-        note_user_id: 笔记目标用户 ID
-
-    Returns:
-        用户笔记信息
-    """
+    """获取用户笔记"""
 
     client.user_agent = user_agent
     api = UsersApi(client)
@@ -213,17 +145,7 @@ def get_user_notes(
     user_id: str,
     **pf_kwargs: Unpack[IterPFKwargs],
 ) -> AsyncIterable[UserNoteModel]:
-    """
-    获取用户的所有笔记
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-        pf_kwargs: 分页查询相关参数
-
-    Returns:
-        获取用户笔记的异步迭代器
-    """
+    """获取用户的所有笔记"""
     client.user_agent = user_agent
     api = UsersApi(client)
 
@@ -249,18 +171,7 @@ async def update_user_note(
     note_user_id: str,
     update_user_note_request: dict,
 ) -> UserNoteModel:
-    """
-    更新用户笔记
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-        note_user_id: 笔记目标用户 ID
-        update_user_note_request: 更新笔记请求对象
-
-    Returns:
-        更新后的用户笔记信息
-    """
+    """更新用户笔记"""
     from vrchatapi.models import UpdateUserNoteRequest
 
     client.user_agent = user_agent
@@ -282,16 +193,7 @@ async def get_user_groups(
     client: ApiClient,
     user_id: str,
 ) -> list[GroupModel]:
-    """
-    获取用户加入的群组列表
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-
-    Returns:
-        群组列表
-    """
+    """获取用户加入的群组列表"""
     client.user_agent = user_agent
     api = UsersApi(client)
     groups = await cast(
@@ -305,16 +207,7 @@ async def get_user_group_requests(
     client: ApiClient,
     user_id: str,
 ) -> list[LimitedGroupModel]:
-    """
-    获取用户的群组请求列表
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-
-    Returns:
-        群组请求列表
-    """
+    """获取用户的群组请求列表"""
     client.user_agent = user_agent
     api = UsersApi(client)
     groups = await cast(
@@ -328,16 +221,7 @@ async def get_user_group_instances(
     client: ApiClient,
     user_id: str,
 ) -> list[GroupInstanceModel]:
-    """
-    获取用户的群组实例列表
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-
-    Returns:
-        群组实例列表
-    """
+    """获取用户的群组实例列表"""
     client.user_agent = user_agent
     api = UsersApi(client)
     instances = await cast(
@@ -352,17 +236,7 @@ async def get_user_group_instances_for_group(
     user_id: str,
     group_id: str,
 ) -> list[GroupInstanceModel]:
-    """
-    获取用户在指定群组的实例列表
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-        group_id: 群组 ID
-
-    Returns:
-        群组实例列表
-    """
+    """获取用户在指定群组的实例列表"""
     client.user_agent = user_agent
     api = UsersApi(client)
     instances = await cast(
@@ -379,16 +253,7 @@ async def get_user_all_group_permissions(
     client: ApiClient,
     user_id: str,
 ) -> list[GroupModel]:
-    """
-    获取用户在所有群组中的权限
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-
-    Returns:
-        群组权限列表
-    """
+    """获取用户在所有群组中的权限"""
     client.user_agent = user_agent
     api = UsersApi(client)
     groups = await cast(
@@ -402,16 +267,7 @@ async def get_user_represented_group(
     client: ApiClient,
     user_id: str,
 ) -> Optional[GroupModel]:
-    """
-    获取用户代表的群组
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-
-    Returns:
-        群组信息
-    """
+    """获取用户代表的群组"""
     client.user_agent = user_agent
     api = UsersApi(client)
     group = await cast(
@@ -425,16 +281,7 @@ async def get_mutuals(
     client: ApiClient,
     user_id: str,
 ) -> dict:
-    """
-    获取共同好友和群组信息
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-
-    Returns:
-        共同好友和群组信息
-    """
+    """获取共同好友和群组信息"""
     client.user_agent = user_agent
     api = UsersApi(client)
     result = await cast(
@@ -449,17 +296,7 @@ def get_mutual_friends(
     user_id: str,
     **pf_kwargs: Unpack[IterPFKwargs],
 ) -> AsyncIterable[LimitedUserModel]:
-    """
-    获取共同好友列表
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-        pf_kwargs: 分页查询相关参数
-
-    Returns:
-        获取共同好友的异步迭代器
-    """
+    """获取共同好友列表"""
     client.user_agent = user_agent
     api = UsersApi(client)
 
@@ -484,17 +321,7 @@ def get_mutual_groups(
     user_id: str,
     **pf_kwargs: Unpack[IterPFKwargs],
 ) -> AsyncIterable[LimitedGroupModel]:
-    """
-    获取共同群组列表
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-        pf_kwargs: 分页查询相关参数
-
-    Returns:
-        获取共同群组的异步迭代器
-    """
+    """获取共同群组列表"""
     client.user_agent = user_agent
     api = UsersApi(client)
 
@@ -519,17 +346,7 @@ def get_blocked_groups(
     user_id: str,
     **pf_kwargs: Unpack[IterPFKwargs],
 ) -> AsyncIterable[LimitedGroupModel]:
-    """
-    获取用户屏蔽的群组列表
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-        pf_kwargs: 分页查询相关参数
-
-    Returns:
-        获取屏蔽群组的异步迭代器
-    """
+    """获取用户屏蔽的群组列表"""
     client.user_agent = user_agent
     api = UsersApi(client)
 
@@ -554,17 +371,7 @@ def get_invited_groups(
     user_id: str,
     **pf_kwargs: Unpack[IterPFKwargs],
 ) -> AsyncIterable[LimitedGroupModel]:
-    """
-    获取用户被邀请的群组列表
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-        pf_kwargs: 分页查询相关参数
-
-    Returns:
-        获取被邀请群组的异步迭代器
-    """
+    """获取用户被邀请的群组列表"""
     client.user_agent = user_agent
     api = UsersApi(client)
 
@@ -589,17 +396,7 @@ def get_user_feedback(
     user_id: str,
     **pf_kwargs: Unpack[IterPFKwargs],
 ) -> AsyncIterable[Feedback]:
-    """
-    获取用户反馈列表
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-        pf_kwargs: 分页查询相关参数
-
-    Returns:
-        获取用户反馈的异步迭代器
-    """
+    """获取用户反馈列表"""
     client.user_agent = user_agent
     api = UsersApi(client)
 
@@ -624,18 +421,7 @@ async def update_badge(
     badge_id: str,
     update_user_badge_request: dict,
 ) -> UserModel:
-    """
-    更新用户徽章
-
-    Args:
-        client: ApiClient 实例
-        user_id: 用户 ID
-        badge_id: 徽章 ID
-        update_user_badge_request: 更新徽章请求对象
-
-    Returns:
-        更新后的用户信息
-    """
+    """更新用户徽章"""
     from vrchatapi.models import UpdateUserBadgeRequest
 
     client.user_agent = user_agent

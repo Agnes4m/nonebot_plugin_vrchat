@@ -26,16 +26,7 @@ def search_groups(
     keyword: str,
     **pf_kwargs: Unpack[IterPFKwargs],
 ) -> AsyncIterable[LimitedGroupModel]:
-    """搜索群组
-
-    Args:
-        client: ApiClient 实例
-        keyword: 搜索关键词
-        pf_kwargs: 分页查询相关参数
-
-    Returns:
-        搜索到的群组列表
-    """
+    """搜索群组"""
     api = GroupsApi(client)
 
     @auto_parse_iterator_return(LimitedGroupModel)
@@ -51,15 +42,7 @@ def search_groups(
 
 
 async def get_group(client: ApiClient, group_id: str) -> GroupModel:
-    """获取群组信息
-
-    Args:
-        client: ApiClient 实例
-        group_id: 群组 ID
-
-    Returns:
-        群组信息
-    """
+    """获取群组信息"""
     api = GroupsApi(client)
     result = await cast(
         "Awaitable[dict]",
@@ -76,15 +59,7 @@ async def create_group(
     client: ApiClient,
     create_group_request: dict,
 ) -> GroupModel:
-    """创建群组
-
-    Args:
-        client: ApiClient 实例
-        create_group_request: 创建群组请求对象
-
-    Returns:
-        创建的群组信息
-    """
+    """创建群组"""
     from vrchatapi.models import CreateGroupRequest
 
     api = GroupsApi(client)
@@ -106,16 +81,7 @@ async def update_group(
     group_id: str,
     update_group_request: dict,
 ) -> GroupModel:
-    """更新群组信息
-
-    Args:
-        client: ApiClient 实例
-        group_id: 群组 ID
-        update_group_request: 更新群组请求对象
-
-    Returns:
-        更新后的群组信息
-    """
+    """更新群组信息"""
     from vrchatapi.models import UpdateGroupRequest
 
     api = GroupsApi(client)
@@ -134,15 +100,7 @@ async def update_group(
 
 
 async def delete_group(client: ApiClient, group_id: str) -> bool:
-    """删除群组
-
-    Args:
-        client: ApiClient 实例
-        group_id: 群组 ID
-
-    Returns:
-        是否删除成功
-    """
+    """删除群组"""
     api = GroupsApi(client)
     await run_sync(api.delete_group)(group_id=group_id)
     return True
@@ -154,17 +112,7 @@ async def get_group_members(
     n: int = 20,
     offset: int = 0,
 ) -> List[GroupMemberModel]:
-    """获取群组成员列表
-
-    Args:
-        client: ApiClient 实例
-        group_id: 群组 ID
-        n: 返回数量
-        offset: 偏移量
-
-    Returns:
-        成员列表
-    """
+    """获取群组成员列表"""
     api = GroupsApi(client)
     result = await cast(
         "Awaitable[list]",
@@ -185,17 +133,7 @@ async def get_group_roles(
     client: ApiClient,
     group_id: str,
 ) -> List[GroupRoleModel]:
-    """获取群组角色列表
-
-    Args:
-        client: ApiClient 实例
-        group_id: 群组 ID
-        n: 返回数量
-        offset: 偏移量
-
-    Returns:
-        角色列表
-    """
+    """获取群组角色列表"""
     api = GroupsApi(client)
     result = await cast(
         "Awaitable[list]",
@@ -214,15 +152,7 @@ async def get_group_announcements(
     client: ApiClient,
     group_id: str,
 ) -> GroupAnnouncementModel:
-    """获取群组公告
-
-    Args:
-        client: ApiClient 实例
-        group_id: 群组 ID
-
-    Returns:
-        公告信息（字典格式）
-    """
+    """获取群组公告"""
     api = GroupsApi(client)
     result = await cast(
         "Awaitable[dict]",
@@ -234,15 +164,7 @@ async def get_group_announcements(
 
 
 async def join_group(client: ApiClient, group_id: str) -> bool:
-    """加入群组
-
-    Args:
-        client: ApiClient 实例
-        group_id: 群组 ID
-
-    Returns:
-        是否加入成功
-    """
+    """加入群组"""
     api = GroupsApi(client)
     await run_sync(api.join_group)(
         group_id=group_id,
@@ -253,15 +175,7 @@ async def join_group(client: ApiClient, group_id: str) -> bool:
 
 
 async def leave_group(client: ApiClient, group_id: str) -> bool:
-    """离开群组
-
-    Args:
-        client: ApiClient 实例
-        group_id: 群组 ID
-
-    Returns:
-        是否离开成功
-    """
+    """离开群组"""
     api = GroupsApi(client)
     await run_sync(api.leave_group)(group_id=group_id)
     return True
@@ -273,17 +187,7 @@ async def get_group_invites(
     n: int = 20,
     offset: int = 0,
 ) -> List[GroupMemberModel]:
-    """获取群组邀请列表
-
-    Args:
-        client: ApiClient 实例
-        group_id: 群组 ID
-        n: 返回数量
-        offset: 偏移量
-
-    Returns:
-        邀请列表
-    """
+    """获取群组邀请列表"""
     api = GroupsApi(client)
     result = await cast(
         "Awaitable[list]",
@@ -306,17 +210,7 @@ async def get_group_requests(
     n: int = 20,
     offset: int = 0,
 ) -> List[GroupMemberModel]:
-    """获取群组请求列表
-
-    Args:
-        client: ApiClient 实例
-        group_id: 群组 ID
-        n: 返回数量
-        offset: 偏移量
-
-    Returns:
-        请求列表
-    """
+    """获取群组请求列表"""
     api = GroupsApi(client)
     result = await cast(
         "Awaitable[list]",
@@ -337,17 +231,7 @@ async def get_group_instances(
     client: ApiClient,
     group_id: str,
 ) -> List[GroupInstanceModel]:
-    """获取群组实例列表
-
-    Args:
-        client: ApiClient 实例
-        group_id: 群组 ID
-        n: 返回数量
-        offset: 偏移量
-
-    Returns:
-        实例列表
-    """
+    """获取群组实例列表"""
     api = GroupsApi(client)
     result = await cast(
         "Awaitable[list]",
@@ -366,18 +250,405 @@ async def get_group_permissions(
     client: ApiClient,
     group_id: str,
 ) -> GroupPermissionModel:
-    """获取群组权限信息
-
-    Args:
-        client: ApiClient 实例
-        group_id: 群组 ID
-
-    Returns:
-        权限信息
-    """
+    """获取群组权限信息"""
     api = GroupsApi(client)
     result = await cast(
         "Awaitable[dict]",
         run_sync(api.get_group_permissions)(group_id=group_id),
     )
     return result if isinstance(result, dict) else {}
+
+
+async def kick_group_member(
+    client: ApiClient,
+    group_id: str,
+    user_id: str,
+) -> bool:
+    """踢出群组成员"""
+    api = GroupsApi(client)
+    await run_sync(api.kick_group_member)(group_id=group_id, user_id=user_id)
+    return True
+
+
+async def add_member_role(
+    client: ApiClient,
+    group_id: str,
+    user_id: str,
+    role_id: str,
+) -> bool:
+    """给群组成员添加角色"""
+    api = GroupsApi(client)
+    await run_sync(api.add_member_role)(
+        group_id=group_id,
+        user_id=user_id,
+        role_id=role_id,
+    )
+    return True
+
+
+async def remove_member_role(
+    client: ApiClient,
+    group_id: str,
+    user_id: str,
+    role_id: str,
+) -> bool:
+    """从群组成员移除角色"""
+    api = GroupsApi(client)
+    await run_sync(api.remove_member_role)(
+        group_id=group_id,
+        user_id=user_id,
+        role_id=role_id,
+    )
+    return True
+
+
+async def create_group_announcement(
+    client: ApiClient,
+    group_id: str,
+    title: str,
+    text: str,
+    image_url: str | None = None,
+) -> dict:
+    """创建群组公告"""
+    from vrchatapi.models import CreateGroupAnnouncementRequest
+
+    api = GroupsApi(client)
+    result = await cast(
+        "Awaitable[dict]",
+        run_sync(api.create_group_announcement)(
+            group_id=group_id,
+            create_group_announcement_request=CreateGroupAnnouncementRequest(
+                title=title,
+                text=text,
+                image_url=image_url,
+            ),
+        ),
+    )
+    return result.to_dict() if hasattr(result, "to_dict") else {}
+
+
+async def delete_group_announcement(
+    client: ApiClient,
+    group_id: str,
+    announcement_id: str,
+) -> bool:
+    """删除群组公告"""
+    api = GroupsApi(client)
+    await run_sync(api.delete_group_announcement)(
+        group_id=group_id,
+        announcement_id=announcement_id,
+    )
+    return True
+
+
+async def create_group_post(
+    client: ApiClient,
+    group_id: str,
+    title: str,
+    text: str,
+) -> dict:
+    """创建群组帖子"""
+    from vrchatapi.models import CreateGroupPostRequest
+
+    api = GroupsApi(client)
+    result = await cast(
+        "Awaitable[dict]",
+        run_sync(api.create_group_post)(
+            group_id=group_id,
+            create_group_post_request=CreateGroupPostRequest(
+                title=title,
+                text=text,
+            ),
+        ),
+    )
+    return result.to_dict() if hasattr(result, "to_dict") else {}
+
+
+async def get_group_posts(
+    client: ApiClient,
+    group_id: str,
+    n: int = 20,
+    offset: int = 0,
+) -> List[dict]:
+    """获取群组帖子列表"""
+    api = GroupsApi(client)
+    result = await cast(
+        "Awaitable[list]",
+        run_sync(api.get_group_posts)(
+            group_id=group_id,
+            n=n,
+            offset=offset,
+        ),
+    )
+    return (
+        [item.to_dict() if hasattr(item, "to_dict") else item for item in result]
+        if isinstance(result, list)
+        else []
+    )
+
+
+async def delete_group_post(
+    client: ApiClient,
+    group_id: str,
+    post_id: str,
+) -> bool:
+    """删除群组帖子"""
+    api = GroupsApi(client)
+    await run_sync(api.delete_group_post)(group_id=group_id, post_id=post_id)
+    return True
+
+
+async def edit_group_post(
+    client: ApiClient,
+    group_id: str,
+    post_id: str,
+    title: str,
+    text: str,
+) -> dict:
+    """编辑群组帖子"""
+    from vrchatapi.models import UpdateGroupPostRequest
+
+    api = GroupsApi(client)
+    result = await cast(
+        "Awaitable[dict]",
+        run_sync(api.edit_group_post)(
+            group_id=group_id,
+            post_id=post_id,
+            update_group_post_request=UpdateGroupPostRequest(
+                title=title,
+                text=text,
+            ),
+        ),
+    )
+    return result.to_dict() if hasattr(result, "to_dict") else {}
+
+
+async def get_group_gallery(
+    client: ApiClient,
+    group_id: str,
+) -> dict:
+    """获取群组画廊信息"""
+    api = GroupsApi(client)
+    result = await cast(
+        "Awaitable[dict]",
+        run_sync(api.get_group_gallery)(group_id=group_id),
+    )
+    return result.to_dict() if hasattr(result, "to_dict") else {}
+
+
+async def get_group_gallery_images(
+    client: ApiClient,
+    group_id: str,
+    n: int = 20,
+    offset: int = 0,
+) -> List[dict]:
+    """获取群组画廊图片列表"""
+    api = GroupsApi(client)
+    result = await cast(
+        "Awaitable[list]",
+        run_sync(api.get_group_gallery_images)(
+            group_id=group_id,
+            n=n,
+            offset=offset,
+        ),
+    )
+    return (
+        [item.to_dict() if hasattr(item, "to_dict") else item for item in result]
+        if isinstance(result, list)
+        else []
+    )
+
+
+async def add_group_gallery_image(
+    client: ApiClient,
+    group_id: str,
+    file_id: str,
+    description: str | None = None,
+) -> dict:
+    """添加群组画廊图片"""
+    from vrchatapi.models import AddGroupGalleryImageRequest
+
+    api = GroupsApi(client)
+    result = await cast(
+        "Awaitable[dict]",
+        run_sync(api.add_group_gallery_image)(
+            group_id=group_id,
+            add_group_gallery_image_request=AddGroupGalleryImageRequest(
+                file_id=file_id,
+                description=description,
+            ),
+        ),
+    )
+    return result.to_dict() if hasattr(result, "to_dict") else {}
+
+
+async def delete_group_gallery_image(
+    client: ApiClient,
+    group_id: str,
+    image_id: str,
+) -> bool:
+    """删除群组画廊图片"""
+    api = GroupsApi(client)
+    await run_sync(api.delete_group_gallery_image)(
+        group_id=group_id,
+        image_id=image_id,
+    )
+    return True
+
+
+async def delete_group_gallery(
+    client: ApiClient,
+    group_id: str,
+) -> bool:
+    """删除群组画廊"""
+    api = GroupsApi(client)
+    await run_sync(api.delete_group_gallery)(group_id=group_id)
+    return True
+
+
+async def invite_user_to_group(
+    client: ApiClient,
+    group_id: str,
+    user_id: str,
+) -> bool:
+    """邀请用户加入群组"""
+    from vrchatapi.models import GroupInviteRequest
+
+    api = GroupsApi(client)
+    await run_sync(api.invite_user_to_group)(
+        group_id=group_id,
+        group_invite_request=GroupInviteRequest(user_id=user_id),
+    )
+    return True
+
+
+async def delete_group_invite(
+    client: ApiClient,
+    group_id: str,
+    user_id: str,
+) -> bool:
+    """删除群组邀请"""
+    api = GroupsApi(client)
+    await run_sync(api.delete_group_invite)(group_id=group_id, user_id=user_id)
+    return True
+
+
+async def respond_to_group_join_request(
+    client: ApiClient,
+    group_id: str,
+    user_id: str,
+    accept: bool,
+) -> bool:
+    """响应群组加入请求"""
+    api = GroupsApi(client)
+    await run_sync(api.respond_to_group_join_request)(
+        group_id=group_id,
+        user_id=user_id,
+        accept=accept,
+    )
+    return True
+
+
+async def cancel_group_join_request(
+    client: ApiClient,
+    group_id: str,
+) -> bool:
+    """取消群组加入请求"""
+    api = GroupsApi(client)
+    await run_sync(api.cancel_group_join_request)(group_id=group_id)
+    return True
+
+
+async def get_group_bans(
+    client: ApiClient,
+    group_id: str,
+    n: int = 20,
+    offset: int = 0,
+) -> List[dict]:
+    """获取群组禁止列表"""
+    api = GroupsApi(client)
+    result = await cast(
+        "Awaitable[list]",
+        run_sync(api.get_group_bans)(
+            group_id=group_id,
+            n=n,
+            offset=offset,
+        ),
+    )
+    return (
+        [item.to_dict() if hasattr(item, "to_dict") else item for item in result]
+        if isinstance(result, list)
+        else []
+    )
+
+
+async def ban_group_member(
+    client: ApiClient,
+    group_id: str,
+    user_id: str,
+) -> bool:
+    """禁止群组成员"""
+    api = GroupsApi(client)
+    await run_sync(api.ban_group_member)(group_id=group_id, user_id=user_id)
+    return True
+
+
+async def unban_group_member(
+    client: ApiClient,
+    group_id: str,
+    user_id: str,
+) -> bool:
+    """解除禁止群组成员"""
+    api = GroupsApi(client)
+    await run_sync(api.unban_group_member)(group_id=group_id, user_id=user_id)
+    return True
+
+
+async def get_group_audit_logs(
+    client: ApiClient,
+    group_id: str,
+    n: int = 20,
+    offset: int = 0,
+) -> List[dict]:
+    """获取群组审计日志"""
+    api = GroupsApi(client)
+    result = await cast(
+        "Awaitable[list]",
+        run_sync(api.get_group_audit_logs)(
+            group_id=group_id,
+            n=n,
+            offset=offset,
+        ),
+    )
+    return (
+        [item.to_dict() if hasattr(item, "to_dict") else item for item in result]
+        if isinstance(result, list)
+        else []
+    )
+
+
+async def update_group_representation(
+    client: ApiClient,
+    group_id: str,
+    represent: bool,
+) -> bool:
+    """更新群组代表身份"""
+    api = GroupsApi(client)
+    await run_sync(api.update_group_representation)(
+        group_id=group_id,
+        represent=represent,
+    )
+    return True
+
+
+async def get_my_group_member(
+    client: ApiClient,
+    group_id: str,
+) -> dict:
+    """获取当前用户在群组中的成员信息"""
+    api = GroupsApi(client)
+    result = await cast(
+        "Awaitable[dict]",
+        run_sync(api.get_my_group_member)(group_id=group_id),
+    )
+    return result.to_dict() if hasattr(result, "to_dict") else {}

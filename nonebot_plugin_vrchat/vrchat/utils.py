@@ -1,10 +1,14 @@
 import asyncio
 from collections.abc import AsyncIterable, Awaitable
+from datetime import datetime
 from functools import wraps
 from typing import (
     Any,
     Callable,
+    Dict,
     Generic,
+    List,
+    Literal,
     Optional,
     Protocol,
     TypedDict,
@@ -19,6 +23,71 @@ TM = TypeVar("TM", bound=BaseModel)
 P = ParamSpec("P")
 user_agent = "nonebot_plugin_vrchat/0.2.0 Z735803792@163.com"
 
+DeveloperType = Literal["none", "trusted", "internal", "moderator"]
+StatusType = Literal["active", "join me", "ask me", "busy", "offline"]
+NormalizedStatusType = Literal[
+    "online",
+    "webonline",
+    "joinme",
+    "busy",
+    "askme",
+    "offline",
+    "unknown",
+]
+TrustType = Literal[
+    "visitor",
+    "new",
+    "user",
+    "known",
+    "trusted",
+    "friend",
+    "developer",
+    "moderator",
+]
+
+NORMALIZE_STATUS_MAP: Dict[StatusType, NormalizedStatusType] = {
+    "active": "online",
+    "join me": "joinme",
+    "busy": "busy",
+    "ask me": "askme",
+}
+NORMALIZE_TRUST_TAG_MAP: Dict[str, TrustType] = {
+    "veteran": "trusted",
+    "trusted": "known",
+    "known": "user",
+}
+DEVELOPER_TRUST_TYPE_MAP: Dict[str, TrustType] = {
+    "internal": "developer",
+    "moderator": "moderator",
+}
+TRUST_TAG_PREFIX = "system_trust_"
+
+
+def normalize_status(
+    status: StatusType,
+    location: Optional[str],
+) -> NormalizedStatusType:
+    if location == "offline":
+        return "webonline" if status == "active" else "offline"
+    return NORMALIZE_STATUS_MAP.get(status, "unknown")
+
+
+def extract_trust_level(tags: List[str], developer_type: Optional[str]) -> TrustType:
+    if developer_type in DEVELOPER_TRUST_TYPE_MAP:
+        return DEVELOPER_TRUST_TYPE_MAP[developer_type]
+    for suffix in NORMALIZE_TRUST_TAG_MAP:
+        if f"{TRUST_TAG_PREFIX}{suffix}" in tags:
+            return NORMALIZE_TRUST_TAG_MAP[suffix]
+    return "visitor"
+
+
+def format_datetime(dt: datetime | str | None) -> str:
+    if not dt:
+        return "未知"
+    if isinstance(dt, datetime):
+        return dt.strftime("%Y-%m-%d %H:%M:%S")
+    return str(dt)
+
 
 class HasToDictProtocol(Protocol):
     def to_dict(self) -> dict: ...
@@ -29,38 +98,22 @@ class PaginationCallable(Protocol, Generic[T]):
 
 
 class ApiModelClass(Protocol):
-    """代表 `vrchatapi` 中调用 API 返回的数据结构"""
-
     openapi_types: dict[str, str]
     attribute_map: dict[str, str]
     __init__: Callable[..., None]
 
 
 class IterPFKwargs(TypedDict):
-    """分页查询相关参数"""
-
     page_size: NotRequired[int]
-    """单次查询的数量，默认为 `100`"""
     offset: NotRequired[int]
-    """查询的初始偏移量，默认为 `0`"""
     delay: NotRequired[float]
-    """每次查询后的延迟时间，单位秒，默认为 `0`"""
     max_size: NotRequired[int]
-    """最大结果数，返回的结果数永远不会超过这个值，默认为 `0`，即不限制"""
 
 
 TModelClass = TypeVar("TModelClass", bound=ApiModelClass)
 
 
 def iter_pagination_func(**kwargs: Unpack[IterPFKwargs]):
-    """
-    用于装饰 `PaginationCallable` 的装饰器，使其变成一个 `Callable[[], AsyncIterable[T]]`
-
-    Args:
-        见 `IterPFKwargs`
-    """
-
-    # 从 kwargs 中获取相关参数
     page_size = kwargs.get("page_size", 100)
     offset = kwargs.get("offset", 0)
     delay = kwargs.get("delay", 0.0)
@@ -72,23 +125,17 @@ def iter_pagination_func(**kwargs: Unpack[IterPFKwargs]):
         async def wrapper():
             now_offset = offset
             while True:
-                # 如果声明了最大结果数，
-                # 那么确保 本次查询的数量 不会超过 剩余的最大结果数
                 now_page_size = (
                     min(page_size, max_size - now_offset) if has_max_size else page_size
                 )
-
                 resp = await func(now_page_size, now_offset)
                 if not resp:
-                    break  # 本页无结果，结束迭代
-
+                    break
                 for x in resp:
-                    yield x  # 将返回列表中的结果逐个返回
-
+                    yield x
                 now_offset += page_size
                 if max_size > 0 and now_offset >= max_size:
-                    break  # 达到最大结果数，结束迭代
-
+                    break
                 if delay:
                     await asyncio.sleep(delay)
 
@@ -98,14 +145,6 @@ def iter_pagination_func(**kwargs: Unpack[IterPFKwargs]):
 
 
 def auto_parse_iterator_return(model: type[TM]):
-    """
-    用于装饰返回 `HasToDictProtocol` 异步迭代器的函数，
-    对此函数返回的迭代器每次迭代返回的值调用 `.to_dict()` 后使用指定的 `BaseModel` 解析并返回
-
-    Args:
-        model: 要解析为的 `BaseModel` 类型
-    """
-
     def decorator(
         func: Callable[P, AsyncIterable[HasToDictProtocol]],
     ) -> Callable[P, AsyncIterable[TM]]:
@@ -120,14 +159,6 @@ def auto_parse_iterator_return(model: type[TM]):
 
 
 def auto_parse_return(model: type[TM]):
-    """
-    用于装饰返回 `HasToDictProtocol` 的异步函数，
-    对此函数返回的值调用 `.to_dict()` 后使用指定的 `BaseModel` 解析并返回
-
-    Args:
-        model: 要解析为的 `BaseModel` 类型
-    """
-
     def decorator(
         func: Callable[P, Awaitable[HasToDictProtocol]],
     ) -> Callable[P, Awaitable[TM]]:
@@ -148,24 +179,10 @@ def patch_api_model_append_attr(
     attr_type: str,
     default: Optional[Any] = None,
 ):
-    """
-    向属于 `ApiModelClass` 的类型中添加一个新属性（Monkey Patch）
-
-    Args:
-        cls: 要添加属性到的类
-        attr: 要添加的属性名
-        real_attr: 要添加的属性名对应的 API 返回值的键名
-        attr_type: 该属性对应的返回类型
-        default: 该属性的默认值
-    """
-
-    # 如果属性已存在则直接跳过
     if attr in cls.openapi_types or attr in cls.attribute_map:
         return
-
     cls.openapi_types[attr] = attr_type
     cls.attribute_map[attr] = real_attr
-
     original_init = cls.__init__
 
     @wraps(original_init)

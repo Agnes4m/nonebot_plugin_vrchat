@@ -21,16 +21,7 @@ def get_notifications(
     n: int = 60,
     **pf_kwargs: Unpack[IterPFKwargs],
 ) -> AsyncIterable[NotificationModel]:
-    """获取通知列表
-
-    Args:
-        client: ApiClient 实例
-        n: 获取通知数量，默认 60
-        pf_kwargs: 分页查询相关参数
-
-    Returns:
-        通知列表的异步迭代器
-    """
+    """获取通知列表"""
     api = NotificationsApi(client)
 
     @auto_parse_iterator_return(NotificationModel)
@@ -49,15 +40,7 @@ async def get_notification(
     client: ApiClient,
     notification_id: str,
 ) -> NotificationModel:
-    """获取指定通知详情
-
-    Args:
-        client: ApiClient 实例
-        notification_id: 通知 ID
-
-    Returns:
-        通知详情
-    """
+    """获取指定通知详情"""
     api = NotificationsApi(client)
     result = await cast(
         "Awaitable[Notification]",
@@ -70,15 +53,7 @@ async def accept_friend_request(
     client: ApiClient,
     notification_id: str,
 ) -> Success:
-    """接受好友请求
-
-    Args:
-        client: ApiClient 实例
-        notification_id: 通知 ID
-
-    Returns:
-        操作结果
-    """
+    """接受好友请求"""
     api = NotificationsApi(client)
     return await cast(
         "Awaitable[Success]",
@@ -90,15 +65,7 @@ async def mark_notification_as_read(
     client: ApiClient,
     notification_id: str,
 ) -> Success:
-    """将通知标记为已读
-
-    Args:
-        client: ApiClient 实例
-        notification_id: 通知 ID
-
-    Returns:
-        操作结果
-    """
+    """将通知标记为已读"""
     api = NotificationsApi(client)
     return await cast(
         "Awaitable[Success]",
@@ -110,15 +77,7 @@ async def delete_notification(
     client: ApiClient,
     notification_id: str,
 ) -> Success:
-    """删除通知
-
-    Args:
-        client: ApiClient 实例
-        notification_id: 通知 ID
-
-    Returns:
-        操作结果
-    """
+    """删除通知"""
     api = NotificationsApi(client)
     return await cast(
         "Awaitable[Success]",
@@ -127,14 +86,7 @@ async def delete_notification(
 
 
 async def clear_notifications(client: ApiClient) -> bool:
-    """清除所有通知
-
-    Args:
-        client: ApiClient 实例
-
-    Returns:
-        是否清除成功
-    """
+    """清除所有通知"""
     api = NotificationsApi(client)
     await run_sync(api.clear_notifications)()
     return True
@@ -147,15 +99,7 @@ def get_notification_v2s(
     client: ApiClient,
     **pf_kwargs: Unpack[IterPFKwargs],
 ) -> AsyncIterable[NotificationModel]:
-    """获取 V2 通知列表
-
-    Args:
-        client: ApiClient 实例
-        pf_kwargs: 分页查询相关参数
-
-    Returns:
-        V2 通知列表的异步迭代器
-    """
+    """获取 V2 通知列表"""
     api = NotificationsApi(client)
 
     @auto_parse_iterator_return(NotificationModel)
@@ -174,15 +118,7 @@ async def get_notification_v2(
     client: ApiClient,
     notification_id: str,
 ) -> NotificationModel:
-    """获取 V2 通知详情
-
-    Args:
-        client: ApiClient 实例
-        notification_id: 通知 ID
-
-    Returns:
-        V2 通知详情
-    """
+    """获取 V2 通知详情"""
     api = NotificationsApi(client)
     result = await cast(
         "Awaitable[Notification]",
@@ -195,15 +131,7 @@ async def acknowledge_notification_v2(
     client: ApiClient,
     notification_id: str,
 ) -> bool:
-    """确认 V2 通知
-
-    Args:
-        client: ApiClient 实例
-        notification_id: 通知 ID
-
-    Returns:
-        是否确认成功
-    """
+    """确认 V2 通知"""
     api = NotificationsApi(client)
     await run_sync(api.acknowledge_notification_v2)(notification_id=notification_id)
     return True
@@ -213,15 +141,7 @@ async def delete_notification_v2(
     client: ApiClient,
     notification_id: str,
 ) -> Success:
-    """删除 V2 通知
-
-    Args:
-        client: ApiClient 实例
-        notification_id: 通知 ID
-
-    Returns:
-        操作结果
-    """
+    """删除 V2 通知"""
     api = NotificationsApi(client)
     return await cast(
         "Awaitable[Success]",
@@ -230,14 +150,7 @@ async def delete_notification_v2(
 
 
 async def delete_all_notification_v2s(client: ApiClient) -> bool:
-    """删除所有 V2 通知
-
-    Args:
-        client: ApiClient 实例
-
-    Returns:
-        是否删除成功
-    """
+    """删除所有 V2 通知"""
     api = NotificationsApi(client)
     await run_sync(api.delete_all_notification_v2s)()
     return True
