@@ -56,11 +56,13 @@ async def _(
     arg: str = ArgPlainText(KEY_ARG),
 ):
     arg = arg.strip().lower()
+    if arg == "0":
+        await matcher.finish("已取消操作")
     start_time = time.perf_counter()
     if arg not in ["avatar", "world"]:
         await matcher.reject("请发送收藏类型 (avatar/world/friend)")
 
-    logger.info(f"正在获取收藏列表：{arg}")
+    logger.debug(f"正在获取收藏列表：{arg}")
     try:
         client = await get_client(session_id)
         favorites = [x async for x in get_favorites(client, arg, max_size=20)]
@@ -69,7 +71,7 @@ async def _(
             logger.debug(f"[get_favorites] 第一条：{favorites[0]}")
     except Exception as e:
         await handle_error(matcher, e)
-    logger.info(f"收藏列表，共 {len(favorites)} 个")
+    logger.debug(f"收藏列表，共 {len(favorites)} 个")
     if not favorites:
         await matcher.finish(f"该类型 ({arg}) 没有收藏")
 

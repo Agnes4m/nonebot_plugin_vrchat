@@ -1,13 +1,23 @@
 from nonebot import on_command
 from nonebot.adapters import Message
+from nonebot.log import logger
 from nonebot.matcher import Matcher
 from nonebot.params import ArgPlainText, EventMessage, T_State
 from nonebot_plugin_alconna import UniMessage
 from vrchatapi import ApiClient
+from vrchatapi.models import AddFavoriteRequest
+
+from nonebot_plugin_vrchat.vrchat.favorites import add_favorite
 
 from ..i18n import Lang
-from ..message.world import draw_world_card_overview
-from ..vrchat import LimitedWorldModel, get_or_random_client, get_world, search_worlds
+from ..message.world import draw_world_card_overview, draw_world_info
+from ..vrchat import (
+    LimitedWorldModel,
+    add_favorite,
+    get_or_random_client,
+    get_world,
+    search_worlds,
+)
 from .utils import (
     KEY_ARG,
     KEY_CLIENT,
@@ -55,7 +65,9 @@ async def _(
     state[KEY_CLIENT] = client
     msg = await draw_world_card_overview(worlds)
     await UniMessage.image(raw=msg).send()
-    await matcher.pause("发送[1]查看第一个世界\n发送[喜好 1]添加到喜好\n发送[0]取消")
+    await matcher.pause(
+        "发送[1]查看第一个世界\n发送[喜好 1 world1]添加到喜好【world1】组\n发送[0]取消\n【可以用[vrc收藏组列表]指令来获取组"
+    )
 
 
 @search_world.handle()
@@ -66,14 +78,33 @@ async def _(matcher: Matcher, state: T_State, message: Message = EventMessage())
     client: ApiClient = state[KEY_CLIENT]
     resp: list[LimitedWorldModel] = state[KEY_WORLD_RESP]
 
-    # 查询详情部分
+    # 查询详情部分 - 数字则获取单个世界信息输出
     if arg.isdigit():
-        world = resp[int(arg) - 1]
-        print(type(world))
-        worlds = await get_world(client, resp[int(arg) - 1].world_id)
-        print(worlds)
+        index = int(arg) - 1
+        if index < 0 or index >= len(resp):
+            await matcher.finish("无效的世界序号")
+        world_id = resp[index].world_id
+        world_detail = await get_world(client, world_id)
+        msg = await draw_world_info(world_detail)
+        await UniMessage.image(raw=msg).send()
+        await matcher.finish()
+
+    # 喜好操作部分 - 如果命令以"喜好"开头则添加收藏
     if arg.startswith("喜好"):
-        index = int(arg.split(" ", 1)[1])
-        world = resp[index - 1]
-        worlds = await get_world(client, resp[index - 1].world_id)
-        print(worlds)
+        parts = arg.replace("喜好", "").strip().split()
+        if len(parts) < 2 or not parts[0].isdigit():
+            await matcher.finish(
+                "格式错误，发送[喜好 1 world1]添加到喜好【world1】组\n发送[0]取消\n【可以用[vrc收藏组列表]指令来获取组"
+            )
+        index = int(parts[0]) - 1
+        if index < 0 or index >= len(resp):
+            await matcher.finish("无效的世界序号")
+        world_id = resp[index].world_id
+        add_favorite_request = AddFavoriteRequest(
+            type="world",
+            favorite_id=world_id,
+            tags=parts[1:],
+        )
+        result = await add_favorite(client, add_favorite_request)
+        logger.info(f"已添加世界收藏：{world_id}, 结果：{result}")
+        await matcher.finish(f"已成功添加世界 {resp[index].name} 到喜好")

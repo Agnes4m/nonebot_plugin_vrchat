@@ -23,6 +23,7 @@ async def add_favorite(
     client: ApiClient,
     add_favorite_request: "AddFavoriteRequest",
 ) -> "FavoriteGroup":
+    logger.debug(add_favorite_request)
     api = FavoritesApi(client)
     return await cast(
         "Awaitable[FavoriteGroup]",

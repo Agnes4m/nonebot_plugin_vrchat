@@ -1,0 +1,161 @@
+body {
+    background: #23272f;
+    color: #fff;
+    font-family: "Segoe UI", Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    width: 900px;
+}
+
+.world-card {
+    background: #2c2f36;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px #000a;
+    padding: 24px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.world-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #444857;
+}
+
+.world-thumbnail {
+    width: 120px;
+    height: 120px;
+    border-radius: 12px;
+    margin-right: 20px;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.world-title-section {
+    flex: 1;
+}
+
+.world-title-section h1 {
+    margin: 0 0 8px 0;
+    font-size: 28px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.world-title-section .author {
+    color: #b0b8c7;
+    font-size: 16px;
+}
+
+.world-description {
+    background: #36393f;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+    line-height: 1.6;
+    color: #dcddde;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.world-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    background: #36393f;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+}
+
+.stat-label {
+    display: block;
+    font-size: 13px;
+    color: #b0b8c7;
+    margin-bottom: 4px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 20px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.world-meta {
+    background: #36393f;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.meta-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #444857;
+}
+
+.meta-row:last-child {
+    border-bottom: none;
+}
+
+.meta-label {
+    color: #b0b8c7;
+    font-weight: bold;
+}
+
+.meta-value {
+    color: #fff;
+}
+
+.world-tags,
+.world-platforms,
+.world-preview {
+    background: #36393f;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.tag-label,
+.platform-label,
+.preview-label {
+    display: block;
+    font-size: 14px;
+    color: #b0b8c7;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.tags,
+.platforms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag,
+.platform {
+    background: #444857;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #fff;
+}
+
+.youtube-link {
+    color: #ff4444;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.youtube-link:hover {
+    text-decoration: underline;
+}

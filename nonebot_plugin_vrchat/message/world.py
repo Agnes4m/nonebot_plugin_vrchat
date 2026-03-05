@@ -4,7 +4,7 @@ from typing import List
 from loguru import logger
 from nonebot_plugin_htmlrender import template_to_pic as t2p
 
-from ..vrchat import LimitedUserModel
+from ..vrchat import LimitedUserModel, WorldModel
 
 
 async def draw_world_card_overview(
@@ -30,4 +30,14 @@ async def draw_world_card(
         template_path=str(Path(__file__).parent / "templates"),
         template_name="world_list.html",
         templates={"worlds": templates},
+    )
+
+
+async def draw_world_info(world: WorldModel) -> bytes:
+    """导出单个世界的详细信息卡片"""
+    logger.info(world)
+    return await t2p(
+        template_path=str(Path(__file__).parent / "templates"),
+        template_name="world_info.html",
+        templates={"world": world},
     )

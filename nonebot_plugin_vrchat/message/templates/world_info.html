@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="world_info.css">
+    <title>世界信息</title>
+</head>
+
+<body>
+    <div class="world-card">
+        <div class="world-header">
+            <img src="{{ world.thumbnail_image_url }}" alt="{{ world.name }}" class="world-thumbnail">
+            <div class="world-title-section">
+                <h1>{{ world.name }}</h1>
+                <span class="author">by {{ world.author_name }}</span>
+            </div>
+        </div>
+
+        <div class="world-description">
+            {{ world.description }}
+        </div>
+
+        <div class="world-stats">
+            <div class="stat-item">
+                <span class="stat-label">容量</span>
+                <span class="stat-value">{{ world.capacity }}人</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">当前人数</span>
+                <span class="stat-value">{{ world.occupants }}人</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">收藏数</span>
+                <span class="stat-value">{{ world.favorites }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">访问量</span>
+                <span class="stat-value">{{ world.visits }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">热度</span>
+                <span class="stat-value">{{ world.heat }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">人气</span>
+                <span class="stat-value">{{ world.popularity }}</span>
+            </div>
+        </div>
+
+        <div class="world-meta">
+            <div class="meta-row">
+                <span class="meta-label">创建时间:</span>
+                <span class="meta-value">{{ world.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            </div>
+            <div class="meta-row">
+                <span class="meta-label">更新于:</span>
+                <span class="meta-value">{{ world.updated_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            </div>
+            <div class="meta-row">
+                <span class="meta-label">发布状态:</span>
+                <span class="meta-value">{{ world.release_status }}</span>
+            </div>
+            <div class="meta-row">
+                <span class="meta-label">版本:</span>
+                <span class="meta-value">{{ world.version }}</span>
+            </div>
+        </div>
+
+        <div class="world-tags">
+            <span class="tag-label">标签:</span>
+            <div class="tags">
+                {% for tag in world.tags %}
+                    {% if not tag.startswith('system_') and not tag.startswith('admin_') %}
+                        <span class="tag">{{ tag.replace('author_tag_', '') }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="world-platforms">
+            <span class="platform-label">支持平台:</span>
+            <div class="platforms">
+                {% set platforms = [] %}
+                {% for package in world.unity_packages %}
+                    {% if package.platform not in platforms %}
+                        {% set _ = platforms.append(package.platform) %}
+                        <span class="platform">{{ package.platform }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if world.preview_youtube_id %}
+        <div class="world-preview">
+            <span class="preview-label">预览视频:</span>
+            <a href="https://www.youtube.com/watch?v={{ world.preview_youtube_id }}" target="_blank" class="youtube-link">
+                观看 YouTube 预览
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+
+</html>
