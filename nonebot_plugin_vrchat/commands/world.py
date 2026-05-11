@@ -66,7 +66,7 @@ async def _(
     msg = await draw_world_card_overview(worlds)
     await UniMessage.image(raw=msg).send()
     await matcher.pause(
-        "发送[1]查看第一个世界\n发送[喜好 1 world1]添加到喜好【world1】组\n发送[0]取消\n【可以用[vrc收藏组列表]指令来获取组"
+        "发送[1]查看第一个世界\n发送[喜好 1 world1]添加到喜好【world1】组\n发送[0]取消\n【可以用[vrc收藏组列表]指令来获取组",
     )
 
 
@@ -94,7 +94,7 @@ async def _(matcher: Matcher, state: T_State, message: Message = EventMessage())
         parts = arg.replace("喜好", "").strip().split()
         if len(parts) < 2 or not parts[0].isdigit():
             await matcher.finish(
-                "格式错误，发送[喜好 1 world1]添加到喜好【world1】组\n发送[0]取消\n【可以用[vrc收藏组列表]指令来获取组"
+                "格式错误，发送[喜好 1 world1]添加到喜好【world1】组\n发送[0]取消\n【可以用[vrc收藏组列表]指令来获取组",
             )
         index = int(parts[0]) - 1
         if index < 0 or index >= len(resp):

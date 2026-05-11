@@ -261,7 +261,9 @@ add_favorite_cmd = on_command(
 
 register_arg_got_handlers(
     add_favorite_cmd,
-    lambda _: "请发送 [类型] (avatar/world/friend) [引用 ID] [标签]，用空格分隔\n例如:[avatar avtr_912d66a4-4714-43b8-8407-7de2cafbf55b avatars1]",
+    lambda _: (
+        "请发送 [类型] (avatar/world/friend) [引用 ID] [标签]，用空格分隔\n例如:[avatar avtr_912d66a4-4714-43b8-8407-7de2cafbf55b avatars1]"
+    ),
 )
 
 
@@ -358,7 +360,9 @@ update_favorite_group_cmd = on_command(
 
 register_arg_got_handlers(
     update_favorite_group_cmd,
-    lambda _: "请发送收藏组类型 收藏组名称 和 更新数据 (JSON)，或发送【类型 名称 用户 ID JSON】指定用户",
+    lambda _: (
+        "请发送收藏组类型 收藏组名称 和 更新数据 (JSON)，或发送【类型 名称 用户 ID JSON】指定用户"
+    ),
 )
 
 
