@@ -1,3 +1,4 @@
+import json
 import time
 from typing import List
 
@@ -7,7 +8,9 @@ from nonebot.adapters import Message
 from nonebot.matcher import Matcher
 from nonebot.params import ArgPlainText, EventMessage
 from nonebot.typing import T_State
+from vrchatapi.models import AddFavoriteRequest
 
+from ..i18n import Lang
 from ..vrchat import (
     ApiClient,
     FavoriteModel,
@@ -35,7 +38,7 @@ from .utils import (
 
 # region 收藏列表
 favorites_cmd = on_command(
-    "vrcfl",
+    "vrccoll",
     aliases={"vrc收藏列表", "vrc我的收藏"},
     rule=rule_enable,
     priority=20,
@@ -44,7 +47,7 @@ favorites_cmd = on_command(
 
 register_arg_got_handlers(
     favorites_cmd,
-    lambda _: "请发送收藏类型 (avatar/world/friend)",
+    lambda _: Lang.nbp_vrc.favorite.send_favorite_type_prompt(),
 )
 
 
@@ -60,7 +63,7 @@ async def _(
         await matcher.finish("已取消操作")
     start_time = time.perf_counter()
     if arg not in ["avatar", "world"]:
-        await matcher.reject("请发送收藏类型 (avatar/world/friend)")
+        await matcher.reject(Lang.nbp_vrc.favorite.send_favorite_type_prompt())
 
     logger.debug(f"正在获取收藏列表：{arg}")
     try:
@@ -71,9 +74,10 @@ async def _(
             logger.debug(f"[get_favorites] 第一条：{favorites[0]}")
     except Exception as e:
         await handle_error(matcher, e)
+        return
     logger.debug(f"收藏列表，共 {len(favorites)} 个")
     if not favorites:
-        await matcher.finish(f"该类型 ({arg}) 没有收藏")
+        await matcher.finish(Lang.nbp_vrc.favorite.empty_favorite_list(type=arg))
 
     state[KEY_CLIENT] = client
     state[KEY_SEARCH_RESP] = favorites
@@ -122,7 +126,7 @@ async def _(
             result = await remove_favorite(client, favorite_id)
         except Exception as e:
             await handle_error(matcher, e)
-
+            return
         if result:
             await matcher.finish("已成功删除收藏")
         else:
@@ -174,7 +178,7 @@ async def _(
             logger.debug(f"[get_favorite_groups] 第一条：{groups[0]}")
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if not groups:
         await matcher.finish("没有收藏组")
 
@@ -240,6 +244,7 @@ async def _(
         logger.debug(f"[get_favorite_limits] {limits.model_dump()}")
     except Exception as e:
         await handle_error(matcher, e)
+        return
     msg = "最大收藏限制信息：\n\n"
     msg += f"[群组] 数：{limits.default_max_favorite_groups}\n"
     msg += f"[群组][项] 数：{limits.default_max_favorites_per_group}\n"
@@ -262,7 +267,9 @@ add_favorite_cmd = on_command(
 register_arg_got_handlers(
     add_favorite_cmd,
     lambda _: (
-        "请发送 [类型] (avatar/world/friend) [引用 ID] [标签]，用空格分隔\n例如:[avatar avtr_912d66a4-4714-43b8-8407-7de2cafbf55b avatars1]"
+        Lang.nbp_vrc.favorite.send_add_favorite_info_v2()
+        + "\n"
+        + Lang.nbp_vrc.favorite.add_favorite_example()
     ),
 )
 
@@ -276,7 +283,9 @@ async def _(
     arg = arg.strip()
     if not arg:
         await matcher.reject(
-            "请发送 [类型] (avatar/world/friend) [引用 ID] [标签]，用空格分隔\n例如:[avatar avtr_912d66a4-4714-43b8-8407-7de2cafbf55b avatars1]",
+            Lang.nbp_vrc.favorite.send_add_favorite_info_v2()
+            + "\n"
+            + Lang.nbp_vrc.favorite.add_favorite_example(),
         )
 
     parts = arg.split()
@@ -289,13 +298,11 @@ async def _(
     tags_list = [] if len(parts) < 3 else parts[2:]
 
     if favorite_type not in ["avatar", "world", "friend"]:
-        await matcher.reject("类型必须是 avatar 或 world 或 friend")
+        await matcher.reject(Lang.nbp_vrc.favorite.invalid_favorite_type_v2())
 
     logger.info(f"正在添加收藏：{favorite_type} - {favorite_id_ref}")
     try:
         client = await get_client(session_id)
-        from vrchatapi.models import AddFavoriteRequest
-
         add_favorite_request = AddFavoriteRequest(
             type=favorite_type.lower(),
             favorite_id=favorite_id_ref,
@@ -304,11 +311,14 @@ async def _(
         result = await add_favorite(client, add_favorite_request)
     except Exception as e:
         await handle_error(matcher, e)
+        return
 
     if result:
-        await matcher.finish(f"已成功添加收藏：{favorite_id_ref}")
+        await matcher.finish(
+            Lang.nbp_vrc.favorite.success_add(favorite_id=favorite_id_ref),
+        )
     else:
-        await matcher.finish("添加收藏失败")
+        await matcher.finish(Lang.nbp_vrc.favorite.error_handle())
 
 
 # region 删除收藏
@@ -322,7 +332,7 @@ remove_favorite_cmd = on_command(
 
 register_arg_got_handlers(
     remove_favorite_cmd,
-    lambda _: "请发送收藏 ID",
+    lambda _: Lang.nbp_vrc.favorite.send_favorite_id(),
 )
 
 
@@ -334,7 +344,7 @@ async def _(
 ):
     arg = arg.strip()
     if not arg:
-        await matcher.reject("请发送收藏 ID")
+        await matcher.reject(Lang.nbp_vrc.favorite.send_favorite_id())
 
     logger.info(f"正在删除收藏：{arg}")
     try:
@@ -342,11 +352,11 @@ async def _(
         result = await remove_favorite(client, arg)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if result:
-        await matcher.finish("已成功删除收藏")
+        await matcher.finish(Lang.nbp_vrc.favorite.success_remove())
     else:
-        await matcher.finish("删除收藏失败")
+        await matcher.finish(Lang.nbp_vrc.favorite.error_handle())
 
 
 # region 更新收藏组
@@ -396,8 +406,6 @@ async def _(
     logger.info(f"正在更新收藏组：{favorite_group_type} - {favorite_group_name}")
     try:
         client = await get_client(session_id)
-        import json
-
         update_request = json.loads(update_data)
         result = await update_favorite_group(
             client,
@@ -408,7 +416,7 @@ async def _(
         )
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if result:
         await matcher.finish(f"已成功更新收藏组：{favorite_group_name}")
     else:
@@ -466,7 +474,7 @@ async def _(
         )
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if result:
         await matcher.finish(f"已成功清空收藏组：{favorite_group_name}")
     else:
@@ -526,7 +534,7 @@ async def _(
         logger.debug(f"[get_favorite_group] {group}")
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     msg = "收藏组详情：\n\n"
     msg += f"名称：{group.display_name} ({group.name})\n"
     msg += f"类型：{group.type}\n"

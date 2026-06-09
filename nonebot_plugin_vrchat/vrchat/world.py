@@ -158,9 +158,7 @@ async def get_world_metadata(
         run_sync(api.get_world_metadata)(world_id=world_id),
     )
     return (
-        WorldModel(**world)
-        if isinstance(world, dict)
-        else WorldModel.model_validate({})
+        WorldModel(**world) if isinstance(world, dict) else WorldModel.model_validate({})
     )
 
 

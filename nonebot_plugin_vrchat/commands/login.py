@@ -63,7 +63,7 @@ async def _(
     """
     try:
         login_info = get_login_info(session_id)
-        logger.info(f"login_info: {login_info}")
+        logger.info(f"已有登录信息: user={login_info.username!r}")
     except NotLoggedInError:
         login_info = None
 

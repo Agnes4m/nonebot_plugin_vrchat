@@ -31,7 +31,6 @@ from .utils import (
 if TYPE_CHECKING:
     from vrchatapi import ApiClient, Notification
 
-logger.info(rule_enable)
 show_notic = on_command(
     "vrcsn",
     aliases={"vrc显示通知", "vrc通知显示"},
@@ -60,7 +59,7 @@ async def _(
         resp = get_notifications(client, n=n)
     except Exception as e:
         await handle_error(matcher, e)
-    logger.debug(str(resp))
+        return
     if len(resp) == 0:
         await UniMessage.text(Lang.nbp_vrc.notif.no_request).finish()
     state[KEY_NOTIF_RESP] = resp

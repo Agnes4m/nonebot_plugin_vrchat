@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple, TypedDict, TypeVar
 from typing_extensions import ParamSpec
 
-import aiohttp
 import httpx
 from async_lru import alru_cache
 from httpx import AsyncClient
@@ -142,12 +141,12 @@ GROUP_CONTENT_TEXT_SIZE = 26
 # endregion
 
 
-async def fetch_image_bytes(url: str, timeout: float = 3.0) -> Optional[bytes]:
+async def is_image_url_accessible(url: str, timeout: float = 3.0) -> bool:
     """
-    异步检测图片URL是否可访问（状态码200且Content-Type为图片）
-    :param url: 图片URL
+    异步检测图片 URL 是否可访问（状态码 200 且 Content-Type 为图片）
+    :param url: 图片 URL
     :param timeout: 超时时间（秒）
-    :return: 可访问返回True，否则False
+    :return: 可访问返回 True，否则 False
     """
     try:
         async with httpx.AsyncClient(timeout=timeout) as client:
@@ -156,16 +155,17 @@ async def fetch_image_bytes(url: str, timeout: float = 3.0) -> Optional[bytes]:
                 "content-type",
                 "",
             ).startswith("image"):
-                return resp.content
+                return True
 
             resp = await client.get(url)
             if resp.status_code == 200 and resp.headers.get(
                 "content-type",
                 "",
             ).startswith("image"):
-                return resp.content
+                return True
     except Exception:
-        return None
+        return False
+    return False
 
 
 async def format_location(client: Optional[ApiClient], location: Optional[str]):
@@ -268,20 +268,15 @@ async def get_image_or_default(
 
     if url:
         try:
-            # 单次请求，设置较短的超时时间
-            async with (
-                aiohttp.ClientSession(
-                    timeout=aiohttp.ClientTimeout(total=3),
-                ) as session,
-                session.get(url) as response,
-            ):
-                if response.status == 200:
-                    img = await response.read()
+            async with httpx.AsyncClient(timeout=3.0) as client:
+                response = await client.get(url)
+                if response.status_code == 200:
+                    img = response.content
                 else:
                     logger.debug(
-                        f"图片请求失败，状态码: {response.status}, URL: {url}",
+                        f"图片请求失败，状态码: {response.status_code}, URL: {url}",
                     )
-        except asyncio.TimeoutError:
+        except httpx.TimeoutException:
             logger.debug(f"图片请求超时: {url}")
         except Exception as e:
             logger.debug(f"图片请求异常: {url}, 错误: {type(e).__name__}: {e}")
@@ -292,7 +287,7 @@ async def get_image_or_default(
     return f"{base64.b64encode(img).decode('utf-8')}"
 
 
-@alru_cache()
+@alru_cache(maxsize=256)
 async def get_url_bytes(
     url: str,
     default_size: Optional[Tuple[int, int]] = None,
@@ -362,12 +357,9 @@ async def url_to_base64(url: str) -> Optional[str]:
     }
 
     try:
-        timeout = aiohttp.ClientTimeout(total=10)
-        async with (
-            aiohttp.ClientSession(headers=headers) as session,
-            session.get(url, timeout=timeout) as response,
-        ):
-            if response.status == 403:
+        async with httpx.AsyncClient(timeout=10.0, headers=headers) as client:
+            response = await client.get(url)
+            if response.status_code == 403:
                 logger.warning(f"403 Forbidden: {url}")
                 return None
 
@@ -378,11 +370,10 @@ async def url_to_base64(url: str) -> Optional[str]:
                 logger.info(f"Invalid content type: {content_type}")
                 return None
 
-            image_data = await response.read()
-            return base64.b64encode(image_data).decode("utf-8")
+            return base64.b64encode(response.content).decode("utf-8")
 
     except Exception as e:
-        print(f"Error converting URL to Base64: {url} - {e!s}")
+        logger.debug(f"Error converting URL to Base64: {url} - {e!s}")
         return None
 
 

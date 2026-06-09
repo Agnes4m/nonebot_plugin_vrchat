@@ -7,8 +7,6 @@ from nonebot_plugin_alconna import UniMessage
 from vrchatapi import ApiClient
 from vrchatapi.models import AddFavoriteRequest
 
-from nonebot_plugin_vrchat.vrchat.favorites import add_favorite
-
 from ..i18n import Lang
 from ..message.world import draw_world_card_overview, draw_world_info
 from ..vrchat import (
@@ -58,7 +56,7 @@ async def _(
         worlds = [x async for x in search_worlds(client, arg, max_size=10)]
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if not worlds:
         await matcher.finish(Lang.nbp_vrc.world.no_world_found())
     state[KEY_WORLD_RESP] = worlds

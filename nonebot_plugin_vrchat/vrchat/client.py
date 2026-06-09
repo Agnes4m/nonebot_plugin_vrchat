@@ -1,4 +1,5 @@
 from http.cookiejar import LWPCookieJar
+from pathlib import Path
 from typing import Optional
 
 from nonebot import logger
@@ -20,6 +21,14 @@ PLAYER_PATH = DATA_DIR / "player"
 PLAYER_PATH.mkdir(parents=True, exist_ok=True)
 
 
+def _restrict_file_permissions(path: Path) -> None:
+    """将敏感文件权限收紧为 0o600（仅所有者可读写）。"""
+    try:
+        path.chmod(0o600)
+    except OSError:
+        logger.warning(f"无法收紧文件权限: {path}")
+
+
 class NotLoggedInError(Exception):
     pass
 
@@ -36,6 +45,7 @@ def save_client_cookies(client: ApiClient, session_id: str):
     for cookie in client.rest_client.cookie_jar:
         cookie_jar.set_cookie(cookie)
     cookie_jar.save()
+    _restrict_file_permissions(path)
 
 
 def load_cookies_to_client(client: ApiClient, session_id: str):
@@ -73,10 +83,14 @@ def save_user_id(session_id: str, user_id: str):
     if info_path.exists():
         info = LoginInfo.model_validate_json(info_path.read_text(encoding="utf-8"))
         info.user_id = user_id
-        info_path.write_text(info.model_dump_json(indent=2), encoding="utf-8")
+        write_login_info(
+            session_id,
+            username=info.username,
+            password=info.password,
+            user_id=info.user_id,
+        )
     else:
-        info = LoginInfo(username="", password="", user_id=user_id)
-        info_path.write_text(info.model_dump_json(indent=2), encoding="utf-8")
+        write_login_info(session_id, username="", password="", user_id=user_id)
 
 
 def get_user_id(session_id: str) -> str:
@@ -88,6 +102,25 @@ def get_user_id(session_id: str) -> str:
     except Exception:
         return ""
     return info.user_id
+
+
+def write_login_info(
+    session_id: str,
+    username: str,
+    password: str,
+    user_id: str = "",
+) -> None:
+    """写入登录信息，并收紧文件权限。"""
+    info_path = PLAYER_PATH / f"{session_id}.json"
+    info_path.write_text(
+        LoginInfo(
+            username=username,
+            password=password,
+            user_id=user_id,
+        ).model_dump_json(indent=2),
+        encoding="utf-8",
+    )
+    _restrict_file_permissions(info_path)
 
 
 async def get_client(

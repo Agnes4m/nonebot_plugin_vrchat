@@ -157,12 +157,12 @@ async def get_current_subscriptions(client: ApiClient) -> dict:
     return result.to_dict() if hasattr(result, "to_dict") else {}
 
 
-async def get_subscriptions(client: ApiClient) -> List[dict]:
-    """获取当前订阅信息"""
+async def get_subscriptions(client: ApiClient, user_id: str) -> List[dict]:
+    """获取用户全部订阅历史"""
     api = EconomyApi(client)
     result = await cast(
         "Awaitable[list]",
-        run_sync(api.get_current_subscriptions)(),
+        run_sync(api.get_subscriptions)(user_id=user_id),
     )
     return (
         [item.to_dict() if hasattr(item, "to_dict") else item for item in result]

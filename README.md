@@ -23,7 +23,7 @@ _✨ ~~来erp吗~~使用第三方 api 实现 vrchat 相关操作 ✨_
 <a href="https://pypi.python.org/pypi/nonebot_plugin_vrchat">
         <img src="https://img.shields.io/pypi/v/nonebot_plugin_vrchat.svg" alt="pypi">
 </a>
-    <img src="https://img.shields.io/badge/python-3.9+-blue.svg" alt="python">
+    <img src="https://img.shields.io/badge/python-3.10+-blue.svg" alt="python">
     <img src="https://img.shields.io/badge/nonebot-2.1.0+-red.svg" alt="NoneBot">
 </a>
 </a>
@@ -43,6 +43,7 @@ _✨ ~~来erp吗~~使用第三方 api 实现 vrchat 相关操作 ✨_
 - 本插件支持alconna跨平台适配器使用
 - 本插件支持alconna的i18n多语言适配
 - 本插件图片生成使用浏览器渲染
+- **需要 Python 3.10+**（3.10 以下版本不被支持）
 
 ## 使用
 
@@ -77,10 +78,10 @@ pip install nonebot-plugin-vrchat
 
 </details>
 <details>
-<summary>pdm</summary>
+<summary>uv</summary>
 
 ```bash
-pdm add nonebot-plugin-vrchat
+uv add nonebot-plugin-vrchat
 ```
 
 </details>

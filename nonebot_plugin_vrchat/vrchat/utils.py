@@ -125,6 +125,8 @@ def iter_pagination_func(**kwargs: Unpack[IterPFKwargs]):
         async def wrapper():
             now_offset = offset
             while True:
+                if has_max_size and now_offset >= max_size:
+                    break
                 now_page_size = (
                     min(page_size, max_size - now_offset) if has_max_size else page_size
                 )
@@ -134,8 +136,6 @@ def iter_pagination_func(**kwargs: Unpack[IterPFKwargs]):
                 for x in resp:
                     yield x
                 now_offset += page_size
-                if max_size > 0 and now_offset >= max_size:
-                    break
                 if delay:
                     await asyncio.sleep(delay)
 

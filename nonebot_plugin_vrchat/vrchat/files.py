@@ -21,9 +21,7 @@ async def create_file(
         ),
     )
     return (
-        FileModel(**result)
-        if isinstance(result, dict)
-        else FileModel.model_validate({})
+        FileModel(**result) if isinstance(result, dict) else FileModel.model_validate({})
     )
 
 
@@ -60,9 +58,7 @@ async def get_file(client: ApiClient, file_id: str) -> FileModel:
         run_sync(api.get_file)(file_id=file_id),
     )
     return (
-        FileModel(**result)
-        if isinstance(result, dict)
-        else FileModel.model_validate({})
+        FileModel(**result) if isinstance(result, dict) else FileModel.model_validate({})
     )
 
 
@@ -190,9 +186,7 @@ async def finish_file_data_upload(
         ),
     )
     return (
-        FileModel(**result)
-        if isinstance(result, dict)
-        else FileModel.model_validate({})
+        FileModel(**result) if isinstance(result, dict) else FileModel.model_validate({})
     )
 
 
@@ -230,9 +224,7 @@ async def upload_image(
         ),
     )
     return (
-        FileModel(**result)
-        if isinstance(result, dict)
-        else FileModel.model_validate({})
+        FileModel(**result) if isinstance(result, dict) else FileModel.model_validate({})
     )
 
 
@@ -251,9 +243,7 @@ async def upload_icon(
         ),
     )
     return (
-        FileModel(**result)
-        if isinstance(result, dict)
-        else FileModel.model_validate({})
+        FileModel(**result) if isinstance(result, dict) else FileModel.model_validate({})
     )
 
 
@@ -274,9 +264,7 @@ async def upload_gallery_image(
         ),
     )
     return (
-        FileModel(**result)
-        if isinstance(result, dict)
-        else FileModel.model_validate({})
+        FileModel(**result) if isinstance(result, dict) else FileModel.model_validate({})
     )
 
 

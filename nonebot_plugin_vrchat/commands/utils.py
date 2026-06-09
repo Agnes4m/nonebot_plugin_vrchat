@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import Callable, List, NoReturn, Type, Union
 from typing_extensions import Annotated
 
-import aiofiles
 from nonebot.adapters import Message
 from nonebot.log import logger
 from nonebot.matcher import Matcher
@@ -101,7 +100,6 @@ async def save_to_file(
     msg_path = Path(f"data/vrchat/{name}/") / f"{msg_id}.json"
     msg_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # 处理为json格式
     def to_dict(obj):
         if hasattr(obj, "model_dump"):
             return obj.model_dump()
@@ -111,8 +109,8 @@ async def save_to_file(
 
     data = [to_dict(x) for x in msg] if isinstance(msg, list) else to_dict(msg)
 
-    async with aiofiles.open(msg_path, "w", encoding="utf-8") as f:
-        await f.write(json.dumps(data, ensure_ascii=False, indent=4))
+    with msg_path.open("w", encoding="utf-8") as f:
+        f.write(json.dumps(data, ensure_ascii=False, indent=4))
 
 
 async def read_to_file(msg_id: Union[str, int]) -> Union[dict, list, None]:
@@ -120,8 +118,8 @@ async def read_to_file(msg_id: Union[str, int]) -> Union[dict, list, None]:
     logger.debug(f"Reading message from {msg_path}")
     if not msg_path.exists():
         return None
-    async with aiofiles.open(msg_path, "r", encoding="utf-8") as f:
-        return json.loads(await f.read())
+    with msg_path.open("r", encoding="utf-8") as f:
+        return json.loads(f.read())
 
 
 async def parse_index(arg: str, resp: List[LimitedUserModel], matcher: Matcher) -> int:

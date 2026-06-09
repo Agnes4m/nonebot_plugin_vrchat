@@ -41,7 +41,7 @@ async def _(matcher: Matcher, session_id: UserSessionId):
         earnings = await get_balance_earnings(client, user_id)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     end_time = time.perf_counter()
     logger.debug(f"余额查询执行用时：{end_time - start_time:.3f} 秒")
 
@@ -72,7 +72,7 @@ async def _(matcher: Matcher, session_id: UserSessionId):
         account = await get_economy_account(client, user_id)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     msg = Lang.nbp_vrc.economy.account_info(
         account_id=account.get("id", ""),
         status=account.get("status", ""),
@@ -96,11 +96,12 @@ async def _(matcher: Matcher, session_id: UserSessionId):
     logger.info("正在查询当前订阅信息")
     try:
         client = await get_client(session_id)
+        user_id = await get_current_user_id(client)
         current_subs = await get_current_subscriptions(client)
-        all_subs = await get_subscriptions(client)
+        all_subs = await get_subscriptions(client, user_id)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     msg = Lang.nbp_vrc.economy.subscriptions_info(
         current_count=len(current_subs.get("subscriptions", []))
         if isinstance(current_subs, dict)
@@ -128,7 +129,7 @@ async def _(matcher: Matcher, session_id: UserSessionId):
         status = await get_tilia_status(client)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     msg = Lang.nbp_vrc.economy.tilia_status_info(
         user_id=status.get("user_id", ""),
         status=status.get("status", ""),
@@ -156,6 +157,7 @@ async def _(matcher: Matcher, session_id: UserSessionId):
         earnings = await get_balance_earnings(client, user_id)
     except Exception as e:
         await handle_error(matcher, e)
+        return
     balance = earnings.get("balance", "0")
     no_transactions = earnings.get("no_transactions")
     tilia_response = earnings.get("tilia_response")

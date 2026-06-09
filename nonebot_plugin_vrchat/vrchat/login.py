@@ -7,7 +7,7 @@ from vrchatapi.models.current_user import CurrentUser
 from vrchatapi.models.two_factor_auth_code import TwoFactorAuthCode
 from vrchatapi.models.two_factor_email_code import TwoFactorEmailCode
 
-from .client import PLAYER_PATH, LoginInfo, get_client, save_client_cookies
+from .client import LoginInfo, get_client, save_client_cookies, write_login_info
 from .utils import user_agent
 
 
@@ -29,15 +29,12 @@ async def login_via_password(
     client.user_agent = user_agent
     api = AuthenticationApi(client)
 
-    def save_user_info():
-        info_path = PLAYER_PATH / f"{session_id}.json"
-        info_path.write_text(
-            LoginInfo(
-                username=username,
-                password=password,
-                user_id=current_user.id,
-            ).json(),
-            encoding="utf-8",
+    def save_user_info(user_id: str) -> None:
+        write_login_info(
+            session_id,
+            username=username,
+            password=password,
+            user_id=user_id,
         )
         save_client_cookies(client, session_id)
 
@@ -69,19 +66,10 @@ async def login_via_password(
                 Awaitable[CurrentUser],
                 run_sync(api.get_current_user)(),
             )
-            info_path = PLAYER_PATH / f"{session_id}.json"
-            info_path.write_text(
-                LoginInfo(
-                    username=username,
-                    password=password,
-                    user_id=current_user.id,
-                ).json(),
-                encoding="utf-8",
-            )
-            save_client_cookies(client, session_id)
+            save_user_info(current_user.id)
             return current_user
 
         raise TwoFactorAuthError(verify_two_fa) from e
 
-    save_user_info()
+    save_user_info(current_user.id)
     return current_user

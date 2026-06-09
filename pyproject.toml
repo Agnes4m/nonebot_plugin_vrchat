@@ -6,7 +6,7 @@ authors = [
     { name = "Agnes_Digital", email = "Z735803792@163.com" },
     { name = "student_2333", email = "lgc2333@126.com" },
 ]
-requires-python = ">=3.9,<4.0"
+requires-python = ">=3.10,<4.0"
 keywords = ["steam", "game", "vrchat", "nonebot2", "plugin"]
 dependencies = [
     "nonebot2>=2.1.0",
@@ -25,10 +25,11 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Operating System :: OS Independent",
 ]
 readme = "README.md"
@@ -37,25 +38,28 @@ license = { text = "MIT" }
 [project.urls]
 homepage = "https://github.com/Agnes4m/nonebot_plugin_vrchat"
 
-[tool.pdm.build]
-includes = []
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.pdm.version]
-source = "file"
+[tool.hatch.build.targets.wheel]
+packages = ["nonebot_plugin_vrchat"]
+
+[tool.hatch.version]
 path = "nonebot_plugin_vrchat/__init__.py"
 
-[build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
-
 [tool.pyright]
-pythonVersion = "3.9"
+pythonVersion = "3.10"
 
 [tool.black]
 line-length = 89
-target-version = ["py39", "py310", "py311","py312"]
+target-version = ["py310", "py311","py312","py313","py314"]
 include = '\.pyi?$'
 # skip-string-normalization = true
+
+[tool.ruff]
+line-length = 89
+target-version = "py310"
 
 [tool.ruff.lint.isort]
 extra-standard-library = ["typing_extensions"]
@@ -64,6 +68,7 @@ extra-standard-library = ["typing_extensions"]
 ignore = [
     "B008",
     "B905",
+    "COM812",
     "E402",
     "E501",
     "FBT001",

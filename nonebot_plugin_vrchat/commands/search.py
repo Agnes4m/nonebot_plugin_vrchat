@@ -63,7 +63,7 @@ async def _(
         resp = [x async for x in search_users(client, arg, max_size=10)]
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if not resp:
         await matcher.finish(Lang.nbp_vrc.user.no_user_found())
 
@@ -79,7 +79,7 @@ async def _(
         )
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     msg = Lang.nbp_vrc.user.reply_index()
     if not is_me:
         msg += "\n" + Lang.nbp_vrc.user.reply_index_add()
@@ -113,7 +113,7 @@ async def _(
             fq_msg = await get_friend_status(client, user_id)
         except Exception as e:
             await handle_error(matcher, e)
-
+            return
         if fq_msg.is_friend:
             await matcher.finish(Lang.nbp_vrc.friend.exist_friend())
         if fq_msg.incoming_request and not fq_msg.outgoing_request:
@@ -122,12 +122,11 @@ async def _(
             await matcher.finish(Lang.nbp_vrc.friend.outgoing_request())
 
         try:
-            resp_no = await friend(client, user_id)
+            await friend(client, user_id)
         except Exception as e:
             if isinstance(e, ApiException) and e.status == 400:
                 await matcher.finish(Lang.nbp_vrc.friend.exist_friend())
             await handle_error(matcher, e)
-        logger.debug(resp_no)
         await matcher.finish(Lang.nbp_vrc.friend.sucess_request())
 
     # 查询好友请求状态
@@ -139,7 +138,7 @@ async def _(
             fq_msg = await get_friend_status(client, user_id)
         except Exception as e:
             await handle_error(matcher, e)
-
+            return
         if fq_msg.is_friend:
             await matcher.send(Lang.nbp_vrc.friend.exist_friend())
         if fq_msg.incoming_request and not fq_msg.outgoing_request:
@@ -164,5 +163,5 @@ async def _(
             pic = await draw_user_profile_card(user)
         except Exception as e:
             await handle_error(matcher, e)
-
+            return
         await UniMessage.image(raw=pic).finish()

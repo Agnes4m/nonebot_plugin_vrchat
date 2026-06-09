@@ -30,10 +30,11 @@ async def _(matcher: Matcher, session_id: UserSessionId):
     except Exception as e:
         logger.error(f"获取好友列表时发生错误: {e}")
         await handle_error(matcher, e)
+        return
 
     if not resp:
         logger.debug("好友列表为空")
-        await matcher.send(Lang.nbp_vrc.friend.empty_friend_list())
+        await matcher.finish(Lang.nbp_vrc.friend.empty_friend_list())
 
     logger.debug("开始绘制好友列表图片")
     pic_start_time = time.perf_counter()

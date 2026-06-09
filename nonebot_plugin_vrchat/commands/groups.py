@@ -99,7 +99,7 @@ async def _(
         groups = [x async for x in search_groups(client, arg, max_size=10)]
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if not groups:
         await matcher.finish("未找到相关群组")
 
@@ -146,7 +146,7 @@ async def _(
             result = await join_group(client, group_id)
         except Exception as e:
             await handle_error(matcher, e)
-
+            return
         if result:
             await matcher.finish("已成功申请加入群组")
         else:
@@ -273,7 +273,7 @@ async def _(
         members = await get_group_members(client, arg, n=20)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if not members:
         await matcher.finish("该群组没有成员或获取失败")
     msg = f"群组成员列表 (共 {len(members)} 人)：\n\n"
@@ -327,7 +327,7 @@ async def _(
         roles = await get_group_roles(client, arg)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if not roles:
         await matcher.finish("该群组没有角色或获取失败")
     msg = f"群组角色列表 (共 {len(roles)} 个)：\n\n"
@@ -384,7 +384,7 @@ async def _(
         announcements = await get_group_announcements(client, arg)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if not announcements:
         await matcher.finish("该群组没有公告")
 
@@ -430,7 +430,7 @@ async def _(
         result = await join_group(client, arg)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if result:
         await matcher.finish("已成功申请加入群组")
     else:
@@ -468,7 +468,7 @@ async def _(
         result = await leave_group(client, arg)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if result:
         await matcher.finish("已成功离开群组")
     else:
@@ -506,6 +506,7 @@ async def _(
         requests = await get_group_requests(client, arg, n=20)
     except Exception as e:
         await handle_error(matcher, e)
+        return
 
     if not requests:
         await matcher.finish("该群组没有待处理的请求")
@@ -518,6 +519,7 @@ async def _(
         if req.get("has_joined_from_purchase"):
             msg += "   通过购买加入\n"
         msg += "\n"
+    await matcher.finish(msg)
 
 
 # region 群组实例
@@ -551,6 +553,7 @@ async def _(
         instances = await get_group_instances(client, arg)
     except Exception as e:
         await handle_error(matcher, e)
+        return
 
     if not instances:
         await matcher.finish("该群组当前没有活跃的实例")
@@ -564,6 +567,7 @@ async def _(
         if isinstance(world, dict):
             msg += f"   世界名称：{world.get('name', '未知')}\n"
         msg += "\n"
+    await matcher.finish(msg)
 
 
 # region 群组权限
@@ -597,7 +601,7 @@ async def _(
         permissions = await get_group_permissions(client, arg)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if not permissions:
         await matcher.finish("无法获取群组权限")
 
@@ -638,7 +642,7 @@ async def _(
         member_info = await get_my_group_member(client, arg)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if not member_info:
         await matcher.finish("无法获取我的群组成员信息")
 
@@ -687,7 +691,7 @@ async def _(
         result = await update_group_representation(client, arg, represent)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if result:
         status = "代表群组" if represent else "取消代表群组"
         await matcher.finish(f"已{status}")
@@ -731,7 +735,7 @@ async def _(
         result = await kick_group_member(client, group_id, user_id)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if result:
         await matcher.finish(f"已将用户 {user_id} 踢出群组")
     else:
@@ -774,7 +778,7 @@ async def _(
         result = await add_member_role(client, group_id, user_id, role_id)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if result:
         await matcher.finish(f"已给用户 {user_id} 添加角色 {role_id}")
     else:
@@ -817,7 +821,7 @@ async def _(
         result = await remove_member_role(client, group_id, user_id, role_id)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if result:
         await matcher.finish(f"已移除用户 {user_id} 的角色 {role_id}")
     else:
@@ -863,7 +867,7 @@ async def _(
         result = await create_group_announcement(client, group_id, title, text)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if result:
         await matcher.finish(f"公告创建成功：{title}")
     else:
@@ -906,7 +910,7 @@ async def _(
         result = await delete_group_announcement(client, group_id, announcement_id)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if result:
         await matcher.finish("公告已删除")
     else:
@@ -952,7 +956,7 @@ async def _(
         result = await create_group_post(client, group_id, title, text)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if result:
         await matcher.finish(f"帖子创建成功：{title}")
     else:
@@ -990,7 +994,7 @@ async def _(
         posts = await get_group_posts(client, arg, n=20)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if not posts:
         await matcher.finish("该群组没有帖子")
 
@@ -1040,7 +1044,7 @@ async def _(
         result = await delete_group_post(client, group_id, post_id)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if result:
         await matcher.finish("帖子已删除")
     else:
@@ -1079,7 +1083,7 @@ async def _(
         images = await get_group_gallery_images(client, arg, n=20)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     msg = "群组画廊信息：\n\n"
     msg += f"画廊 ID: {gallery.get('id', '未知')}\n"
     msg += f"图片数量：{len(images)}\n\n"
@@ -1130,7 +1134,7 @@ async def _(
         result = await invite_user_to_group(client, group_id, user_id)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if result:
         await matcher.finish(f"已邀请用户 {user_id} 加入群组")
     else:
@@ -1173,7 +1177,7 @@ async def _(
         result = await delete_group_invite(client, group_id, user_id)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if result:
         await matcher.finish(f"已删除用户 {user_id} 的群组邀请")
     else:
@@ -1211,7 +1215,7 @@ async def _(
         invites = await get_group_invites(client, arg, n=20)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if not invites:
         await matcher.finish("该群组没有发送的邀请")
 
@@ -1263,7 +1267,7 @@ async def _(
         result = await respond_to_group_join_request(client, group_id, user_id, accept)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if result:
         action_text = "接受" if accept else "拒绝"
         await matcher.finish(f"已{action_text}用户 {user_id} 的加入请求")
@@ -1302,7 +1306,7 @@ async def _(
         result = await cancel_group_join_request(client, arg)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if result:
         await matcher.finish("已取消群组加入请求")
     else:
@@ -1340,7 +1344,7 @@ async def _(
         bans = await get_group_bans(client, arg, n=20)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if not bans:
         await matcher.finish("该群组没有封禁记录")
 
@@ -1389,7 +1393,7 @@ async def _(
         result = await ban_group_member(client, group_id, user_id)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if result:
         await matcher.finish(f"已封禁用户 {user_id}")
     else:
@@ -1432,7 +1436,7 @@ async def _(
         result = await unban_group_member(client, group_id, user_id)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if result:
         await matcher.finish(f"已解除封禁用户 {user_id}")
     else:
@@ -1470,7 +1474,7 @@ async def _(
         logs = await get_group_audit_logs(client, arg, n=20)
     except Exception as e:
         await handle_error(matcher, e)
-
+        return
     if not logs:
         await matcher.finish("该群组没有审计日志")
 
