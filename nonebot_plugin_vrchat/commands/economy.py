@@ -21,7 +21,6 @@ from .utils import (
     rule_enable,
 )
 
-# region 余额查询
 balance_cmd = on_command(
     "vrcbalance",
     aliases={"vrc余额", "vrc我的余额"},
@@ -54,7 +53,6 @@ async def _(matcher: Matcher, session_id: UserSessionId):
     await matcher.finish(msg)
 
 
-# region 经济账户查询
 economy_account_cmd = on_command(
     "vrceconomy",
     aliases={"vrc账户"},
@@ -82,7 +80,6 @@ async def _(matcher: Matcher, session_id: UserSessionId):
     await matcher.finish(msg)
 
 
-# region 订阅查询
 subscriptions_cmd = on_command(
     "vrcsubs",
     aliases={"vrc订阅", "vrc我的订阅"},
@@ -112,7 +109,6 @@ async def _(matcher: Matcher, session_id: UserSessionId):
     await matcher.finish(msg)
 
 
-# region Tilia 状态查询
 tilia_status_cmd = on_command(
     "vrctilia",
     aliases={"vrctilia", "vrctilia状态"},
@@ -139,7 +135,6 @@ async def _(matcher: Matcher, session_id: UserSessionId):
     await matcher.finish(msg)
 
 
-# region 收益查询
 earnings_cmd = on_command(
     "vrcearnings",
     aliases={"vrcsy", "vrc收益", "vrc我的收益"},
@@ -172,7 +167,6 @@ async def _(matcher: Matcher, session_id: UserSessionId):
     await matcher.finish(msg)
 
 
-# region 帮助信息
 economy_help = on_command(
     "vrceconomyhelp",
     aliases={"vrc经济帮助"},

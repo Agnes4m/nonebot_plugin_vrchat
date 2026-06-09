@@ -36,7 +36,6 @@ from .utils import (
     rule_enable,
 )
 
-# region 收藏列表
 favorites_cmd = on_command(
     "vrccoll",
     aliases={"vrc收藏列表", "vrc我的收藏"},
@@ -155,7 +154,6 @@ async def _(
         await matcher.finish(msg)
 
 
-# region 收藏组列表
 favorite_groups_cmd = on_command(
     "vrcfgl",
     aliases={"vrc收藏组列表", "vrc我的收藏组"},
@@ -223,7 +221,6 @@ async def _(
     await matcher.finish(msg)
 
 
-# region 收藏限制
 favorite_limits_cmd = on_command(
     "vrcflim",
     aliases={"vrc收藏限制", "vrc收藏容量"},
@@ -255,7 +252,6 @@ async def _(
     await matcher.finish(msg)
 
 
-# region 添加收藏
 add_favorite_cmd = on_command(
     "vrcfav",
     aliases={"vrc添加收藏", "vrc加入收藏"},
@@ -321,7 +317,6 @@ async def _(
         await matcher.finish(Lang.nbp_vrc.favorite.error_handle())
 
 
-# region 删除收藏
 remove_favorite_cmd = on_command(
     "vrcfdel",
     aliases={"vrc删除收藏", "vrc移除收藏"},
@@ -359,7 +354,6 @@ async def _(
         await matcher.finish(Lang.nbp_vrc.favorite.error_handle())
 
 
-# region 更新收藏组
 update_favorite_group_cmd = on_command(
     "vrcfug",
     aliases={"vrc更新收藏组"},
@@ -423,7 +417,6 @@ async def _(
         await matcher.finish("更新收藏组失败")
 
 
-# region 清空收藏组
 clear_favorite_group_cmd = on_command(
     "vrcfcg",
     aliases={"vrc清空收藏组"},
@@ -481,7 +474,6 @@ async def _(
         await matcher.finish("清空收藏组失败")
 
 
-# region 获取收藏组
 get_favorite_group_cmd = on_command(
     "vrcfg",
     aliases={"vrc获取收藏组", "vrc收藏组详情"},
@@ -546,7 +538,6 @@ async def _(
     await matcher.finish(msg)
 
 
-# region 收藏帮助
 favorite_help = on_command(
     "vrcfavoritehelp",
     aliases={"vrc收藏帮助"},

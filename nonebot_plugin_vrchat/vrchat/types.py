@@ -29,9 +29,7 @@ StateType = Literal["offline", "active", "online"]
 LOCATION_PRIVACY = Literal["private", "public", "group_public"]
 FavoriteGroupVisibilityType = Literal["friends", "private", "public"]
 FavoriteType = Literal["avatar", "world", "friend"]
-# region patches
 patch_api_model_append_attr(LimitedUserSearch, "last_login", "last_login", "datetime")
-# endregion patches
 
 
 class LimitedUserModel(BaseModel):
@@ -341,9 +339,6 @@ class WorldModel(BaseModel):
     preview_youtube_id: Optional[str] = None
 
 
-# region 头像 Models
-
-
 class LimitedAvatarModel(BaseModel):
     """一般头像信息"""
 
@@ -405,12 +400,6 @@ class AvatarStyleModel(BaseModel):
     tags: List[str]
 
 
-# endregion
-
-
-# region 实例 Models
-
-
 class InstanceModel(BaseModel):
     """实例信息"""
 
@@ -436,12 +425,6 @@ class InstanceModel(BaseModel):
     region: str = ""
     secure_name: Optional[str] = None
     short_name: Optional[str] = None
-
-
-# endregion
-
-
-# region 群组 Models
 
 
 class LimitedGroupModel(BaseModel):
@@ -570,12 +553,6 @@ class GroupAuditLogEntryModel(BaseModel):
     metadata: Optional[dict] = None
 
 
-# endregion
-
-
-# region 通知 Models
-
-
 class NotificationModel(BaseModel):
     """通知信息"""
 
@@ -603,12 +580,6 @@ class NotificationV2Model(BaseModel):
 
     acknowledged: bool = False
     read: bool = False
-
-
-# endregion
-
-
-# region 收藏 Models
 
 
 class FavoriteModel(BaseModel):
@@ -651,12 +622,6 @@ class FavoriteLimitsModel(BaseModel):
     max_favorites_per_group: FavoriteGroupLimitsModel
 
 
-# endregion
-
-
-# region 文件 Models
-
-
 class FileModel(BaseModel):
     """文件信息"""
 
@@ -686,12 +651,6 @@ class FileVersionModel(BaseModel):
 
     file_size: Optional[int] = None
     download_url: Optional[str] = None
-
-
-# endregion
-
-
-# region 经济 Models
 
 
 class BalanceModel(BaseModel):
@@ -804,12 +763,6 @@ class TokenBundleModel(BaseModel):
     updated_at: "datetime"
 
 
-# endregion
-
-
-# region 库存 Models
-
-
 class InventoryModel(BaseModel):
     """库存信息"""
 
@@ -859,12 +812,6 @@ class InventoryDropModel(BaseModel):
     updated_at: "datetime"
 
 
-# endregion
-
-
-# region 用户笔记 Models
-
-
 class UserNoteModel(BaseModel):
     """用户笔记信息"""
 
@@ -874,6 +821,3 @@ class UserNoteModel(BaseModel):
     content: str
     created_at: "datetime"
     updated_at: "datetime"
-
-
-# endregion

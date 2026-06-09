@@ -41,9 +41,6 @@ class ConfigBaseModel(BaseModel):
         dump_yaml(self._path, data)
 
 
-# region env config
-
-
 class EnvConfig(BaseModel):
     session_expire_timeout: timedelta
     vrchat_img: str = "default"

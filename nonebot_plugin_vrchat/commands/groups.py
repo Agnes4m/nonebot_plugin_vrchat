@@ -66,7 +66,6 @@ from .utils import (
     rule_enable,
 )
 
-# region 搜索群组
 search_group = on_command(
     "vrcsg",
     aliases={"vrc搜索群组", "vrc群组搜索"},
@@ -182,7 +181,6 @@ async def _(
         await matcher.finish(msg)
 
 
-# region 群组详情
 group_info = on_command(
     "vrcgi",
     aliases={"vrc群组信息", "vrc群组详情"},
@@ -242,7 +240,6 @@ async def _(
     await matcher.finish(msg)
 
 
-# region 群组成员
 group_members_cmd = on_command(
     "vrcgm",
     aliases={"vrc群组成员", "vrc群组成员列表"},
@@ -296,7 +293,6 @@ async def _(
     await matcher.finish(msg)
 
 
-# region 群组角色
 group_roles_cmd = on_command(
     "vrcgr",
     aliases={"vrc群组角色", "vrc群组职位"},
@@ -353,7 +349,6 @@ async def _(
     await matcher.finish(msg)
 
 
-# region 群组公告
 group_announcements_cmd = on_command(
     "vrcga",
     aliases={"vrc群组公告"},
@@ -399,7 +394,6 @@ async def _(
     await matcher.finish(msg)
 
 
-# region 加入群组
 join_group_cmd = on_command(
     "vrcjg",
     aliases={"vrc加入群组", "vrc申请群组"},
@@ -437,7 +431,6 @@ async def _(
         await matcher.finish("加入群组失败")
 
 
-# region 离开群组
 leave_group_cmd = on_command(
     "vrclg",
     aliases={"vrc离开群组", "vrc退出群组"},
@@ -475,7 +468,6 @@ async def _(
         await matcher.finish("离开群组失败")
 
 
-# region 群组请求
 group_requests_cmd = on_command(
     "vrcgreq",
     aliases={"vrc群组请求", "vrc入群申请"},
@@ -522,7 +514,6 @@ async def _(
     await matcher.finish(msg)
 
 
-# region 群组实例
 group_instances_cmd = on_command(
     "vrcgi2",
     aliases={"vrc群组实例", "vrc群组房间"},
@@ -570,7 +561,6 @@ async def _(
     await matcher.finish(msg)
 
 
-# region 群组权限
 group_permissions_cmd = on_command(
     "vrcgp",
     aliases={"vrc群组权限"},
@@ -611,7 +601,6 @@ async def _(
     await matcher.finish(msg)
 
 
-# region 我的群组成员信息
 my_group_member_cmd = on_command(
     "vrcmgm",
     aliases={"vrc我的群组信息", "vrc我加入的群组"},
@@ -659,7 +648,6 @@ async def _(
     await matcher.finish(msg)
 
 
-# region 更新群组代表身份
 update_group_rep_cmd = on_command(
     "vrcugr",
     aliases={"vrc更新群组代表", "vrc代表群组"},
@@ -699,7 +687,6 @@ async def _(
         await matcher.finish("更新群组代表身份失败")
 
 
-# region 踢出群组成员
 kick_member_cmd = on_command(
     "vrcgmk",
     aliases={"vrc踢出成员", "vrc踢出群组成员"},
@@ -742,7 +729,6 @@ async def _(
         await matcher.finish("踢出成员失败")
 
 
-# region 添加成员角色
 add_role_cmd = on_command(
     "vrcgmr",
     aliases={"vrc添加成员角色", "vrc给予职位"},
@@ -785,7 +771,6 @@ async def _(
         await matcher.finish("添加角色失败")
 
 
-# region 移除成员角色
 remove_role_cmd = on_command(
     "vrcgmr2",
     aliases={"vrc移除成员角色", "vrc撤销职位"},
@@ -828,7 +813,6 @@ async def _(
         await matcher.finish("移除角色失败")
 
 
-# region 创建群组公告
 create_announcement_cmd = on_command(
     "vrcgca",
     aliases={"vrc创建公告"},
@@ -874,7 +858,6 @@ async def _(
         await matcher.finish("创建公告失败")
 
 
-# region 删除群组公告
 delete_announcement_cmd = on_command(
     "vrcgda",
     aliases={"vrc删除公告"},
@@ -917,7 +900,6 @@ async def _(
         await matcher.finish("删除公告失败")
 
 
-# region 创建群组帖子
 create_post_cmd = on_command(
     "vrcgcp",
     aliases={"vrc创建帖子"},
@@ -963,7 +945,6 @@ async def _(
         await matcher.finish("创建帖子失败")
 
 
-# region 群组帖子列表
 group_posts_cmd = on_command(
     "vrcgpl",
     aliases={"vrc帖子列表"},
@@ -1008,7 +989,6 @@ async def _(
     await matcher.finish(msg)
 
 
-# region 删除群组帖子
 delete_post_cmd = on_command(
     "vrcgdp",
     aliases={"vrc删除帖子"},
@@ -1051,7 +1031,6 @@ async def _(
         await matcher.finish("删除帖子失败")
 
 
-# region 群组画廊
 group_gallery_cmd = on_command(
     "vrcgg",
     aliases={"vrc群组画廊"},
@@ -1098,7 +1077,6 @@ async def _(
     await matcher.finish(msg)
 
 
-# region 邀请用户到群组
 invite_user_cmd = on_command(
     "vrcgui",
     aliases={"vrc邀请用户", "vrc邀请入群"},
@@ -1141,7 +1119,6 @@ async def _(
         await matcher.finish("邀请用户失败")
 
 
-# region 删除群组邀请
 delete_invite_cmd = on_command(
     "vrcgdi",
     aliases={"vrc删除邀请"},
@@ -1184,7 +1161,6 @@ async def _(
         await matcher.finish("删除邀请失败")
 
 
-# region 群组邀请列表
 group_invites_list_cmd = on_command(
     "vrcgil",
     aliases={"vrc邀请列表"},
@@ -1227,7 +1203,6 @@ async def _(
     await matcher.finish(msg)
 
 
-# region 处理群组加入请求
 process_join_request_cmd = on_command(
     "vrcgpjr",
     aliases={"vrc处理请求", "vrc审批入群"},
@@ -1275,7 +1250,6 @@ async def _(
         await matcher.finish("处理请求失败")
 
 
-# region 取消群组加入请求
 cancel_join_request_cmd = on_command(
     "vrcgcjr",
     aliases={"vrc取消请求"},
@@ -1313,7 +1287,6 @@ async def _(
         await matcher.finish("取消请求失败")
 
 
-# region 群组封禁列表
 group_bans_cmd = on_command(
     "vrcgb",
     aliases={"vrc封禁列表"},
@@ -1357,7 +1330,6 @@ async def _(
     await matcher.finish(msg)
 
 
-# region 封禁群组成员
 ban_member_cmd = on_command(
     "vrcgbm",
     aliases={"vrc封禁成员"},
@@ -1400,7 +1372,6 @@ async def _(
         await matcher.finish("封禁成员失败")
 
 
-# region 解除封禁群组成员
 unban_member_cmd = on_command(
     "vrcgub",
     aliases={"vrc解除封禁"},
@@ -1443,7 +1414,6 @@ async def _(
         await matcher.finish("解除封禁失败")
 
 
-# region 群组审计日志
 group_audit_logs_cmd = on_command(
     "vrcgal",
     aliases={"vrc审计日志"},
@@ -1488,7 +1458,6 @@ async def _(
     await matcher.finish(msg)
 
 
-# region 群组帮助
 group_help = on_command(
     "vrcgrouphelp",
     aliases={"vrc群组帮助"},

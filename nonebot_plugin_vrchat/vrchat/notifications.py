@@ -92,9 +92,6 @@ async def clear_notifications(client: ApiClient) -> bool:
     return True
 
 
-# region Notification V2 APIs
-
-
 def get_notification_v2s(
     client: ApiClient,
     **pf_kwargs: Unpack[IterPFKwargs],

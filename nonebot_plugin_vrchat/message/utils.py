@@ -78,10 +78,8 @@ DEFAULT_IMG_PATH = RES_IMG_PATH / "default_img.png"
 USER_ICON_PATH = RES_IMG_PATH / "fa-users-40px.png"
 
 BG_COLOR = (5, 5, 5)
-# endregion
 
 
-# region user card & overview const
 USER_CARD_BG_COLOR = (36, 42, 49)
 USER_CARD_TITLE_COLOR = (9, 93, 106)
 USER_CARD_FONT_COLOR = "#f8f9fa"
@@ -110,10 +108,8 @@ USER_TEXT_FONT_SIZE = 30
 OVERVIEW_TITLE_FONT_SIZE = 36
 
 OVERVIEW_MAX_CARDS_PER_LINE = 2
-# endregion
 
 
-# region group card const
 GROUP_TOP_BG_COLOR = (37, 42, 48)
 GROUP_BOTTOM_BG_COLOR = (24, 27, 31)
 GROUP_TITLE_COLOR = (255, 255, 255)
@@ -138,7 +134,6 @@ GROUP_FOOTER_PADDING_LEFT = 40
 
 GROUP_TITLE_TEXT_SIZE = 38
 GROUP_CONTENT_TEXT_SIZE = 26
-# endregion
 
 
 async def is_image_url_accessible(url: str, timeout: float = 3.0) -> bool:
